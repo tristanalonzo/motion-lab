@@ -18,8 +18,7 @@
   /* --- feel --- */
   --nav-step-duration: 450ms;      /* how long the list takes to slide one item (use ms) */
   --nav-step-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, long soft landing */
-  --nav-wheel-threshold: 40;       /* how much scrolling counts as one step. Lower = twitchier */
-  --nav-wheel-lock: 600ms;         /* after a step, ignore scrolling this long, so one flick = one item (use ms) */
+  --nav-wheel-threshold: 100;      /* how much scrolling per step. 100 = one mouse-wheel click. Lower = faster through the list */
   --nav-swap-duration: 250ms;      /* component fading out / "coming soon" fading in */
 }
 

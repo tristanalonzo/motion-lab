@@ -122,25 +122,30 @@ function listIsVisible() {
 }
 
 // Scroll wheels and trackpads send lots of small "wheel" events. Add them up,
-// and once they pass the threshold, move one item. Then ignore scrolling for
-// a moment, so one flick of a trackpad moves one item, not five.
+// and every time they pass the threshold, move one item. Keep scrolling and
+// it keeps stepping, one item at a time, with no pause in between.
 let wheelTotal = 0;
 let lastWheelTime = 0;
-let lockedUntil = 0;
 
 window.addEventListener("wheel", (e) => {
   if (!listIsVisible()) return;
   const now = performance.now();
-  if (now < lockedUntil) return;
   if (now - lastWheelTime > 200) wheelTotal = 0; // a fresh scroll; forget old leftovers
   lastWheelTime = now;
 
-  wheelTotal += e.deltaY;
-  if (Math.abs(wheelTotal) < readSetting("--nav-wheel-threshold")) return;
+  // Firefox sometimes reports scrolling in lines instead of pixels.
+  // One mouse-wheel click is 3 lines; 40px each makes it 120, enough for one step.
+  const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY;
+  if (Math.sign(delta) !== Math.sign(wheelTotal)) wheelTotal = 0; // changed direction: start over
+  wheelTotal += delta;
+
+  const threshold = readSetting("--nav-wheel-threshold");
+  if (Math.abs(wheelTotal) < threshold) return;
 
   select(selected + Math.sign(wheelTotal)); // down = next, up = previous
-  wheelTotal = 0;
-  lockedUntil = now + readSetting("--nav-wheel-lock");
+  // Keep the leftover so steady scrolling steps evenly. But never more than one
+  // step's worth, so a single huge flick still moves one item per event, not five.
+  wheelTotal = Math.sign(wheelTotal) * Math.min(Math.abs(wheelTotal) - threshold, threshold - 1);
 }, { passive: true });
 
 window.addEventListener("keydown", (e) => {
