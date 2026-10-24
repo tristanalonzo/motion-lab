@@ -1,6 +1,6 @@
 # 01 — Button
 
-A black iOS-style Submit button, dead center on a white page, that dips when you press it and springs back. The mouse is replaced by a circle that inverts whatever it's over, and morphs into a pointing hand over anything clickable.
+A black iOS-style Submit button, dead center on an off-white page, that dips when you press it and springs back. The mouse is replaced by a circle that inverts whatever it's over, and morphs into a pointing hand over anything clickable.
 
 ## States
 
@@ -21,15 +21,17 @@ The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the
 - **Press is fast, release is slow.** Going down should feel like it's under your finger, so it gets 80ms. Coming back up is the part you actually watch, so it gets more time and a small overshoot.
 - **0.96, not 0.9.** iOS buttons barely move. At 0.9 the button reads as "shrinking", not "being pressed".
 - **Dim and shrink together.** iOS mostly dims. The tiny scale adds the physical feel. Each one alone looks flat.
-- **Inter, not SF.** SF Pro can't be loaded on the web outside Apple devices. Inter is the closest free match. Its letter-spacing is pulled in slightly so it sits closer to SF.
+- **San Francisco where it exists, Inter everywhere else.** On Apple devices the font stack picks up the real system font (SF). It also uses SF Pro if it's installed on Windows. SF can't legally be loaded from the web, so everything else gets Inter, the closest free match. Its letter-spacing is pulled in slightly so it sits closer to SF.
+- **Regular weight on the button, medium on the title.** Semibold (the iOS default) read as too heavy. The title is one step firmer than the button so it reads as a heading without being bold.
+- **Off-white is `#F5F5F7`.** It's the light grey Apple uses behind its own product pages. Pure white against a pure black button felt harsh.
 - **Squircle radius is bigger than the fallback.** A squircle corner eases in gradually, so at the same radius it looks sharper. 20px squircle ≈ 14px circle by eye.
 - **The cursor inverts with `mix-blend-mode: difference`, not with JS.** A white circle set to "difference" flips every color under it, including the button's label, for free. No color math in code.
 - **The cursor follows on a spring, in JS, not a CSS transition.** A transition starts over from zero speed every time the mouse moves, so it can only lag, never overshoot. A spring keeps its speed between frames, and that leftover speed is the overshoot. This is the first thing in the repo CSS can't express on its own.
 - **Stiffness 600, damping 32.** Started at 1000/45 (45ms delay, 6px overshoot), which felt too tight. Then tried 300/20 (67ms, 32px), which went too far. This lands about a third of the way between them: 53ms delay (damping ÷ stiffness), 15px overshoot, one clear swing past the mouse.
 - **The spring settings live in CSS but are read by JS.** That keeps every tunable in one place. JS reads them every frame, so you can drag the numbers in DevTools and feel the change live.
 - **28px circle.** Big enough to read as a shape, small enough that you can still aim with it.
-- **The morph works because both shapes are built from the same 12 curves.** The circle's 12 points are spaced around it in proportion to how far apart they are on the hand. So the top of the circle becomes the fingertip, the right side becomes the palm, and so on, with no twisting halfway. Each point slides straight to its partner.
-- **The hand is redrawn from the reference, not traced.** It has a rounder fingertip, a smooth knuckle step instead of a sharp one, a rounder thumb tip, and a soft notch between thumb and finger. It's 28px tall, the same as the circle, so neither one feels bigger.
+- **The morph works because both shapes are built from the same 13 curves.** The circle's 13 points are spaced around it in proportion to how far apart they are on the hand. So the top of the circle becomes the fingertip, the right side becomes the palm, and so on, with no twisting halfway. Each point slides straight to its partner.
+- **The hand has no corners at all.** Every point where two curves meet shares one direction, so the outline never kinks. The wrist, thumb tip, thumb notch and knuckle step are all rounded. The first version had a sharp wrist corner and a tight notch, like the reference image. It's 28px tall, the same as the circle, so neither one feels bigger.
 - **Fingertip on the mouse, not the hand's center.** You aim with the tip of your finger, the same as the system hand cursor.
 - **SVG path, not `clip-path`.** The first version cut the shape out of a white box with `clip-path`. On screens scaled to 125%/150%/175% that left a faint hairline around the box. Drawing the shape as an SVG path doesn't.
 - **"Clickable" means `a, button, [role='button'], label, select, summary`.** That's the `CLICKABLE` list in script.js.
@@ -49,7 +51,8 @@ The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the
 - The hand doesn't react to the press. When the button dips, the hand stays still. A small squish would sell it.
 - Something made clickable only with JavaScript (a `div` with a click handler) won't get the hand unless it's added to `CLICKABLE`.
 - The hand appears on the next mouse move. If the button slides under a still mouse, the cursor doesn't update until you move.
-- The hand outline was generated by a small script, not drawn in a tool. Changing it by hand means keeping all 12 curves in the same order.
+- The hand outline was generated by a small script, not drawn in a tool. Changing it by hand means keeping all 13 curves in the same order.
+- The "tristan's motion lab" title is plain text, not a link. It will need to become one once this is part of the portfolio.
 
 ## Break it on purpose
 
