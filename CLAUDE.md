@@ -60,6 +60,8 @@ blank he can't.
 motion-lab/
   README.md              ← index: one line per component
   CLAUDE.md              ← this file
+  nav.js                 ← shared: the component list on the left of every page
+  nav.css                ← shared: its look, tunables at the top
   01-submit-button/
     index.html
     style.css
@@ -69,6 +71,14 @@ motion-lab/
 ```
 
 Numbered prefixes, two digits. Never renumber an existing folder.
+On the page and in the list, components are labeled with three digits (`001`).
+
+The shared list is the only thing outside the numbered folders. Every
+component's `index.html` links `../nav.css` and `../nav.js` and sets
+`<body data-page="<folder name>">`. A new component also gets a line in the
+`COMPONENTS` list in `nav.js`. Planned components can sit in that list with no
+folder; they show as "coming soon". Each component puts its content inside
+`<main>`, because the list fades `<main>` out when switching.
 
 ## Every component needs a README
 
@@ -96,7 +106,8 @@ Don't skip it and don't pad it.
 
 - Don't add a framework, a build step, or a package.
 - Don't write code he can't read. If it needs a clever trick, explain it or skip it.
-- Don't build the root gallery page until there are five or more components.
+- Don't build a separate root gallery page until there are five or more
+  components. The shared list in `nav.js` is the navigation until then.
 - Don't refactor working components unprompted.
 - Don't write a spinner and call the pending state done.
 - Don't use jargon without explaining it.
@@ -108,7 +119,7 @@ Tristan works on this from more than one machine. GitHub holds the real version;
 every computer only has a copy.
 
 - At the start of a session, run `git pull` before touching anything.
-- At the end, commit and push. Never leave work sitting uncommitted overnight.
+- At the end, commit. Never leave work sitting uncommitted overnight.
 - If he forgets and ends up with a conflict, walk him through it in plain words.
   Don't assume he knows what a merge conflict is.
 - Claude stages and commits. Claude does NOT push — Tristan runs `git push` himself.
