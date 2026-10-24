@@ -14,11 +14,13 @@ Open questions are things to decide before (or while) building that item.
       like a desktop window, but it lives inside the page, not a real pop-up window.
       Shows: experiment name, description, thought process, date, inspirations,
       possible additions.
-  - Open: where the text lives. One file per experiment (e.g. `about.md` or a block in
-    `index.html`) so it's written once and the panel just reads it.
-  - Open: mobile is out of scope for now.
+  - Decided: the text lives in each experiment's own `index.html`, in a hidden block the
+    panel shows. Not a separate `about.md`: pages opened from a `file:///` address can't
+    read other files, and Markdown would need a library to turn it into HTML.
+    Each page only carries its own text, so this works the same at 400 experiments.
+  - Mobile is out of scope for now.
 - [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
-  - Open: icon only, or icon + word.
+  - Decided: icon only. The word "reset" shows on hover.
 - [ ] **GitHub source link** to the current experiment's folder, e.g.
       `https://github.com/tristanalonzo/motion-lab/tree/main/01-button`.
 
@@ -37,15 +39,20 @@ Open questions are things to decide before (or while) building that item.
 
 - [ ] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
       this whole thing is: what tristan's motion lab is.
-  - Open: it needs its own folder (`00-intro`?) and becomes where the site opens.
+  - Decided: its own folder, `00-intro`. It becomes where the site opens.
 
 ## Top right
 
-- [ ] **The lab** button.
-  - Open: what it does. Goes to 000? Opens the full list?
-- [ ] **Dark mode** button.
-  - Open: is this the same thing as "002 dark mode button" in the list, or separate?
-    Every experiment would also need a dark version.
+- [ ] **The lab** button. Opens a dashboard of every experiment, with search and
+      filters by kind (buttons, toys, ...). Categories not decided yet.
+  - Waits for: five built experiments (CLAUDE.md's rule for a gallery page).
+  - When built: each experiment gets tags on its line in `COMPONENTS` in `nav.js`,
+    since that's already the one list that knows every experiment.
+
+## Dropped
+
+- ~~**Dark mode** button, site-wide.~~ Every experiment would need a dark version,
+  forever. "002 dark mode button" stays as an experiment of its own.
 
 ## Bottom right
 
