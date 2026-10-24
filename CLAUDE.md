@@ -111,6 +111,8 @@ every computer only has a copy.
 - At the end, commit and push. Never leave work sitting uncommitted overnight.
 - If he forgets and ends up with a conflict, walk him through it in plain words.
   Don't assume he knows what a merge conflict is.
+- Claude stages and commits. Claude does NOT push — Tristan runs `git push` himself.
+- Write the commit message, make the commit, then tell him it's ready to push.
 
 One commit per component. The message says what it is, never "update".
 
