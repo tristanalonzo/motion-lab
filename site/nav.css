@@ -7,7 +7,7 @@
   --nav-width: 240px;              /* how wide the panel is */
   --nav-row-height: 36px;          /* space per item, and how far the list slides per step */
   --nav-gap: 16px;                 /* space between the number and the name */
-  --nav-font-size: 15px;
+  --nav-font-size: 14px;
   --nav-color: #86868B;            /* everything that isn't selected: Apple's secondary grey */
   --nav-color-hover: #48484A;      /* hovering an item: darker grey, still not black */
   --nav-color-selected: #000000;   /* the selected item, and only that one */

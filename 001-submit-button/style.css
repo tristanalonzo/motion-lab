@@ -10,7 +10,7 @@
   --btn-padding-x: 28px;           /* space left and right of the label */
   --btn-radius: 14px;              /* corner size for plain rounded corners (fallback) */
   --btn-radius-squircle: 20px;     /* corner size when the browser draws squircles; squircles read tighter, so this is bigger */
-  --btn-font-size: 17px;           /* iOS body text size */
+  --btn-font-size: 16px;           /* a notch under iOS body text (17px), to match the rest of the site */
   --btn-font-weight: 400;          /* regular. 500 = medium, 600 = semibold (the iOS default) */
   --btn-letter-spacing: -0.01em;   /* Inter is a touch wide at this size; this pulls it in toward SF */
   --btn-color: #000000;            /* button fill */

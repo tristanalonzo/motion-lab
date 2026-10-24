@@ -6,11 +6,11 @@
   /* --- look --- */
   --page-bg: #F5F5F7;              /* behind everything. Experiments get it too, and can paint over it */
   --text-color: #1D1D1F;           /* Apple's near-black. Experiments inherit it */
-  --title-size: 15px;              /* "tristan's motion lab" */
+  --title-size: 14px;              /* "tristan's motion lab" */
   --title-weight: 500;             /* medium: a touch firmer than body text, not bold */
   --title-color: #1D1D1F;
   --title-inset: 24px;             /* distance from the top and left edges */
-  --message-size: 15px;            /* "coming soon", "loading" */
+  --message-size: 14px;            /* "coming soon", "loading" */
   --message-color: #86868B;        /* Apple's secondary grey, same as the list */
 
   /* --- feel --- */
