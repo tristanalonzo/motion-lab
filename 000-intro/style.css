@@ -1,0 +1,32 @@
+/* ============================================================
+   TUNE HERE. The front page's text.
+   :host is this experiment's box: it works like :root on a normal page.
+   ============================================================ */
+:host {
+  --intro-size: 17px;              /* the main text */
+  --intro-line-height: 1.5;
+  --intro-width: 34ch;             /* how wide the column gets before it wraps (ch = width of a "0") */
+  --intro-gap: 8px;                /* space between the paragraphs */
+  --intro-hint-gap: 32px;          /* extra space above the hint */
+  --intro-hint-color: #86868B;     /* the hint: Apple's secondary grey, same as the list */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+.intro {
+  max-width: var(--intro-width);
+  font-size: var(--intro-size);
+  line-height: var(--intro-line-height);
+  letter-spacing: -0.01em;
+}
+
+.intro p {
+  margin: 0 0 var(--intro-gap);
+}
+
+.intro .intro-hint {
+  margin-top: var(--intro-hint-gap);
+  color: var(--intro-hint-color);
+}

@@ -1,0 +1,42 @@
+/* ============================================================
+   Defaults for every experiment. stage.js puts this inside each
+   experiment's sealed box, BEFORE the experiment's own style.css,
+   so an experiment can override any of it.
+
+   No tunables here on purpose: those live in each experiment's
+   own style.css, in its :host block.
+   ============================================================ */
+
+/* :host is the box itself. In an experiment's CSS it plays the part
+   that :root plays on a normal page. */
+:host {
+  display: grid;                   /* whatever's inside is centered, both ways, by default */
+  place-items: center;
+  background: var(--page-bg);      /* from site/site.css. Paint over it for a different background */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* The site's CSS can't reach inside the box, so the system cursor is hidden
+   here again. --system-cursor comes from cursor.css and only exists once the
+   site's cursor is drawn; before that, this rule does nothing and you keep the
+   normal arrow. Don't set "cursor:" in an experiment: ask with data-cursor. */
+@media (hover: hover) and (pointer: fine) {
+  * {
+    cursor: var(--system-cursor);
+  }
+  [data-cursor="native"],
+  [data-cursor="native"] * {
+    cursor: auto;
+  }
+}
+
+/* A visible keyboard focus ring for anything that doesn't draw its own. */
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
