@@ -22,7 +22,7 @@ Open questions are things to decide before (or while) building that item.
 - [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
 - [ ] **GitHub source link** to the current experiment's folder, e.g.
-      `https://github.com/tristanalonzo/motion-lab/tree/main/001-button`.
+      `https://github.com/tristanalonzo/motion-lab/tree/main/001-submit-button`.
 
 ## Bottom left — keyboard hints
 
