@@ -1,0 +1,75 @@
+/* ============================================================
+   TUNE HERE. The front page (000): what this whole lab is.
+   ============================================================ */
+:root {
+  /* --- page --- */
+  --page-bg: #F5F5F7;              /* same off-white as the experiments, so switching pages doesn't flash */
+
+  /* --- page title --- */
+  --title-size: 15px;              /* "tristan's motion lab", same as on every experiment */
+  --title-weight: 500;
+  --title-color: #1D1D1F;          /* Apple's near-black text color */
+  --title-inset: 24px;             /* distance from the top and left edges */
+
+  /* --- intro text --- */
+  --intro-width: 34ch;             /* how wide the text block is. 1ch = the width of one "0", so about 34 letters a line */
+  --intro-size: 17px;
+  --intro-line-height: 1.5;        /* space between lines, as a multiple of the font size */
+  --intro-gap: 12px;               /* space between paragraphs */
+  --intro-color: #1D1D1F;
+  --hint-color: #86868B;           /* the "scroll to start" line: same grey as the list */
+  --hint-gap: 32px;                /* extra space above the hint, so it reads as separate from the text */
+}
+
+/* ============================================================
+   Wiring. Nothing here moves, so there's nothing for
+   prefers-reduced-motion to turn off. The list handles its own.
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--page-bg);
+}
+
+/* Same dead-center layout as the experiments, so the text sits
+   level with the selected row in the list. */
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: var(--page-bg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-title {
+  position: fixed;
+  top: var(--title-inset);
+  left: var(--title-inset);
+  margin: 0;
+  font-size: var(--title-size);
+  font-weight: var(--title-weight);
+  letter-spacing: -0.01em;
+  color: var(--title-color);
+}
+
+.intro {
+  max-width: var(--intro-width);
+  font-size: var(--intro-size);
+  line-height: var(--intro-line-height);
+  letter-spacing: -0.01em;
+  color: var(--intro-color);
+}
+
+.intro p {
+  margin: 0 0 var(--intro-gap);
+}
+
+.intro .intro-hint {
+  margin: var(--hint-gap) 0 0;
+  color: var(--hint-color);
+}

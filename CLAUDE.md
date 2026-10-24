@@ -60,6 +60,8 @@ blank he can't.
 motion-lab/
   README.md              ← index: one line per component
   CLAUDE.md              ← this file
+  index.html             ← the front page: 000, the intro. Where the site opens.
+  intro.css              ← its look, tunables at the top
   nav.js                 ← shared: the component list on the left of every page
   nav.css                ← shared: its look, tunables at the top
   001-submit-button/
@@ -74,7 +76,9 @@ Numbered prefixes, three digits, matching the label on the page and in the
 list (`001-submit-button` is `001`). Three digits so folders still sort in order past
 99. Never renumber an existing folder.
 
-The shared list is the only thing outside the numbered folders. Every
+The front page and the shared list are the only things outside the numbered
+folders. Experiments never go in the root: each one's `style.css` and
+`script.js` would collide with the next one's. Every
 component's `index.html` links `../nav.css` and `../nav.js` and sets
 `<body data-page="<folder name>">`. A new component also gets a line in the
 `COMPONENTS` list in `nav.js`. Planned components can sit in that list with no
