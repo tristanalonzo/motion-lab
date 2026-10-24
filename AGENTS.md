@@ -124,6 +124,7 @@ every computer only has a copy.
   Don't assume he knows what a merge conflict is.
 - The assistant stages and commits. The assistant does NOT push — Tristan runs `git push` himself.
 - Write the commit message, make the commit, then tell him it's ready to push.
+- Never add `Co-Authored-By` or any the assistant attribution line to commit messages.
 
 One commit per component. The message says what it is, never "update".
 
