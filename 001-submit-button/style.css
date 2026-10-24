@@ -6,10 +6,8 @@
 :host {
   /* --- look --- */
   --btn-height: 50px;              /* iOS standard large button height */
-  --btn-min-width: 220px;          /* keeps short labels from looking like a pill */
+  --btn-min-width: 220px;          /* keeps a short label from making a stubby pill */
   --btn-padding-x: 28px;           /* space left and right of the label */
-  --btn-radius: 14px;              /* corner size for plain rounded corners (fallback) */
-  --btn-radius-squircle: 20px;     /* corner size when the browser draws squircles; squircles read tighter, so this is bigger */
   --btn-font-size: 16px;           /* a notch under iOS body text (17px), to match the rest of the site */
   --btn-font-weight: 400;          /* regular. 500 = medium, 600 = semibold (the iOS default) */
   --btn-letter-spacing: -0.01em;   /* Inter is a touch wide at this size; this pulls it in toward SF */
@@ -36,7 +34,7 @@
   min-width: var(--btn-min-width);
   padding: 0 var(--btn-padding-x);
   border: none;
-  border-radius: var(--btn-radius);
+  border-radius: 999px;            /* a pill: any radius bigger than half the height rounds the ends fully */
 
   /* color + type */
   background: var(--btn-color);
@@ -56,17 +54,6 @@
   transition:
     transform var(--release-duration) var(--release-ease),
     opacity var(--release-duration) var(--release-ease);
-}
-
-/* Squircle corners. A normal border-radius is a quarter circle, so the curve
-   starts abruptly. Apple's corners ease in gradually (a "superellipse").
-   corner-shape is a newer CSS property that draws that. Browsers that don't
-   know it skip this block and keep the plain rounded corners above. */
-@supports (corner-shape: squircle) {
-  .btn {
-    corner-shape: squircle;
-    border-radius: var(--btn-radius-squircle);
-  }
 }
 
 .btn[data-state="pressed"] {

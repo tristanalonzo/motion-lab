@@ -1,6 +1,6 @@
 # 001 — Submit button
 
-A black iOS-style Submit button, dead center on an off-white page, that dips when you press it and springs back.
+A black iOS-style pill Submit button, dead center on an off-white page, that dips when you press it and springs back.
 
 The inverting cursor that started here is now the site's own, shared by every experiment. Its doc is in the root README.
 
@@ -19,12 +19,11 @@ The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the
 - **0.96, not 0.9.** iOS buttons barely move. At 0.9 the button reads as "shrinking", not "being pressed".
 - **Dim and shrink together.** iOS mostly dims. The tiny scale adds the physical feel. Each one alone looks flat.
 - **Regular weight on the button.** Semibold (the iOS default) read as too heavy.
-- **Squircle radius is bigger than the fallback.** A squircle corner eases in gradually, so at the same radius it looks sharper. 20px squircle ≈ 14px circle by eye.
+- **A pill, not a rounded rectangle.** Every button in the lab is a pill or a circle, like Apple's. It used to have squircle corners (Apple's softer rounded rectangle); those went when the rule came in.
 - **No `cursor:` in the CSS.** The site draws the cursor. A `<button>` already gets the hand.
 
 ## Rough edges
 
-- `corner-shape: squircle` is still new. Browsers that don't support it show plain rounded corners. Chrome/Edge draw the real squircle.
 - The button doesn't do anything when clicked. That's fine for now; it's a press study.
 - Sliding your finger off cancels the press immediately. Real iOS gives you some slack before it lets go.
 - The cursor's hand doesn't react to the press. A small squish would sell it.
