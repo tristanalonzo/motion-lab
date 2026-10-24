@@ -32,7 +32,8 @@ btn.addEventListener("blur", release); // tabbed away mid-press
 
 
 // ---------- the cursor ----------
-// data-state says "hidden" or "visible". CSS does the drawing and inverting.
+// data-state says "hidden", "circle" or "hand". CSS does the drawing,
+// the inverting, and the morph between shapes.
 // JS moves it: a spring pulls the circle toward the mouse every frame.
 //
 // Why not a CSS transition? A transition restarts from zero speed every time
@@ -40,6 +41,7 @@ btn.addEventListener("blur", release); // tabbed away mid-press
 // remembers how fast it's going, which is exactly what makes it overshoot.
 
 const cursor = document.querySelector(".cursor");
+const CLICKABLE = "a, button, [role='button'], label, select, summary"; // things that get the hand
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 const mouse = { x: 0, y: 0 };    // where the real mouse is
@@ -106,11 +108,15 @@ window.addEventListener("pointermove", (e) => {
   if (e.pointerType !== "mouse") return; // fingers and pens get no circle
   mouse.x = e.clientX;
   mouse.y = e.clientY;
+  const wasHidden = cursor.dataset.state === "hidden";
+
+  // e.target is whatever is under the mouse. closest() checks it and all its
+  // parents, so hovering the text inside a link still counts as the link.
+  cursor.dataset.state = e.target.closest(CLICKABLE) ? "hand" : "circle";
 
   // Coming back into the window, or reduced motion: no spring, just be there.
-  if (cursor.dataset.state === "hidden" || reduceMotion.matches) {
+  if (wasHidden || reduceMotion.matches) {
     jumpToMouse();
-    cursor.dataset.state = "visible";
     return;
   }
 

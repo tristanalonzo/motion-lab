@@ -17,8 +17,13 @@
     <button class="btn" type="button" data-state="idle">Submit</button>
   </main>
 
-  <!-- The custom cursor. aria-hidden: screen readers skip it, it's decoration. -->
-  <div class="cursor" data-state="hidden" aria-hidden="true"></div>
+  <!-- The custom cursor. aria-hidden: screen readers skip it, it's decoration.
+       The shape is set in style.css (circle, or hand over clickables).
+       The d="" here is a plain circle, only used by browsers that can't
+       set a path's shape from CSS (Safari). -->
+  <svg class="cursor" data-state="hidden" viewBox="0 0 32 44" aria-hidden="true">
+    <path class="cursor-shape" d="M 2 16 a 14 14 0 1 0 28 0 a 14 14 0 1 0 -28 0 Z" />
+  </svg>
 
   <script src="script.js"></script>
 </body>
