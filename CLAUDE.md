@@ -155,6 +155,9 @@ Don't skip it and don't pad it.
 - Respect `prefers-reduced-motion` in every component.
 - Make keyboard focus visible.
 - Suggest breaking a number on purpose so he can feel what it does.
+- Make every button a circle or a pill, like Apple's: corners fully round
+  (`border-radius: 999px`), never a rounded rectangle. Icon-only buttons are
+  circles; buttons with a word are pills.
 
 ## Don't
 

@@ -66,3 +66,8 @@ Open questions are things to decide before (or while) building that item.
 - [ ] **Hover focus.** Hovering the list shrinks the other items and the selected one
       smoothly gets bolder. That needs a font whose weight can animate. Inter (from
       Google Fonts) and San Francisco both can.
+
+## Everywhere — later
+
+- [ ] **A hover animation on every interactive thing.** Rows, links, buttons, icons:
+      nothing reacts to the mouse by snapping. Each piece gets its own as it's built.
