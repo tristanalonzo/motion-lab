@@ -14,10 +14,10 @@ Open questions are things to decide before (or while) building that item.
       like a desktop window, but it lives inside the page, not a real pop-up window.
       Shows: experiment name, description, thought process, date, inspirations,
       possible additions.
-  - Decided: the text lives in each experiment's own `index.html`, in a hidden block the
-    panel shows. Not a separate `about.md`: pages opened from a `file:///` address can't
-    read other files, and Markdown would need a library to turn it into HTML.
-    Each page only carries its own text, so this works the same at 400 experiments.
+  - Decided: an `about.html` in each experiment's folder, loaded when the panel opens.
+    The site runs on a server now, so loading a file on demand works. Plain HTML, not
+    Markdown: Markdown would need a library to turn it into HTML.
+    Only the open experiment's text loads, so this works the same at 400 experiments.
   - Mobile is out of scope for now.
 - [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
@@ -39,7 +39,7 @@ Open questions are things to decide before (or while) building that item.
 
 - [x] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
       this whole thing is: what tristan's motion lab is.
-  - Decided: it's the root `index.html`, not a folder, so the site opens on it.
+  - Decided: it's `000-intro/`, an experiment like any other. No # in the address opens it.
   - Still to do: the text is a placeholder draft. Rewrite it in your own words.
 
 ## Top right
@@ -47,7 +47,7 @@ Open questions are things to decide before (or while) building that item.
 - [ ] **The lab** button. Opens a dashboard of every experiment, with search and
       filters by kind (buttons, toys, ...). Categories not decided yet.
   - Waits for: five built experiments (CLAUDE.md's rule for a gallery page).
-  - When built: each experiment gets tags on its line in `COMPONENTS` in `nav.js`,
+  - When built: each experiment gets tags on its line in `site/experiments.js`,
     since that's already the one list that knows every experiment.
 
 ## Dropped

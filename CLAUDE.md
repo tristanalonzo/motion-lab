@@ -7,7 +7,9 @@ Read this before doing anything in this repo.
 A shelf for small interactive things where the movement is the point.
 
 Each thing lives in its own numbered folder. Plain HTML, CSS and JavaScript.
-No frameworks, no npm, no build step. Open the file in a browser and it works.
+No frameworks, no npm, no build step. Run `py -m http.server` in the repo
+folder, open http://localhost:8000, and it works. (Double-clicking index.html
+does not: browsers block loading files on demand from a `file:///` address.)
 
 Anything goes as long as it passes all three:
 
@@ -43,8 +45,10 @@ The split is fixed:
 - **You write the wiring.** Markup, state logic, structure.
 - **He tunes the feel.** Durations, easing, distances.
 
-So every value he might want to change goes in a `:root` block at the very top
-of `style.css`, as CSS variables, with a short comment on each. He should never
+So every value he might want to change goes in a block at the very top of
+`style.css`, as CSS variables, with a short comment on each. In an
+experiment's `style.css` that block is `:host` (the experiment's sealed box,
+which works like `:root`). In the site's own CSS files it's `:root`. He should never
 have to read past that block to adjust how something feels.
 
 When he describes motion in vague terms — "snappier", "it should bounce a bit",
@@ -56,34 +60,79 @@ blank he can't.
 
 ## Folder rules
 
+The whole site is one page. Experiments are swapped in and out of it without
+page loads.
+
 ```
 motion-lab/
-  README.md              ← index: one line per component
+  index.html             ← the one page: title, stage, cursor. Loads site/main.js
+  README.md              ← index + docs for the shared parts
   CLAUDE.md              ← this file
-  index.html             ← the front page: 000, the intro. Where the site opens.
-  intro.css              ← its look, tunables at the top
-  nav.js                 ← shared: the component list on the left of every page
-  nav.css                ← shared: its look, tunables at the top
+  site/                  ← the site's own code. Experiments never go here
+    experiments.js       ← THE list: one line per experiment
+    main.js              ← starts everything; keeps list, stage and address bar in sync
+    nav.js   nav.css     ← the list on the left
+    stage.js             ← loads, mounts and unmounts experiments
+    site.css             ← page, title, stage fades
+    cursor.js cursor.css ← the site-wide cursor
+    experiment-base.css  ← defaults put inside every experiment's box
+  000-intro/             ← the front page is an experiment like any other
   001-submit-button/
-    index.html
+    markup.html
     style.css
     script.js
     README.md            ← the state doc
-  002-whatever/
 ```
 
-Numbered prefixes, three digits, matching the label on the page and in the
-list (`001-submit-button` is `001`). Three digits so folders still sort in order past
-99. Never renumber an existing folder.
+Numbered prefixes, three digits, matching the label in the list
+(`001-submit-button` is `001`). Three digits so folders still sort in order
+past 99. Never renumber or rename an existing folder: its name is its address
+(`#001-submit-button`).
 
-The front page and the shared list are the only things outside the numbered
-folders. Experiments never go in the root: each one's `style.css` and
-`script.js` would collide with the next one's. Every
-component's `index.html` links `../nav.css` and `../nav.js` and sets
-`<body data-page="<folder name>">`. A new component also gets a line in the
-`COMPONENTS` list in `nav.js`. Planned components can sit in that list with no
-folder; they show as "coming soon". Each component puts its content inside
-`<main>`, because the list fades `<main>` out when switching.
+Adding an experiment: make the folder, add one line to `site/experiments.js`.
+Planned ones can sit in that list with no folder; they show as "coming soon".
+
+## The experiment contract
+
+Every experiment folder has exactly these four files:
+
+- **`markup.html`** — just the experiment's elements. No `<html>`, `<head>`,
+  `<body>`, `<link>` or `<script>`. File paths in `src` are relative to the
+  folder, as usual.
+- **`style.css`** — starts with the `:host` tunables block. It's sealed inside
+  the experiment's box automatically, so plain selectors like `.btn` are fine.
+  Content is centered by default; `:host` can change that or paint its own
+  background.
+- **`script.js`** — exports one function:
+
+  ```js
+  export function mount(root, lab) {
+    // root: the experiment's box. Use root.querySelector, never document.
+    // lab.signal: pass as { signal: lab.signal } to any listener on window or
+    //             document; the site removes them when the experiment leaves.
+    // lab.setCursor("hidden" | "circle" | "hand" | null): change the cursor for now.
+    return () => { /* optional cleanup: stop loops and timers */ };
+  }
+  ```
+- **`README.md`** — the state doc (below).
+
+Rules that keep experiments from leaking into each other:
+
+1. Everything happens inside `mount()`. Code at the top of `script.js` runs
+   once, ever, not once per visit; keep it to constants.
+2. Listeners on the experiment's own elements need nothing: they go when the
+   elements go. Listeners on `window` or `document` take `{ signal: lab.signal }`.
+3. Every `requestAnimationFrame` loop, `setInterval` and `setTimeout` is
+   stopped in the cleanup function.
+4. Never set `cursor:` in CSS. Ask the site: `data-cursor="hidden"`,
+   `"native"`, `"circle"` or `"hand"` on an element, or `lab.setCursor()`.
+5. To use the scroll wheel or arrow keys yourself, call `e.preventDefault()`
+   in your handler; the list then leaves that event alone. (For the wheel,
+   the listener needs `{ passive: false }`.)
+6. Fonts load in `index.html`, never from an experiment's CSS.
+7. Libraries that find elements by selector string (like `gsap.to(".btn")`)
+   can't see inside the box. Hand them elements instead:
+   `gsap.to(root.querySelector(".btn"))`.
 
 ## Every component needs a README
 
@@ -111,8 +160,10 @@ Don't skip it and don't pad it.
 
 - Don't add a framework, a build step, or a package.
 - Don't write code he can't read. If it needs a clever trick, explain it or skip it.
-- Don't build a separate root gallery page until there are five or more
-  components. The shared list in `nav.js` is the navigation until then.
+- Don't build a separate gallery view until there are five or more
+  components. The list on the left is the navigation until then.
+- Don't put an experiment's code anywhere but its own folder, and don't give
+  the site special cases for one experiment.
 - Don't refactor working components unprompted.
 - Don't write a spinner and call the pending state done.
 - Don't use jargon without explaining it.

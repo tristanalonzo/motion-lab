@@ -5,26 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>tristan’s motion lab</title>
 
-  <!-- Inter, loaded from Google Fonts. Only used where San Francisco isn't
-       available (anything that isn't an Apple device). No install, just a link. -->
+  <!-- Inter, from Google Fonts. Only used where San Francisco isn't available.
+       Fonts must load here, on the one real page: a font loaded from inside
+       an experiment's sealed box doesn't work in every browser. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- This is the front page, so the shared list is in this same folder, not one up. -->
-  <link rel="stylesheet" href="nav.css">
-  <link rel="stylesheet" href="intro.css">
+  <link rel="stylesheet" href="site/site.css">
+  <link rel="stylesheet" href="site/nav.css">
+  <link rel="stylesheet" href="site/cursor.css">
 </head>
-<!-- data-page="." tells nav.js this is 000, the root folder's own page. -->
-<body data-page=".">
-  <p class="site-title">tristan’s motion lab</p>
+<body>
+  <!-- The title goes home, to 000. -->
+  <a class="site-title" href="./">tristan’s motion lab</a>
 
-  <main class="intro">
-    <p>A shelf of small interactive things where the movement is the point.</p>
-    <p>Some are useful. Most are just fun to poke.</p>
-    <p class="intro-hint">Scroll or press ↓ to start.</p>
-  </main>
+  <!-- Experiments are put in here, one at a time, by site/stage.js. -->
+  <div class="stage-area"></div>
 
-  <script src="nav.js"></script>
+  <!-- Says "coming soon", "loading", or that something broke.
+       The text below only stays if the site's code never ran, which is what
+       happens when this file is opened by double-clicking instead of through a server. -->
+  <p class="stage-message" data-state="shown" aria-live="polite">
+    Run <code>py -m http.server</code> in this folder, then open localhost:8000.
+  </p>
+
+  <!-- The list on the left is built by site/nav.js. -->
+
+  <!-- The site-wide cursor. aria-hidden: screen readers skip it, it's decoration.
+       The shape is set in site/cursor.css. The d="" here is a plain circle,
+       only used by browsers that can't set a path's shape from CSS (Safari). -->
+  <svg class="cursor" data-state="away" viewBox="0 0 32 44" aria-hidden="true">
+    <path class="cursor-shape" d="M 2 16 a 14 14 0 1 0 28 0 a 14 14 0 1 0 -28 0 Z" />
+  </svg>
+
+  <!-- type="module" lets the site's files import each other, and lets the
+       stage load experiments on demand. Both need a server (see README.md). -->
+  <script type="module" src="site/main.js"></script>
 </body>
 </html>

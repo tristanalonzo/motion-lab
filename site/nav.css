@@ -1,6 +1,5 @@
 /* ============================================================
-   TUNE HERE. The component list on the left of every page.
-   Shared by every component, so changes here change them all.
+   TUNE HERE. The list on the left.
    ============================================================ */
 :root {
   /* --- look --- */
@@ -16,23 +15,23 @@
   --nav-fade-end: 180px;           /* ...everything fades out completely by this far from the middle */
 
   /* --- feel --- */
-  --nav-step-duration: 450ms;      /* how long the list takes to slide one item (use ms) */
+  --nav-step-duration: 450ms;      /* how long the list takes to slide one item */
   --nav-step-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, long soft landing */
   --nav-wheel-threshold: 100;      /* how much scrolling per step. 100 = one mouse-wheel click. Lower = faster through the list */
-  --nav-swap-duration: 250ms;      /* component fading out / "coming soon" fading in */
 }
 
 /* ============================================================
    Wiring.
    ============================================================ */
 
-/* A full-height column pinned to the left. It doesn't scroll itself:
-   nav.js listens to the scroll wheel and slides the list one item at a time. */
+/* A full-height column pinned to the left, above the stage. It doesn't scroll
+   itself: nav.js listens to the scroll wheel and slides the list one item at a time. */
 .nav {
   position: fixed;
   top: 0;
   bottom: 0;
   left: var(--nav-inset);
+  z-index: 1;
   width: var(--nav-width);
   overflow: hidden;
 
@@ -48,7 +47,7 @@
 }
 
 /* The list starts with its first row sitting on the middle of the screen,
-   level with the component. --selected (set by nav.js) is which row is picked;
+   level with the experiment. --selected (set by nav.js) is which row is picked;
    the list slides up by that many rows to bring it to the middle. */
 .nav ol {
   position: absolute;
@@ -60,26 +59,18 @@
   list-style: none;
   transform: translateY(calc(var(--selected, 0) * var(--nav-row-height) * -1));
   transition: transform var(--nav-step-duration) var(--nav-step-ease);
-  view-transition-name: nav-list; /* see @view-transition at the bottom */
 }
 
-/* Items are links (built) or buttons (planned). Reset the button so both look the same. */
 .nav-item {
   display: flex;
   align-items: center;
   gap: var(--nav-gap);
   width: 100%;
   height: var(--nav-row-height);
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
   font-size: var(--nav-font-size);
   letter-spacing: -0.01em;
-  text-align: left;
   text-decoration: none;
   color: var(--nav-color);
-  cursor: pointer;
   transition: color var(--nav-step-duration) var(--nav-step-ease);
 }
 
@@ -102,62 +93,16 @@
   border-radius: 6px;
 }
 
-/* ---------- swapping what's in the middle ---------- */
-
-/* body[data-showing] is set by nav.js:
-   "component" = this page's component
-   "planned"   = a component that doesn't exist yet: show "coming soon"
-   "leaving"   = about to open another component's page */
-main {
-  transition: opacity var(--nav-swap-duration) ease;
-}
-
-body[data-showing="planned"] main,
-body[data-showing="leaving"] main {
-  opacity: 0;
-}
-
-.nav-coming-soon {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  margin: 0;
-  font-size: var(--nav-font-size);
-  color: var(--nav-color);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--nav-swap-duration) ease;
-}
-
-body[data-showing="planned"] .nav-coming-soon {
-  opacity: 1;
-}
-
-/* Below this width the list would run into the component. Hide it for now. */
+/* Below this width the list would run into the experiment. Hide it for now. */
 @media (max-width: 900px) {
   .nav {
     display: none;
   }
 }
 
-/* Going to another component is a real page load. This asks the browser to
-   crossfade between the two pages instead of flashing white. Because the
-   list has the same view-transition-name on both pages, it stays put while
-   the middle of the screen fades. Chrome and Edge only, and only over http
-   (not when the file is opened by double-clicking). */
-@view-transition {
-  navigation: auto;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .nav ol,
-  .nav-item,
-  main,
-  .nav-coming-soon {
+  .nav-item {
     transition: none;
-  }
-  @view-transition {
-    navigation: none;
   }
 }

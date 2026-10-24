@@ -1,7 +1,9 @@
 /* ============================================================
    TUNE HERE. Everything about how the button looks and feels.
+   :host is this experiment's box: it works like :root on a normal page,
+   but nothing here can leak out to other experiments.
    ============================================================ */
-:root {
+:host {
   /* --- look --- */
   --btn-height: 50px;              /* iOS standard large button height */
   --btn-min-width: 220px;          /* keeps short labels from looking like a pill */
@@ -13,13 +15,6 @@
   --btn-letter-spacing: -0.01em;   /* Inter is a touch wide at this size; this pulls it in toward SF */
   --btn-color: #000000;            /* button fill */
   --btn-text: #FFFFFF;             /* label color */
-  --page-bg: #F5F5F7;              /* page background: Apple's off-white. Warmer option: #F7F6F2 */
-
-  /* --- page title --- */
-  --title-size: 15px;              /* "tristan's motion lab" */
-  --title-weight: 500;             /* medium: a touch firmer than body text, not bold */
-  --title-color: #1D1D1F;          /* Apple's near-black text color */
-  --title-inset: 24px;             /* distance from the top and left edges */
 
   /* --- feel --- */
   --press-scale: 0.96;             /* how far it shrinks when pressed (1 = not at all) */
@@ -28,57 +23,12 @@
   --press-ease: ease-out;          /* going down: starts fast, settles */
   --release-duration: 220ms;       /* coming back up: slower, so you see the spring */
   --release-ease: cubic-bezier(0.2, 0.9, 0.3, 1.2); /* the 1.2 makes it overshoot past 1 a little, then settle */
-
-  /* --- cursor --- */
-  --cursor-scale: 1;               /* overall size. 1 = 28px circle and a 28px-tall hand */
-  --cursor-morph-duration: 260ms;  /* circle <-> hand change */
-  --cursor-morph-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* the 1.3 overshoots: the hand pops a little bigger, then settles */
-  --cursor-stiffness: 600;     /* how hard the circle is pulled toward the mouse. Higher = tighter, less delay */
-  --cursor-damping: 32;        /* how fast the wobble dies. Lower = more overshoot, higher = no overshoot, just lag */
-  --cursor-fade: 150ms;            /* fade in/out when the mouse enters or leaves the window */
 }
 
 /* ============================================================
    Wiring. You shouldn't need to touch anything below.
+   (Centering, the page background and the cursor come from the site.)
    ============================================================ */
-
-* {
-  box-sizing: border-box;
-}
-
-/* The background goes on html too, not just body. The cursor's color
-   inversion needs a real painted color underneath it to invert. */
-html {
-  background: var(--page-bg);
-}
-
-/* Dead center: a one-cell grid with its content centered both ways.
-   100dvh = the visible height of the screen. On phones it ignores the
-   part hidden behind the address bar, so "center" really is center. */
-body {
-  margin: 0;
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  background: var(--page-bg);
-  /* San Francisco first: -apple-system and BlinkMacSystemFont mean "the
-     system font" on Apple devices, which is SF. "SF Pro Text" catches it if
-     it's installed on Windows. Everyone else gets Inter, the closest free match. */
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
-  -webkit-font-smoothing: antialiased; /* Mac only: thinner, crisper text, like Apple's own pages */
-}
-
-/* Top-left title. Fixed, so it stays put and doesn't push the button off center. */
-.site-title {
-  position: fixed;
-  top: var(--title-inset);
-  left: var(--title-inset);
-  margin: 0;
-  font-size: var(--title-size);
-  font-weight: var(--title-weight);
-  letter-spacing: -0.01em;
-  color: var(--title-color);
-}
 
 .btn {
   /* size + shape */
@@ -97,7 +47,6 @@ body {
   letter-spacing: var(--btn-letter-spacing);
 
   /* phone niceties */
-  cursor: pointer;
   user-select: none;                        /* don't select the label on long press */
   -webkit-tap-highlight-color: transparent; /* kill the grey flash on mobile Safari/Chrome */
   touch-action: manipulation;               /* no double-tap zoom delay */
@@ -135,72 +84,10 @@ body {
   outline-offset: 3px;
 }
 
-/* ---------- the cursor ---------- */
-
-/* A white shape with mix-blend-mode: difference. "Difference" subtracts
-   colors: white minus whatever is underneath = the opposite color. So it
-   shows black over white, white over black, and inverts anything else. */
-.cursor {
-  display: none;                 /* off by default: phones and tablets have no cursor */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 32px;                   /* a box big enough to hold both shapes */
-  height: 44px;
-  margin: -16px 0 0 -16px;       /* the mouse tip is 16px in and 16px down in this box; pull it back onto the mouse */
-  transform-origin: 16px 16px;   /* ...and grow/shrink around that same point */
-  overflow: visible;             /* the morph overshoots past the box for a moment; don't crop it */
-  mix-blend-mode: difference;
-  pointer-events: none;          /* clicks pass straight through to whatever is under it */
-  z-index: 9999;
-
-  /* --x and --y are set by script.js every frame, from the spring.
-     No transition on transform: the spring in JS does the following. */
-  transform: translate(var(--x, -100px), var(--y, -100px)) scale(var(--cursor-scale));
-  transition: opacity var(--cursor-fade) ease;
-}
-
-/* The shape. "d" is the outline of an SVG path, set from CSS.
-   Both outlines below are 13 curves, in the same order, starting from the
-   top and going clockwise. Because they match curve for curve, the browser
-   can slide every point from one shape to the other. That's the morph.
-   If the counts didn't match, it would just snap.
-   The numbers were generated, not hand-typed. Edit the hand carefully. */
-.cursor-shape {
-  fill: #FFFFFF;                 /* must stay pure white for a true inversion */
-  d: path("M 16.0 2.0 C 17.6 2.0, 19.1 2.3, 20.6 2.8 C 22.0 3.3, 23.3 4.0, 24.5 4.9 C 25.6 5.7, 26.6 6.7, 27.4 7.8 C 29.9 11.4, 30.7 16.0, 29.4 20.2 C 28.8 22.1, 27.8 23.9, 26.4 25.4 C 24.2 27.8, 21.2 29.4, 17.9 29.9 C 15.3 30.2, 12.7 29.8, 10.3 28.8 C 6.9 27.3, 4.3 24.5, 2.9 21.0 C 2.5 19.9, 2.2 18.8, 2.1 17.7 C 2.0 16.6, 2.0 15.6, 2.1 14.5 C 2.2 13.0, 2.7 11.5, 3.3 10.1 C 4.9 6.7, 7.8 4.0, 11.4 2.8 C 12.9 2.3, 14.4 2.0, 16.0 2.0 Z");
-  transition: d var(--cursor-morph-duration) var(--cursor-morph-ease);
-}
-
-/* Over anything clickable: a pointing hand. Fingertip sits on the mouse tip. */
-.cursor[data-state="hand"] .cursor-shape {
-  d: path("M 16.0 14.7 C 17.5 14.7, 18.7 15.9, 18.7 17.4 C 18.7 18.8, 18.7 19.9, 18.7 21.3 C 18.7 22.7, 19.6 23.6, 20.9 23.9 C 25.0 24.8, 29.2 26.9, 29.2 30.9 C 29.2 32.7, 29.2 34.5, 29.2 36.2 C 29.2 39.5, 28.1 42.8, 24.8 42.8 C 21.9 42.8, 20.0 43.0, 18.2 41.4 C 16.3 39.7, 12.7 36.5, 10.8 34.8 C 10.0 34.2, 9.3 33.1, 9.5 32.1 C 9.8 31.2, 10.3 30.2, 11.3 30.3 C 13.0 30.5, 13.3 29.3, 13.3 27.4 C 13.3 24.1, 13.3 20.7, 13.3 17.4 C 13.3 15.9, 14.5 14.7, 16.0 14.7 Z");
-}
-
-.cursor[data-state="hidden"] {
-  opacity: 0;
-}
-
-/* Only swap the cursor on devices with a real mouse.
-   hover: hover = can hover; pointer: fine = precise, not a finger. */
-@media (hover: hover) and (pointer: fine) {
-  body,
-  .btn {
-    cursor: none;                /* hide the system arrow/hand */
-  }
-  .cursor {
-    display: block;
-  }
-}
-
-/* Reduced motion: no shrinking, no spring, no cursor fade.
-   (The cursor's spring is switched off in script.js.)
-   The dim still tells you the button was pressed. */
+/* Reduced motion: no shrinking. The dim still tells you it was pressed. */
 @media (prefers-reduced-motion: reduce) {
   .btn,
-  .btn[data-state="pressed"],
-  .cursor,
-  .cursor-shape {
+  .btn[data-state="pressed"] {
     transition: none;
   }
   .btn[data-state="pressed"] {

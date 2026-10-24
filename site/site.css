@@ -1,0 +1,132 @@
+/* ============================================================
+   TUNE HERE. The page around the experiments: background,
+   title, and how experiments swap in and out.
+   ============================================================ */
+:root {
+  /* --- look --- */
+  --page-bg: #F5F5F7;              /* behind everything. Experiments get it too, and can paint over it */
+  --text-color: #1D1D1F;           /* Apple's near-black. Experiments inherit it */
+  --title-size: 15px;              /* "tristan's motion lab" */
+  --title-weight: 500;             /* medium: a touch firmer than body text, not bold */
+  --title-color: #1D1D1F;
+  --title-inset: 24px;             /* distance from the top and left edges */
+  --message-size: 15px;            /* "coming soon", "loading" */
+  --message-color: #86868B;        /* Apple's secondary grey, same as the list */
+
+  /* --- feel --- */
+  --stage-fade: 250ms;             /* experiment fading in / out (use ms: JS reads this too) */
+  --stage-settle: 150ms;           /* how long the list must rest on an item before it loads. Lower = appears sooner, but fast scrolling loads everything you pass */
+  --stage-loading-delay: 400ms;    /* "loading" only shows if it takes longer than this, so fast loads never flicker */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+/* The background goes on html too, not just body. The cursor's color
+   inversion needs a real painted color underneath it to invert. */
+html {
+  background: var(--page-bg);
+}
+
+body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;                /* nothing scrolls: the wheel steps the list instead */
+  background: var(--page-bg);
+  color: var(--text-color);
+  /* San Francisco first: -apple-system and BlinkMacSystemFont mean "the
+     system font" on Apple devices, which is SF. "SF Pro Text" catches it if
+     it's installed on Windows. Everyone else gets Inter, the closest free match.
+     Experiments inherit this. */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased; /* Mac only: thinner, crisper text, like Apple's own pages */
+}
+
+/* Top-left title. Fixed, so it never moves when experiments swap. */
+.site-title {
+  position: fixed;
+  top: var(--title-inset);
+  left: var(--title-inset);
+  z-index: 2;
+  font-size: var(--title-size);
+  font-weight: var(--title-weight);
+  letter-spacing: -0.01em;
+  color: var(--title-color);
+  text-decoration: none;
+}
+
+.site-title:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ---------- the stage ---------- */
+
+/* The whole screen, behind the list and the title. */
+.stage-area {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* One box per experiment. The box is the experiment's whole world.
+   isolation: isolate keeps any z-index inside the experiment trapped in its
+   box, so nothing it does can climb above the list, the title or the cursor. */
+.stage {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  transition: opacity var(--stage-fade) ease;
+}
+
+/* Built, but its CSS hasn't arrived yet. Hidden so you never see it unstyled. */
+.stage[data-state="loading"] {
+  display: none;
+}
+
+.stage[data-state="leaving"] {
+  opacity: 0;
+}
+
+/* Fading in. @starting-style means "the moment this appears, start from here".
+   So when a box goes from hidden to shown, it fades up from 0 by itself.
+   No JavaScript timing tricks needed. */
+@starting-style {
+  .stage[data-state="shown"] {
+    opacity: 0;
+  }
+}
+
+/* ---------- the message in the middle ---------- */
+
+.stage-message {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font-size: var(--message-size);
+  color: var(--message-color);
+  pointer-events: none;            /* never in the way of the mouse */
+  transition: opacity var(--stage-fade) ease;
+}
+
+.stage-message[data-state="empty"] {
+  opacity: 0;
+}
+
+/* Reduced motion: every swap is instant. Setting the variable to 0 (instead
+   of switching transitions off) also tells stage.js, which reads it, to
+   delete the old box straight away. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --stage-fade: 0ms;
+  }
+}
