@@ -1,0 +1,117 @@
+/* ============================================================
+   TUNE HERE. Everything about how the button looks and feels.
+   ============================================================ */
+:root {
+  /* --- look --- */
+  --btn-height: 50px;              /* iOS standard large button height */
+  --btn-min-width: 220px;          /* keeps short labels from looking like a pill */
+  --btn-padding-x: 28px;           /* space left and right of the label */
+  --btn-radius: 14px;              /* corner size for plain rounded corners (fallback) */
+  --btn-radius-squircle: 20px;     /* corner size when the browser draws squircles; squircles read tighter, so this is bigger */
+  --btn-font-size: 17px;           /* iOS body text size */
+  --btn-font-weight: 600;          /* semibold, like iOS button labels */
+  --btn-letter-spacing: -0.01em;   /* Inter is a touch wide at this size; this pulls it in toward SF */
+  --btn-color: #007AFF;            /* iOS system blue */
+  --btn-text: #FFFFFF;             /* label color */
+  --page-bg: #F2F2F7;              /* iOS light grouped background */
+
+  /* --- feel --- */
+  --press-scale: 0.96;             /* how far it shrinks when pressed (1 = not at all) */
+  --press-dim: 0.75;               /* opacity while pressed (1 = no dim) */
+  --press-duration: 80ms;          /* going down: fast, so it feels instant under your finger */
+  --press-ease: ease-out;          /* going down: starts fast, settles */
+  --release-duration: 220ms;       /* coming back up: slower, so you see the spring */
+  --release-ease: cubic-bezier(0.2, 0.9, 0.3, 1.2); /* the 1.2 makes it overshoot past 1 a little, then settle */
+}
+
+/* Dark mode: iOS swaps to a brighter blue and a black background. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --btn-color: #0A84FF;
+    --page-bg: #000000;
+  }
+}
+
+/* ============================================================
+   Wiring. You shouldn't need to touch anything below.
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+/* Dead center: a one-cell grid with its content centered both ways.
+   100dvh = the visible height of the screen. On phones it ignores the
+   part hidden behind the address bar, so "center" really is center. */
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: var(--page-bg);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+}
+
+.btn {
+  /* size + shape */
+  height: var(--btn-height);
+  min-width: var(--btn-min-width);
+  padding: 0 var(--btn-padding-x);
+  border: none;
+  border-radius: var(--btn-radius);
+
+  /* color + type */
+  background: var(--btn-color);
+  color: var(--btn-text);
+  font: inherit;
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  letter-spacing: var(--btn-letter-spacing);
+
+  /* phone niceties */
+  cursor: pointer;
+  user-select: none;                        /* don't select the label on long press */
+  -webkit-tap-highlight-color: transparent; /* kill the grey flash on mobile Safari/Chrome */
+  touch-action: manipulation;               /* no double-tap zoom delay */
+
+  /* Release timing lives here, on the resting state. The transition that runs
+     is always the one on the state you're going TO, so idle = release. */
+  transition:
+    transform var(--release-duration) var(--release-ease),
+    opacity var(--release-duration) var(--release-ease);
+}
+
+/* Squircle corners. A normal border-radius is a quarter circle, so the curve
+   starts abruptly. Apple's corners ease in gradually (a "superellipse").
+   corner-shape is a newer CSS property that draws that. Browsers that don't
+   know it skip this block and keep the plain rounded corners above. */
+@supports (corner-shape: squircle) {
+  .btn {
+    corner-shape: squircle;
+    border-radius: var(--btn-radius-squircle);
+  }
+}
+
+.btn[data-state="pressed"] {
+  transform: scale(var(--press-scale));
+  opacity: var(--press-dim);
+  /* Press timing: going TO pressed, so it lives here. */
+  transition-duration: var(--press-duration);
+  transition-timing-function: var(--press-ease);
+}
+
+/* Keyboard focus ring. :focus-visible only shows it for keyboard users,
+   not on every mouse click. */
+.btn:focus-visible {
+  outline: 3px solid var(--btn-color);
+  outline-offset: 3px;
+}
+
+/* Reduced motion: no shrinking, no spring. The dim still tells you it was pressed. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn[data-state="pressed"] {
+    transform: none;
+    transition: none;
+  }
+}
