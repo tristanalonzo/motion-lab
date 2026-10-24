@@ -25,8 +25,8 @@
 
   /* --- cursor --- */
   --cursor-size: 28px;             /* diameter of the circle */
-  --cursor-stiffness: 300;       /* how hard the circle is pulled toward the mouse. Higher = tighter, less delay */
-  --cursor-damping: 20;          /* how fast the wobble dies. Lower = more overshoot, higher = no overshoot, just lag */
+  --cursor-stiffness: 600;     /* how hard the circle is pulled toward the mouse. Higher = tighter, less delay */
+  --cursor-damping: 32;        /* how fast the wobble dies. Lower = more overshoot, higher = no overshoot, just lag */
   --cursor-fade: 150ms;            /* fade in/out when the mouse enters or leaves the window */
 }
 
