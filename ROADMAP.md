@@ -5,6 +5,25 @@ done on its own, then ticked off here.
 
 Open questions are things to decide before (or while) building that item.
 
+## Pick up here (left off 2026-10-25)
+
+**Start:** `git pull`, then `py -m http.server` in this folder, then open
+http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
+
+**Where it stands:** the site is one page. Experiments swap in without page
+loads, each sealed in its own box, with one cursor for the whole site. 000 (intro)
+and 001 (submit button, now a pill) are built; 002–005 are "coming soon".
+How to add an experiment: CLAUDE.md, "The experiment contract".
+
+**Next, in this order:**
+1. **003 evading button.** The first experiment that needs the mouse everywhere,
+   so it's the real test of the new setup. A pill, per the button rule.
+2. **Experiment title** above the experiment (below). Small, and on every page.
+3. The toolbar: reset icon, GitHub link, then the about panel (the biggest one).
+
+**Still undecided:** the lab dashboard's categories, glass or plain for the
+keyboard-hints pop-up, and what each hover animation should be.
+
 ---
 
 ## Bottom middle — toolbar
