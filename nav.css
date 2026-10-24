@@ -1,0 +1,108 @@
+/* ============================================================
+   TUNE HERE. The component list on the left of every page.
+   Shared by every component, so changes here change them all.
+   ============================================================ */
+:root {
+  --nav-inset: 56px;               /* distance from the left edge of the screen */
+  --nav-width: 240px;              /* how wide the panel is */
+  --nav-row-height: 36px;          /* space per item; also how far one scroll step moves */
+  --nav-gap: 16px;                 /* space between the number and the name */
+  --nav-font-size: 15px;
+  --nav-color: #86868B;            /* Apple's secondary grey, for everything but the current page */
+  --nav-color-current: #1D1D1F;    /* the page you're on */
+  --nav-color-hover: #1D1D1F;      /* hovering a page you can go to */
+  --nav-hover-duration: 150ms;     /* grey -> black on hover */
+  --nav-fade-solid: 40px;          /* items this close to the middle are fully visible */
+  --nav-fade-end: 180px;           /* ...and fade out completely by this far */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+/* A full-height column pinned to the left. It scrolls on its own;
+   the page behind it doesn't move. */
+.nav {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: var(--nav-inset);
+  width: var(--nav-width);
+  overflow-y: auto;
+  scrollbar-width: none;           /* hide the scrollbar (Firefox, Chrome) */
+
+  /* Snap: when you stop scrolling, the nearest item slides to the middle,
+     like the iOS date picker wheel. */
+  scroll-snap-type: y mandatory;
+
+  /* The fade. A mask paints the panel solid in a band around the middle and
+     transparent toward the top and bottom, so items fade as they move away. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent calc(50% - var(--nav-fade-end)),
+    #000 calc(50% - var(--nav-fade-solid)),
+    #000 calc(50% + var(--nav-fade-solid)),
+    transparent calc(50% + var(--nav-fade-end))
+  );
+}
+
+.nav::-webkit-scrollbar {
+  display: none;                   /* hide the scrollbar (Safari) */
+}
+
+/* Padding of half the screen above and below, so the first and last items
+   can both reach the middle. The middle lines up with the component. */
+.nav ol {
+  margin: 0;
+  padding: calc(50dvh - var(--nav-row-height) / 2) 0;
+  list-style: none;
+}
+
+.nav li {
+  scroll-snap-align: center;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--nav-gap);
+  height: var(--nav-row-height);
+  font-size: var(--nav-font-size);
+  letter-spacing: -0.01em;
+  color: var(--nav-color);
+  text-decoration: none;
+  transition: color var(--nav-hover-duration) ease;
+}
+
+.nav-number {
+  font-variant-numeric: tabular-nums; /* every digit the same width, so the names line up */
+}
+
+.nav-item[data-state="current"] {
+  color: var(--nav-color-current);
+  font-weight: 500;
+}
+
+/* Only pages that exist react to hover. Planned ones stay grey. */
+.nav-item[data-state="built"]:hover {
+  color: var(--nav-color-hover);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--nav-color-current);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* Below this width the list would run into the component. Hide it for now. */
+@media (max-width: 900px) {
+  .nav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-item {
+    transition: none;
+  }
+}

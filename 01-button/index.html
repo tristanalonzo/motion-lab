@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>01 — Button</title>
+  <title>001 — Submit button</title>
 
   <!-- Inter, loaded from Google Fonts. Only used where San Francisco isn't
        available (anything that isn't an Apple device). No install, just a link. -->
@@ -11,9 +11,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
+  <!-- The component list on the left is shared by every page, so it lives one folder up. -->
+  <link rel="stylesheet" href="../nav.css">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<!-- data-page tells nav.js which item in the list is this page. -->
+<body data-page="01-button">
   <p class="site-title">tristan’s motion lab</p>
 
   <main>
@@ -28,6 +31,7 @@
     <path class="cursor-shape" d="M 2 16 a 14 14 0 1 0 28 0 a 14 14 0 1 0 -28 0 Z" />
   </svg>
 
+  <script src="../nav.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
