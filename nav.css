@@ -3,40 +3,42 @@
    Shared by every component, so changes here change them all.
    ============================================================ */
 :root {
+  /* --- look --- */
   --nav-inset: 56px;               /* distance from the left edge of the screen */
   --nav-width: 240px;              /* how wide the panel is */
-  --nav-row-height: 36px;          /* space per item; also how far one scroll step moves */
+  --nav-row-height: 36px;          /* space per item, and how far the list slides per step */
   --nav-gap: 16px;                 /* space between the number and the name */
   --nav-font-size: 15px;
-  --nav-color: #86868B;            /* Apple's secondary grey, for everything but the current page */
-  --nav-color-current: #1D1D1F;    /* the page you're on */
-  --nav-color-hover: #1D1D1F;      /* hovering a page you can go to */
-  --nav-hover-duration: 150ms;     /* grey -> black on hover */
-  --nav-fade-solid: 40px;          /* items this close to the middle are fully visible */
-  --nav-fade-end: 180px;           /* ...and fade out completely by this far */
+  --nav-color: #86868B;            /* everything that isn't selected: Apple's secondary grey */
+  --nav-color-hover: #48484A;      /* hovering an item: darker grey, still not black */
+  --nav-color-selected: #000000;   /* the selected item, and only that one */
+  --nav-fade-solid: 18px;          /* only the middle row is fully visible... */
+  --nav-fade-end: 180px;           /* ...everything fades out completely by this far from the middle */
+
+  /* --- feel --- */
+  --nav-step-duration: 450ms;      /* how long the list takes to slide one item (use ms) */
+  --nav-step-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, long soft landing */
+  --nav-wheel-threshold: 40;       /* how much scrolling counts as one step. Lower = twitchier */
+  --nav-wheel-lock: 600ms;         /* after a step, ignore scrolling this long, so one flick = one item (use ms) */
+  --nav-swap-duration: 250ms;      /* component fading out / "coming soon" fading in */
 }
 
 /* ============================================================
    Wiring.
    ============================================================ */
 
-/* A full-height column pinned to the left. It scrolls on its own;
-   the page behind it doesn't move. */
+/* A full-height column pinned to the left. It doesn't scroll itself:
+   nav.js listens to the scroll wheel and slides the list one item at a time. */
 .nav {
   position: fixed;
   top: 0;
   bottom: 0;
   left: var(--nav-inset);
   width: var(--nav-width);
-  overflow-y: auto;
-  scrollbar-width: none;           /* hide the scrollbar (Firefox, Chrome) */
+  overflow: hidden;
 
-  /* Snap: when you stop scrolling, the nearest item slides to the middle,
-     like the iOS date picker wheel. */
-  scroll-snap-type: y mandatory;
-
-  /* The fade. A mask paints the panel solid in a band around the middle and
-     transparent toward the top and bottom, so items fade as they move away. */
+  /* The fade. A mask paints the panel solid in a thin band at the middle and
+     transparent toward the top and bottom. Items fade as they slide away. */
   mask-image: linear-gradient(
     to bottom,
     transparent calc(50% - var(--nav-fade-end)),
@@ -46,52 +48,91 @@
   );
 }
 
-.nav::-webkit-scrollbar {
-  display: none;                   /* hide the scrollbar (Safari) */
-}
-
-/* Padding of half the screen above and below, so the first and last items
-   can both reach the middle. The middle lines up with the component. */
+/* The list starts with its first row sitting on the middle of the screen,
+   level with the component. --selected (set by nav.js) is which row is picked;
+   the list slides up by that many rows to bring it to the middle. */
 .nav ol {
-  margin: 0;
-  padding: calc(50dvh - var(--nav-row-height) / 2) 0;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin: calc(var(--nav-row-height) / -2) 0 0;
+  padding: 0;
   list-style: none;
+  transform: translateY(calc(var(--selected, 0) * var(--nav-row-height) * -1));
+  transition: transform var(--nav-step-duration) var(--nav-step-ease);
+  view-transition-name: nav-list; /* see @view-transition at the bottom */
 }
 
-.nav li {
-  scroll-snap-align: center;
-}
-
+/* Items are links (built) or buttons (planned). Reset the button so both look the same. */
 .nav-item {
   display: flex;
   align-items: center;
   gap: var(--nav-gap);
+  width: 100%;
   height: var(--nav-row-height);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-size: var(--nav-font-size);
   letter-spacing: -0.01em;
-  color: var(--nav-color);
+  text-align: left;
   text-decoration: none;
-  transition: color var(--nav-hover-duration) ease;
+  color: var(--nav-color);
+  cursor: pointer;
+  transition: color var(--nav-step-duration) var(--nav-step-ease);
 }
 
 .nav-number {
   font-variant-numeric: tabular-nums; /* every digit the same width, so the names line up */
 }
 
-.nav-item[data-state="current"] {
-  color: var(--nav-color-current);
-  font-weight: 500;
-}
-
-/* Only pages that exist react to hover. Planned ones stay grey. */
-.nav-item[data-state="built"]:hover {
+.nav-item:hover {
   color: var(--nav-color-hover);
 }
 
+.nav-item[data-state="selected"] {
+  color: var(--nav-color-selected);
+  font-weight: 500;
+}
+
 .nav-item:focus-visible {
-  outline: 2px solid var(--nav-color-current);
+  outline: 2px solid var(--nav-color-selected);
   outline-offset: 4px;
   border-radius: 6px;
+}
+
+/* ---------- swapping what's in the middle ---------- */
+
+/* body[data-showing] is set by nav.js:
+   "component" = this page's component
+   "planned"   = a component that doesn't exist yet: show "coming soon"
+   "leaving"   = about to open another component's page */
+main {
+  transition: opacity var(--nav-swap-duration) ease;
+}
+
+body[data-showing="planned"] main,
+body[data-showing="leaving"] main {
+  opacity: 0;
+}
+
+.nav-coming-soon {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font-size: var(--nav-font-size);
+  color: var(--nav-color);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--nav-swap-duration) ease;
+}
+
+body[data-showing="planned"] .nav-coming-soon {
+  opacity: 1;
 }
 
 /* Below this width the list would run into the component. Hide it for now. */
@@ -101,8 +142,23 @@
   }
 }
 
+/* Going to another component is a real page load. This asks the browser to
+   crossfade between the two pages instead of flashing white. Because the
+   list has the same view-transition-name on both pages, it stays put while
+   the middle of the screen fades. Chrome and Edge only, and only over http
+   (not when the file is opened by double-clicking). */
+@view-transition {
+  navigation: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .nav-item {
+  .nav ol,
+  .nav-item,
+  main,
+  .nav-coming-soon {
     transition: none;
+  }
+  @view-transition {
+    navigation: none;
   }
 }
