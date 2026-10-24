@@ -1,6 +1,8 @@
 # motion-lab
 A growing collection of micro-interactions and UI motion studies, built one component at a time.
 
+Open any folder's `index.html` in a browser. No install, no build step.
+
 - [001 — submit button](01-button/) — black iOS-style Submit button with a springy press and an inverting cursor that morphs from circle to hand
 
 ## Shared: the component list
