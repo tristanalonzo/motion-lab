@@ -62,16 +62,17 @@ motion-lab/
   CLAUDE.md              ← this file
   nav.js                 ← shared: the component list on the left of every page
   nav.css                ← shared: its look, tunables at the top
-  01-submit-button/
+  001-button/
     index.html
     style.css
     script.js
     README.md            ← the state doc
-  02-whatever/
+  002-whatever/
 ```
 
-Numbered prefixes, two digits. Never renumber an existing folder.
-On the page and in the list, components are labeled with three digits (`001`).
+Numbered prefixes, three digits, matching the label on the page and in the
+list (`001-button` is `001`). Three digits so folders still sort in order past
+99. Never renumber an existing folder.
 
 The shared list is the only thing outside the numbered folders. Every
 component's `index.html` links `../nav.css` and `../nav.js` and sets

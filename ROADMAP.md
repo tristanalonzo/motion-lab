@@ -22,7 +22,7 @@ Open questions are things to decide before (or while) building that item.
 - [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
 - [ ] **GitHub source link** to the current experiment's folder, e.g.
-      `https://github.com/tristanalonzo/motion-lab/tree/main/01-button`.
+      `https://github.com/tristanalonzo/motion-lab/tree/main/001-button`.
 
 ## Bottom left — keyboard hints
 
@@ -39,7 +39,7 @@ Open questions are things to decide before (or while) building that item.
 
 - [ ] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
       this whole thing is: what tristan's motion lab is.
-  - Decided: its own folder, `00-intro`. It becomes where the site opens.
+  - Decided: its own folder, `000-intro`. It becomes where the site opens.
 
 ## Top right
 

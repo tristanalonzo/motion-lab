@@ -5,14 +5,14 @@
 // no folder: it's planned. Landing on it shows "coming soon".
 
 const COMPONENTS = [
-  { number: "001", name: "submit button", folder: "01-button" },
+  { number: "001", name: "submit button", folder: "001-button" },
   { number: "002", name: "dark mode button" },
   { number: "003", name: "evading button" },
   { number: "004", name: "create button" },
   { number: "005", name: "clingy button" },
 ];
 
-// Each component's index.html says which one it is: <body data-page="01-button">
+// Each component's index.html says which one it is: <body data-page="001-button">
 const currentPage = document.body.dataset.page;
 const currentIndex = Math.max(0, COMPONENTS.findIndex((c) => c.folder === currentPage));
 
