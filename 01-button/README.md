@@ -1,6 +1,6 @@
 # 01 — Button
 
-A black iOS-style Submit button, dead center on a white page, that dips when you press it and springs back. The mouse is replaced by a circle that inverts whatever it's over.
+A black iOS-style Submit button, dead center on a white page, that dips when you press it and springs back. The mouse is replaced by a circle that inverts whatever it's over, and morphs into a pointing hand over anything clickable.
 
 ## States
 
@@ -8,8 +8,10 @@ A black iOS-style Submit button, dead center on a white page, that dips when you
 |---------|---------|---------|----------|-------------------------------------|-------------------------------------|
 | button  | idle    | pressed | 80ms     | `ease-out`                          | scale 1 → 0.96, opacity 1 → 0.75    |
 | button  | pressed | idle    | 220ms    | `cubic-bezier(0.2, 0.9, 0.3, 1.2)`  | scale 0.96 → 1 (slight overshoot), opacity 0.75 → 1 |
-| cursor  | hidden  | visible | 150ms    | `ease`                              | opacity 0 → 1 (mouse enters window) |
-| cursor  | visible | hidden  | 150ms    | `ease`                              | opacity 1 → 0 (mouse leaves window) |
+| cursor  | hidden  | circle / hand | 150ms | `ease`                         | opacity 0 → 1 (mouse enters window) |
+| cursor  | circle / hand | hidden | 150ms | `ease`                         | opacity 1 → 0 (mouse leaves window) |
+| cursor  | circle  | hand    | 260ms    | `cubic-bezier(0.3, 1.3, 0.5, 1)`    | outline morphs circle → hand (slight overshoot), fingertip on the mouse tip |
+| cursor  | hand    | circle  | 260ms    | `cubic-bezier(0.3, 1.3, 0.5, 1)`    | outline morphs hand → circle        |
 | cursor  | —       | —       | ~53ms behind | spring (stiffness 600, damping 32) | follows the mouse; overshoots ~15px after a fast flick, settles in ~0.4s |
 
 The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the keyboard. The cursor only appears with a real mouse.
@@ -26,6 +28,11 @@ The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the
 - **Stiffness 600, damping 32.** Started at 1000/45 (45ms delay, 6px overshoot), which felt too tight. Then tried 300/20 (67ms, 32px), which went too far. This lands about a third of the way between them: 53ms delay (damping ÷ stiffness), 15px overshoot, one clear swing past the mouse.
 - **The spring settings live in CSS but are read by JS.** That keeps every tunable in one place. JS reads them every frame, so you can drag the numbers in DevTools and feel the change live.
 - **28px circle.** Big enough to read as a shape, small enough that you can still aim with it.
+- **The morph works because both shapes are built from the same 12 curves.** The circle's 12 points are spaced around it in proportion to how far apart they are on the hand. So the top of the circle becomes the fingertip, the right side becomes the palm, and so on, with no twisting halfway. Each point slides straight to its partner.
+- **The hand is redrawn from the reference, not traced.** It has a rounder fingertip, a smooth knuckle step instead of a sharp one, a rounder thumb tip, and a soft notch between thumb and finger. It's 28px tall, the same as the circle, so neither one feels bigger.
+- **Fingertip on the mouse, not the hand's center.** You aim with the tip of your finger, the same as the system hand cursor.
+- **SVG path, not `clip-path`.** The first version cut the shape out of a white box with `clip-path`. On screens scaled to 125%/150%/175% that left a faint hairline around the box. Drawing the shape as an SVG path doesn't.
+- **"Clickable" means `a, button, [role='button'], label, select, summary`.** That's the `CLICKABLE` list in script.js.
 - **No dark mode.** The page is meant to be black-on-white. The cursor already gives you the inverted version.
 
 ## Rough edges
@@ -38,10 +45,15 @@ The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the
 - The real mouse stops at the edge of the window, but the circle's overshoot doesn't. Flick into an edge and it pokes out before pulling back.
 - Over a mid-grey (#808080), "difference" gives almost the same grey back, so the circle disappears. Not an issue on this page, but it would be on a photo.
 - If the script fails to load, the native cursor is still hidden and you get no cursor at all.
-- The cursor ignores the button. It doesn't grow or react when you hover. That would be the obvious next thing.
+- The hand morph needs a browser that can set an SVG path's shape from CSS (Chrome, Edge, Firefox). Safari can't yet, so it stays a circle there.
+- The hand doesn't react to the press. When the button dips, the hand stays still. A small squish would sell it.
+- Something made clickable only with JavaScript (a `div` with a click handler) won't get the hand unless it's added to `CLICKABLE`.
+- The hand appears on the next mouse move. If the button slides under a still mouse, the cursor doesn't update until you move.
+- The hand outline was generated by a small script, not drawn in a tool. Changing it by hand means keeping all 12 curves in the same order.
 
 ## Break it on purpose
 
 - Set `--press-scale: 0.8`. It stops feeling like a button and starts feeling like a toy. Then try `--release-ease: ease` and notice the spring is gone.
 - Set `--cursor-damping: 10`. The circle turns to jelly and wobbles around the mouse. Then try `90`: no overshoot at all, just a sluggish drag.
+- Set `--cursor-morph-duration: 1200ms` and slowly hover on and off the button. You'll see the circle stretch down into the palm and the thumb grow out of its left side.
 - Set `--cursor-stiffness: 80` and try clicking the button quickly. The circle arrives after you've already clicked, which is the limit on how loose this can go.
