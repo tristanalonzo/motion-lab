@@ -32,16 +32,93 @@ btn.addEventListener("blur", release); // tabbed away mid-press
 
 
 // ---------- the cursor ----------
-// Same idea: data-state says "hidden" or "visible", and JS only feeds it
-// the mouse position as --x / --y. CSS does the drawing and the inverting.
+// data-state says "hidden" or "visible". CSS does the drawing and inverting.
+// JS moves it: a spring pulls the circle toward the mouse every frame.
+//
+// Why not a CSS transition? A transition restarts from zero speed every time
+// the mouse moves, so it can't build up speed and overshoot. A spring
+// remembers how fast it's going, which is exactly what makes it overshoot.
 
 const cursor = document.querySelector(".cursor");
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+const mouse = { x: 0, y: 0 };    // where the real mouse is
+const circle = { x: 0, y: 0 };   // where the circle is drawn
+const speed = { x: 0, y: 0 };    // how fast the circle is moving, in px per second
+let animating = false;
+let lastTime = 0;
+
+// The spring settings live in style.css's :root, like every other tunable.
+// Read every frame, so editing them in DevTools changes the feel live.
+function readSetting(name) {
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+}
+
+function draw() {
+  cursor.style.setProperty("--x", circle.x + "px");
+  cursor.style.setProperty("--y", circle.y + "px");
+}
+
+function jumpToMouse() {
+  circle.x = mouse.x;
+  circle.y = mouse.y;
+  speed.x = 0;
+  speed.y = 0;
+  draw();
+}
+
+function frame(time) {
+  const stiffness = readSetting("--cursor-stiffness");
+  const damping = readSetting("--cursor-damping");
+
+  // Seconds since last frame. Capped, so switching tabs and coming back
+  // doesn't make the circle fly off from one giant step.
+  let seconds = Math.min(Math.max((time - lastTime) / 1000, 0), 1 / 30);
+  lastTime = time;
+
+  // Do the math in tiny slices (1/240s). Big slices with extreme settings
+  // can make the spring blow up and fly off screen.
+  while (seconds > 0) {
+    const slice = Math.min(seconds, 1 / 240);
+    for (const axis of ["x", "y"]) {
+      const pull = stiffness * (mouse[axis] - circle[axis]); // farther away = stronger pull
+      const brake = damping * speed[axis];                   // faster = stronger brake
+      speed[axis] += (pull - brake) * slice;
+      circle[axis] += speed[axis] * slice;
+    }
+    seconds -= slice;
+  }
+  draw();
+
+  // Close enough and barely moving: snap the last fraction of a pixel and stop
+  // the loop, so nothing runs while the mouse is still.
+  const distance = Math.hypot(mouse.x - circle.x, mouse.y - circle.y);
+  const moving = Math.hypot(speed.x, speed.y);
+  if (distance < 0.1 && moving < 1) {
+    jumpToMouse();
+    animating = false;
+    return;
+  }
+  requestAnimationFrame(frame);
+}
 
 window.addEventListener("pointermove", (e) => {
   if (e.pointerType !== "mouse") return; // fingers and pens get no circle
-  cursor.style.setProperty("--x", e.clientX + "px");
-  cursor.style.setProperty("--y", e.clientY + "px");
-  cursor.dataset.state = "visible";
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+
+  // Coming back into the window, or reduced motion: no spring, just be there.
+  if (cursor.dataset.state === "hidden" || reduceMotion.matches) {
+    jumpToMouse();
+    cursor.dataset.state = "visible";
+    return;
+  }
+
+  if (!animating) {
+    animating = true;
+    lastTime = performance.now();
+    requestAnimationFrame(frame);
+  }
 });
 
 // Mouse left the browser window: relatedTarget is where it went, and

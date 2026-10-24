@@ -25,7 +25,8 @@
 
   /* --- cursor --- */
   --cursor-size: 28px;             /* diameter of the circle */
-  --cursor-lag: 0ms;               /* 0 = glued to the mouse. Try 80ms for a trailing, liquid feel */
+  --cursor-stiffness: 1000;        /* how hard the circle is pulled toward the mouse. Higher = tighter, less delay */
+  --cursor-damping: 45;            /* how fast the wobble dies. Lower = more overshoot, higher = no overshoot, just lag */
   --cursor-fade: 150ms;            /* fade in/out when the mouse enters or leaves the window */
 }
 
@@ -129,11 +130,10 @@ body {
   pointer-events: none;          /* clicks pass straight through to whatever is under it */
   z-index: 9999;
 
-  /* --x and --y are set by script.js on every mouse move. */
+  /* --x and --y are set by script.js every frame, from the spring.
+     No transition on transform: the spring in JS does the following. */
   transform: translate(var(--x, -100px), var(--y, -100px));
-  transition:
-    transform var(--cursor-lag) ease-out,
-    opacity var(--cursor-fade) ease;
+  transition: opacity var(--cursor-fade) ease;
 }
 
 .cursor[data-state="hidden"] {
@@ -152,7 +152,8 @@ body {
   }
 }
 
-/* Reduced motion: no shrinking, no spring, no cursor lag or fade.
+/* Reduced motion: no shrinking, no spring, no cursor fade.
+   (The cursor's spring is switched off in script.js.)
    The dim still tells you the button was pressed. */
 @media (prefers-reduced-motion: reduce) {
   .btn,
