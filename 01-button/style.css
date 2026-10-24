@@ -11,9 +11,9 @@
   --btn-font-size: 17px;           /* iOS body text size */
   --btn-font-weight: 600;          /* semibold, like iOS button labels */
   --btn-letter-spacing: -0.01em;   /* Inter is a touch wide at this size; this pulls it in toward SF */
-  --btn-color: #007AFF;            /* iOS system blue */
+  --btn-color: #000000;            /* button fill */
   --btn-text: #FFFFFF;             /* label color */
-  --page-bg: #F2F2F7;              /* iOS light grouped background */
+  --page-bg: #FFFFFF;              /* page background */
 
   /* --- feel --- */
   --press-scale: 0.96;             /* how far it shrinks when pressed (1 = not at all) */
@@ -22,14 +22,11 @@
   --press-ease: ease-out;          /* going down: starts fast, settles */
   --release-duration: 220ms;       /* coming back up: slower, so you see the spring */
   --release-ease: cubic-bezier(0.2, 0.9, 0.3, 1.2); /* the 1.2 makes it overshoot past 1 a little, then settle */
-}
 
-/* Dark mode: iOS swaps to a brighter blue and a black background. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --btn-color: #0A84FF;
-    --page-bg: #000000;
-  }
+  /* --- cursor --- */
+  --cursor-size: 28px;             /* diameter of the circle */
+  --cursor-lag: 0ms;               /* 0 = glued to the mouse. Try 80ms for a trailing, liquid feel */
+  --cursor-fade: 150ms;            /* fade in/out when the mouse enters or leaves the window */
 }
 
 /* ============================================================
@@ -38,6 +35,12 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* The background goes on html too, not just body. The cursor's color
+   inversion needs a real painted color underneath it to invert. */
+html {
+  background: var(--page-bg);
 }
 
 /* Dead center: a one-cell grid with its content centered both ways.
@@ -107,11 +110,57 @@ body {
   outline-offset: 3px;
 }
 
-/* Reduced motion: no shrinking, no spring. The dim still tells you it was pressed. */
+/* ---------- the cursor ---------- */
+
+/* A white circle with mix-blend-mode: difference. "Difference" subtracts
+   colors: white minus whatever is underneath = the opposite color. So it
+   shows black over white, white over black, and inverts anything else. */
+.cursor {
+  display: none;                 /* off by default: phones and tablets have no cursor */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--cursor-size);
+  height: var(--cursor-size);
+  margin: calc(var(--cursor-size) / -2) 0 0 calc(var(--cursor-size) / -2); /* shift up-left by half, so the center sits on the mouse tip */
+  border-radius: 50%;
+  background: #FFFFFF;           /* must stay pure white for a true inversion */
+  mix-blend-mode: difference;
+  pointer-events: none;          /* clicks pass straight through to whatever is under it */
+  z-index: 9999;
+
+  /* --x and --y are set by script.js on every mouse move. */
+  transform: translate(var(--x, -100px), var(--y, -100px));
+  transition:
+    transform var(--cursor-lag) ease-out,
+    opacity var(--cursor-fade) ease;
+}
+
+.cursor[data-state="hidden"] {
+  opacity: 0;
+}
+
+/* Only swap the cursor on devices with a real mouse.
+   hover: hover = can hover; pointer: fine = precise, not a finger. */
+@media (hover: hover) and (pointer: fine) {
+  body,
+  .btn {
+    cursor: none;                /* hide the system arrow/hand */
+  }
+  .cursor {
+    display: block;
+  }
+}
+
+/* Reduced motion: no shrinking, no spring, no cursor lag or fade.
+   The dim still tells you the button was pressed. */
 @media (prefers-reduced-motion: reduce) {
   .btn,
+  .btn[data-state="pressed"],
+  .cursor {
+    transition: none;
+  }
   .btn[data-state="pressed"] {
     transform: none;
-    transition: none;
   }
 }

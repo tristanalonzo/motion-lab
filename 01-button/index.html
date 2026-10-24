@@ -14,8 +14,11 @@
 </head>
 <body>
   <main>
-    <button class="btn" type="button" data-state="idle">Continue</button>
+    <button class="btn" type="button" data-state="idle">Submit</button>
   </main>
+
+  <!-- The custom cursor. aria-hidden: screen readers skip it, it's decoration. -->
+  <div class="cursor" data-state="hidden" aria-hidden="true"></div>
 
   <script src="script.js"></script>
 </body>

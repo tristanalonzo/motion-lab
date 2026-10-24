@@ -29,3 +29,23 @@ btn.addEventListener("keyup", (e) => {
   if (e.key === " " || e.key === "Enter") release();
 });
 btn.addEventListener("blur", release); // tabbed away mid-press
+
+
+// ---------- the cursor ----------
+// Same idea: data-state says "hidden" or "visible", and JS only feeds it
+// the mouse position as --x / --y. CSS does the drawing and the inverting.
+
+const cursor = document.querySelector(".cursor");
+
+window.addEventListener("pointermove", (e) => {
+  if (e.pointerType !== "mouse") return; // fingers and pens get no circle
+  cursor.style.setProperty("--x", e.clientX + "px");
+  cursor.style.setProperty("--y", e.clientY + "px");
+  cursor.dataset.state = "visible";
+});
+
+// Mouse left the browser window: relatedTarget is where it went, and
+// "nowhere on this page" shows up as null.
+document.addEventListener("mouseout", (e) => {
+  if (!e.relatedTarget) cursor.dataset.state = "hidden";
+});
