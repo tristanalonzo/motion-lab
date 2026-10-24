@@ -3,8 +3,10 @@
 //
 // folder: the component exists. Landing on it opens its page.
 // no folder: it's planned. Landing on it shows "coming soon".
+// folder ".": the root folder itself, the site's front page.
 
 const COMPONENTS = [
+  { number: "000", name: "tristan’s motion lab", folder: "." },
   { number: "001", name: "submit button", folder: "001-submit-button" },
   { number: "002", name: "dark mode button" },
   { number: "003", name: "evading button" },
@@ -13,7 +15,12 @@ const COMPONENTS = [
 ];
 
 // Each component's index.html says which one it is: <body data-page="001-submit-button">
+// The front page says <body data-page=".">
 const currentPage = document.body.dataset.page;
+
+// This file sits in the root folder, so its own address says where the root is.
+// Links are built from there, so they work from the front page and from inside a folder.
+const root = new URL(".", document.currentScript.src);
 const currentIndex = Math.max(0, COMPONENTS.findIndex((c) => c.folder === currentPage));
 
 // Settings live in nav.css's :root, like every other tunable.
@@ -37,7 +44,7 @@ const items = COMPONENTS.map((component, index) => {
   item.dataset.state = "idle";
   if (component.folder) {
     // index.html spelled out, so the link also works when you double-click the file
-    item.href = `../${component.folder}/index.html`;
+    item.href = new URL(`${component.folder}/index.html`, root).href;
   } else {
     item.type = "button";
   }

@@ -37,9 +37,10 @@ Open questions are things to decide before (or while) building that item.
 
 ## 000 — intro
 
-- [ ] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
+- [x] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
       this whole thing is: what tristan's motion lab is.
-  - Decided: its own folder, `000-intro`. It becomes where the site opens.
+  - Decided: it's the root `index.html`, not a folder, so the site opens on it.
+  - Still to do: the text is a placeholder draft. Rewrite it in your own words.
 
 ## Top right
 
