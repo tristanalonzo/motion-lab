@@ -5,7 +5,7 @@ done on its own, then ticked off here.
 
 Open questions are things to decide before (or while) building that item.
 
-## Pick up here (left off 2026-10-25)
+## Pick up here (left off 2026-10-26)
 
 **Start:** `git pull`, then `py -m http.server` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
@@ -18,11 +18,14 @@ How to add an experiment: CLAUDE.md, "The experiment contract".
 
 **Done 2026-10-25:** the list slides in on load; the cursor parks beside the
 title when the mouse is away (title makes room); 80ms wait before the hand;
-a pointer on the left edge aims at the selected row, which is now bold; on
+a pointer on the left edge aims at the selected row; on
 phones the list sits in a strip along the bottom and a swipe steps it.
 
-**Done later 2026-10-25:** the toolbar at the bottom middle, with its first
-button: a GitHub link to the open experiment's folder.
+**Done 2026-10-26:** the toolbar is a white pill at the bottom middle with a
+`</>` link to the open experiment's folder; hovered buttons grow and push
+their neighbours aside. The GitHub cat (jumps out on hover) moved to the
+bottom right as the first contact link. The list is lighter: 12px light
+around, 14px regular selected.
 
 **Next:** the reset icon (decide first how experiments say "something to reset"),
 then the about panel (the biggest one).
@@ -51,7 +54,7 @@ keyboard-hints pop-up, and what each hover animation should be.
   - Later idea: **auto-reset.** Hovering reset slides an on/off switch up out of it.
     On = the experiment resets itself after a fixed wait once it's done.
     Open: how long the wait is, and whether "done" is decided by each experiment.
-- [x] **GitHub source link** to the current experiment's folder, e.g.
+- [x] **Source code link** (`</>`) to the current experiment's folder, e.g.
       `https://github.com/tristanalonzo/motion-lab/tree/main/001-submit-button`.
   - Built: `site/toolbar.js` + `toolbar.css`. The toolbar row is there for the
     other buttons to join.
@@ -88,14 +91,16 @@ keyboard-hints pop-up, and what each hover animation should be.
 ## Bottom right
 
 - [ ] **Social links:** GitHub, LinkedIn, X, Instagram.
+  - Built: GitHub (the cat that jumps out), in `site/socials.js` + `socials.css`.
+  - When the others join: grow by width like the toolbar, so neighbours move aside.
 
 ## Left list — ideas
 
 - [ ] **Counter-style numbering.** Only the selected item shows its number, like a
       counter, instead of every row having one.
 - [ ] **Hover focus.** Hovering the list shrinks the other items and the selected one
-      smoothly gets bolder. That needs a font whose weight can animate. Inter now
-      loads as a variable font (400–700) for the bold selected row, so this is ready.
+      smoothly gets heavier. That needs a font whose weight can animate. Inter now
+      loads as a variable font (300–700), so this is ready.
 
 ## Cursor — ideas
 

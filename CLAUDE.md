@@ -75,6 +75,7 @@ motion-lab/
     stage.js             ← loads, mounts and unmounts experiments
     site.css             ← page, title, stage fades
     toolbar.js toolbar.css ← the buttons at the bottom middle
+    socials.js socials.css ← the links in the bottom right corner
     cursor.js cursor.css ← the site-wide cursor
     experiment-base.css  ← defaults put inside every experiment's box
   000-intro/             ← the front page is an experiment like any other

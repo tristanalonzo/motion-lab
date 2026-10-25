@@ -10,8 +10,10 @@ import { startCursor, refreshCursor } from "./cursor.js";
 import { createNav } from "./nav.js";
 import { showExperiment } from "./stage.js";
 import { updateToolbar } from "./toolbar.js";
+import { startSocials } from "./socials.js";
 
 startCursor();
+startSocials();
 
 
 // ---------- the address bar ----------

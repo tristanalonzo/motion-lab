@@ -49,12 +49,12 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the list
 
-`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black and bold, and steps right. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
+`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black, grows from 12px light to 14px regular, and steps right. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
 | page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, top row first |
-| item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, weight 700 → 400, steps 18px back left; new one the reverse |
+| item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, 14px → 12px, regular → light (400 → 300), steps 18px back left; new one the reverse |
 | pointing | switching | 140ms | `cubic-bezier(0.4, 0, 0.2, 1)` | pointer sinks back flat: 22px sharp point → a shallow 4px arc along the edge |
 | switching | pointing | 200ms after the switch, then 380ms | `cubic-bezier(0.34, 1.3, 0.64, 1)` | tip grows back out, pokes ~0.5px past 22px, settles. Done by ~580ms, just after the list lands |
 
@@ -66,7 +66,8 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **Flat while you're moving, sharp when you stop.** Every step restarts the 200ms wait, so a long scroll keeps it flat and it only points at the row you land on.
 - **Flat, not just rounded.** A rounded bump (15px) still read as pointing at something mid-switch. Pulled back to a 4px arc, it reads as "not aiming at anything right now", so the point coming back means "here".
 - **The morph works like the cursor's.** Both shapes are 4 curves in the same order, so each point slides to its partner. The flat arc has no corner at its middle; the point has one.
-- **Bold animates instead of snapping.** Inter now loads as one "variable" font covering weights 400 to 700, so the weight can pass through every step in between. San Francisco on a Mac does the same.
+- **Light and small around it, regular and full size on it.** The selected row stands out by contrast with the rest instead of by shouting in bold, which reads calmer and more like Apple's own lists.
+- **Size and weight animate instead of snapping.** Inter loads as one "variable" font covering weights 300 to 700, so the weight can pass through every step in between. San Francisco on a Mac does the same.
 - **Selected steps right 18px.** Moves the selected row away from the pointer, so the two read as pointer and target, not one shape.
 
 - **Rows come in 60ms apart but take 800ms each.** Each row starts long before the one above it has landed, so they read as one wave rolling down, not a queue of separate moves.
@@ -92,13 +93,46 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - Opening a link straight to a later item (like `#005`) still staggers from row 000, so the selected row arrives last, after the experiment is already showing.
 - The pointer doesn't join the slide-in on load. It's just there from the start.
 - Safari can't set an SVG path's shape from CSS, so the pointer stays sharp there and never morphs.
-- Bold text is wider, so the selected name grows to the right as it gets bolder.
+- The selected name is bigger and heavier, so it grows to the right as it's selected, and the name shifts right a little as its number widens.
 
 ## Shared: the toolbar
 
-`site/toolbar.js` + `site/toolbar.css` — a row of round buttons at the bottom middle, about the open experiment. For now, one: GitHub's cat logo, linking to the experiment's folder (opens in a new tab). Hover it and the cat jumps out of the circle and sits on top, and an arrow takes its place. The buttons are in `index.html`; toolbar.js re-points them on every switch. On phones it sits just above the list's strip.
+`site/toolbar.js` + `site/toolbar.css` — a white pill at the bottom middle holding round buttons about the open experiment. For now, one: `</>`, linking to the experiment's folder on GitHub (opens in a new tab). The buttons are in `index.html`; toolbar.js re-points them on every switch. On phones it sits just above the list's strip.
 
-All of the GitHub button's moves are one 700ms timeline. Percentages are of that.
+| From | To | Duration | Easing | What moves |
+|---|---|---|---|---|
+| resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | button grows 40 → 46px (a touch past, then settles); the pill and the buttons beside it make room; a light grey circle fades in behind it (plain `ease`) |
+| resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | `<` and `>` slide apart ~2px each; `/` stays put |
+| resting | hovered / focused | 80ms wait + 200ms | `ease` | "view code" fades in and rises 4px, above the pill |
+| hovered | resting | same, with no wait | same | the reverse, from wherever it is |
+| any | pressed | 100ms | `ease` | button squashes to 0.92× |
+| real experiment | planned one | 250ms | `ease` | button fades to 35%. Stops reacting straight away |
+| planned one | real experiment | 250ms | `ease` | fades back to full, clickable straight away |
+
+**Decisions**
+- **Buttons grow by width, not by scale.** A scaled button just gets drawn bigger and covers its neighbours. A wider one takes up more room, so the buttons beside it slide over and the pill stretches to fit, which makes the row feel like one piece.
+- **The pill is placed by its middle.** So it grows evenly in every direction, not just upwards from the bottom edge.
+- **All plain CSS transitions.** They already turn around mid-way if you leave halfway through, so nothing here needs JS.
+- **Same overshoot curve as the cursor's morph.** The grow pops a touch past and settles, so it feels like it belongs to the hand that's on it.
+- **`<` and `>` move with the grow, same timing.** The button and the icon open up as one gesture.
+- **A grey circle shows up on hover.** On a white pill, a white button growing would be invisible. The fill shows the button's edge right when it changes.
+- **The label waits 80ms, like the cursor's hand.** Both answer the same pause, so they arrive together.
+- **A very soft shadow, in two layers.** A tight one draws the edge, a wide faint one lifts it off the page.
+- **Planned experiments grey it out instead of hiding it.** The toolbar doesn't jump around as you scroll. A link with no `href` also can't be clicked, tabbed to, or make the hand.
+- **The grey-out fades in 250ms, same as the experiment.** The button changes at the same pace as the thing it belongs to, so the two read as one switch.
+- **New tab.** Clicking through to the code shouldn't lose your place in the lab.
+
+**Rough edges**
+- With one button the "pill" is a circle. It turns into a pill once reset and about join.
+- Growing by width makes the browser lay the row out again every frame. Fine for a few buttons; it wouldn't be for hundreds.
+- On phones it overlaps the bottom of the experiment's area. Fine for centered experiments; one that uses its bottom edge would sit under it.
+- The link points at `main`. Code you haven't pushed yet gives GitHub's 404.
+
+## Shared: the corner links
+
+`site/socials.js` + `site/socials.css` — links to elsewhere, in the bottom right corner. For now, one: GitHub's cat logo, linking to github.com/tristanalonzo. Hover it and the cat jumps out of the circle and sits on top, and an arrow takes its place. On phones it sits just above the list's strip, on the right.
+
+All of the cat's moves are one 700ms timeline. Percentages are of that.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
@@ -108,34 +142,30 @@ All of the GitHub button's moves are one 700ms timeline. Percentages are of that
 | | | 45–60% | `ease-in-out` | white cat flattens to nothing; black cat flies up 12% past its seat |
 | | | 60–100% | `ease-in-out` | black cat drops onto the circle, squashes landing (0.9 tall), wobbles, settles |
 | | | 55–100% | `ease-in-out` | arrow pops in: 0 → 1.15 → 0.95 → 1 |
-| | | 65–85% | `ease-out` | "view code" fades in and rises 4px, above the cat |
+| | | 65–85% | `ease-out` | "github" fades in and rises 4px, above the cat |
 | open | resting | same timeline backwards, 1.5× faster (~470ms) | — | from wherever it is: leave mid-jump and it turns around |
 | resting | open | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | whole button grows to 1.1×, alongside the jump (shrinks back the same way) |
 | any | pressed | 100ms | `ease` | whole button squashes to 0.92× |
-| real experiment | planned one | 250ms | `ease` | button fades to 35% (cat goes home first if it was out). Stops reacting straight away |
-| planned one | real experiment | 250ms | `ease` | fades back to full, clickable straight away |
 
 **Decisions**
+- **Moved here from the toolbar.** It started as the toolbar's "view code" button. Now it's the GitHub link among the contact links, and the toolbar got a plain `</>`.
 - **The cat is the GitHub logo taken apart.** The logo is a circle with a cat-shaped hole. Here it's a black circle with a white cat drawn on top, so the cat can move on its own. The black cat that jumps out is the same outline, hidden behind the white one until it climbs out; black on black, so you only see it once it pokes past the edge.
 - **Squash, stretch, squash.** Gather, reach, push off: the anticipation before a jump, straight from the sketch. The squash gets wider as it gets flatter, so the cat keeps its weight.
 - **It flies 12% past its seat and drops back.** Without it the cat just slides to a stop on top, which reads as moving, not jumping.
 - **The label waits for the landing.** It used to appear at 80ms, with the cursor's hand. Now it would float above empty space while the cat is still inside, so it comes in once the cat is seated under it.
 - **Leaving plays it backwards, not a separate "out".** The cat climbs back into the circle the way it came, from whatever frame it was on. 1.5× faster because leaving shouldn't make you wait.
-- **CSS draws every frame, JS only presses play.** The keyframes are CSS, sitting paused. The browser exposes each running CSS animation as an object (the Web Animations API, built in, no library), and toolbar.js sets its speed to 1 or −1.5. CSS on its own can only restart an animation from the start, which would snap when you leave mid-jump.
+- **CSS draws every frame, JS only presses play.** The keyframes are CSS, sitting paused. The browser exposes each running CSS animation as an object (the Web Animations API, built in, no library), and socials.js sets its speed to 1 or −1.5. CSS on its own can only restart an animation from the start, which would snap when you leave mid-jump.
 - **Keyboard focus counts as hover.** Tab to it and the cat comes out, so keyboard users see the arrow and the label too.
-- **40px from the bottom.** Lifted off the edge so the button and the cat on top of it have room to breathe.
-- **The grey-out fades in 250ms, same as the experiment.** The button changes at the same pace as the thing it belongs to, so the two read as one switch.
+- **40px from the bottom and right.** Same bottom as the toolbar, and the same height, so their middles line up across the screen.
 - **48px wide, 1.1× on hover.** Big enough that the cat reads as a cat. The grow is a plain transition, separate from the jump: it already turns around by itself, so it needs no JS.
-- **Planned experiments grey it out instead of hiding it.** The toolbar doesn't jump around as you scroll. A link with no `href` also can't be clicked, tabbed to, or make the hand.
-- **New tab.** Clicking through to the code shouldn't lose your place in the lab.
+- **New tab.** Clicking through to GitHub shouldn't lose your place in the lab.
 
 **Rough edges**
 - The cursor's hand sits right on the arrow, so while you hover you mostly see the hand, not the arrow.
 - The cat's tail sticks out to the left of its neck when it's sitting on top. Kept it: it's a cat.
 - On a phone a tap plays the jump and opens GitHub at the same moment, so you don't get to see it.
-- On phones it overlaps the bottom of the experiment's area. Fine for centered experiments; one that uses its bottom edge would sit under it.
-- The link points at `main`. Code you haven't pushed yet gives GitHub's 404.
-- The beats' timing (the percentages) lives inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in toolbar.css.
+- It grows with `scale`, unlike the toolbar's buttons, so it won't push neighbours aside. When LinkedIn and the rest join it, switch it to growing by width like the toolbar.
+- The beats' timing (the percentages) lives inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in socials.css.
 
 ## Shared: the cursor
 
@@ -194,7 +224,8 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--pointer-sharpen-duration: 120ms` and step through the list. The point stops growing and just appears, which is what the first version looked like. Then try `--pointer-blunt-hold: 600ms`: it waits so long that it feels like it's lagging behind the list instead of following it.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
-- Set `--source-duration: 3000ms` and hover the GitHub button. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.
-- Set `--source-squash: 1` and `--source-stretch: 1`. No gather, no push-off: the cat just floats up out of the circle. That's what the anticipation was doing.
-- Set `--source-overshoot: 0%`. It slides up and stops, like it's on a lift, instead of jumping.
+- Set `--github-duration: 3000ms` and hover the GitHub cat. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.
+- Set `--github-squash: 1` and `--github-stretch: 1`. No gather, no push-off: the cat just floats up out of the circle. That's what the anticipation was doing.
+- Set `--github-overshoot: 0%`. It slides up and stops, like it's on a lift, instead of jumping.
+- Set `--tool-grow: 20px` and hover `</>`. The pill bulges around it; once there are more buttons, you'll see them get shoved aside. Then set `--tool-grow-ease: linear`: same size change, but it stops dead instead of settling.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.

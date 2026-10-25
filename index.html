@@ -10,13 +10,14 @@
        an experiment's sealed box doesn't work in every browser. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- wght@400..700 = one "variable" font file holding every weight in between,
+  <!-- wght@300..700 = one "variable" font file holding every weight in between,
        so a weight change can animate smoothly instead of snapping. -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="site/site.css">
   <link rel="stylesheet" href="site/nav.css">
   <link rel="stylesheet" href="site/toolbar.css">
+  <link rel="stylesheet" href="site/socials.css">
   <link rel="stylesheet" href="site/cursor.css">
 </head>
 <body>
@@ -44,32 +45,45 @@
 
   <!-- The list on the left is built by site/nav.js. -->
 
-  <!-- The toolbar, bottom middle. site/toolbar.js points the link at the
-       open experiment's folder. target="_blank" opens it in a new tab, so the
+  <!-- The toolbar, bottom middle. site/toolbar.js points </> at the open
+       experiment's folder. target="_blank" opens it in a new tab, so the
        lab stays where you left it; rel="noopener" stops that tab from being
        able to reach back into this one. -->
   <nav class="toolbar" aria-label="experiment tools">
-    <a class="tool tool-source" target="_blank" rel="noopener" data-state="ready">
+    <a class="tool tool-code" target="_blank" rel="noopener">
+      <!-- </>: three strokes, so < and > can slide apart on their own. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path class="code-left" d="M8 7l-5 5 5 5" />
+        <path class="code-slash" d="M14 5l-4 14" />
+        <path class="code-right" d="M16 7l5 5-5 5" />
+      </svg>
+      <span class="tool-label">view code</span>
+    </a>
+  </nav>
+
+  <!-- Bottom right: where else to find me. site/socials.js plays the cat. -->
+  <nav class="socials" aria-label="elsewhere">
+    <a class="social social-github" href="https://github.com/tristanalonzo" target="_blank" rel="noopener" data-state="ready">
       <!-- GitHub's mark (from their free Octicons set), taken apart so the cat
            can move on its own: a black circle with a white cat on top.
            Hover and the cat jumps out of the circle and sits on it, and an
            arrow takes its place. 16 units across; overflow: visible in
-           toolbar.css lets the cat climb out above the button. -->
+           socials.css lets the cat climb out above the button. -->
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <!-- Keeps the white cat inside the circle when it squashes wide. -->
-        <clipPath id="source-circle">
+        <clipPath id="github-circle">
           <circle cx="8" cy="8" r="8" />
         </clipPath>
 
         <!-- Drawn in this order, each on top of the one before. -->
-        <path class="source-cat source-cat-out" d="M10.55 15.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A8 8 0 0 0 10.55 15.59Z" />
-        <circle class="source-circle" cx="8" cy="8" r="8" />
-        <g clip-path="url(#source-circle)">
-          <path class="source-cat source-cat-in" d="M10.55 15.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A8 8 0 0 0 10.55 15.59Z" />
+        <path class="github-cat github-cat-out" d="M10.55 15.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A8 8 0 0 0 10.55 15.59Z" />
+        <circle class="github-circle" cx="8" cy="8" r="8" />
+        <g clip-path="url(#github-circle)">
+          <path class="github-cat github-cat-in" d="M10.55 15.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A8 8 0 0 0 10.55 15.59Z" />
         </g>
-        <path class="source-arrow" d="M8 11.6V4.8M5.2 7.6 8 4.8l2.8 2.8" />
+        <path class="github-arrow" d="M8 11.6V4.8M5.2 7.6 8 4.8l2.8 2.8" />
       </svg>
-      <span class="tool-label">view code</span>
+      <span class="social-label">github</span>
     </a>
   </nav>
 
