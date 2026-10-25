@@ -92,7 +92,12 @@ keyboard-hints pop-up, and what each hover animation should be.
 ## Bottom right
 
 - [x] **Social links:** GitHub, LinkedIn, Instagram, X, email, in `site/socials.js` + `socials.css`.
-  - Rule: every link has its own hover animation (README.md, "the corner links").
+  - Rule: every link has its own hover animation. Not a shared one: each logo gets a
+    move that fits what it is. A new link isn't done until it has one, documented in
+    README.md, "the corner links".
+  - Rule: every line logo uses the same line thickness (`--social-stroke`).
+- [ ] **Even more minimalist icons.** LinkedIn, Instagram, X and email are bare line
+      marks now; push them further later. GitHub's cat stays as it is.
 
 ## Left list — ideas
 

@@ -130,19 +130,19 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the corner links
 
-`site/socials.js` + `site/socials.css` — where else to find me, in the bottom right: GitHub, LinkedIn, Instagram, X, email, left to right. Grey logos, all 24px tall, level with the toolbar's middle. On phones the row sits centered, just above the toolbar.
+`site/socials.js` + `site/socials.css` — where else to find me, in the bottom right: GitHub, LinkedIn, Instagram, X, email, left to right. Grey logos, all 24px tall, 24px from the bottom. Except GitHub's cat, they're bare line marks with no containers, all drawn with the same line thickness. On phones the row sits centered, just above the toolbar.
 
-**The rule: every link has its own hover animation.** Not a shared one: each logo gets a move that fits what it is. A new link isn't done until it has one, and it goes in this section's table. Every link also shares the same base: darkens to near-black, grows 3px taller (its neighbours make room), and shows its name above.
+Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). They also share the same base: darkens to near-black, grows a little, and shows its name above.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
-| resting | hovered / focused (all) | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | logo grows 24 → 27px tall (a touch past, then settles); the logos to its left slide over to make room. Grey → near-black (plain `ease`) |
+| resting | hovered / focused (all) | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | logo grows to 1.12× (a touch past, then settles), over its neighbours, which stay put. Grey → near-black (plain `ease`) |
 | resting | hovered / focused (all but GitHub) | 80ms wait + 200ms | `ease` | its name fades in and rises 4px above it |
 | any | pressed (all) | 100ms | `ease` | squashes to 0.92× |
-| **LinkedIn** resting | hovered | 300ms | same overshoot | the i's stem stands 1.2× taller from its foot; the dot rides up on it and swells 1.1× |
-| **Instagram** resting | hovered | 450ms, once per hover | `ease-in-out` | shutter: lens closes to 0.35×, opens past to 1.12×, settles. A white flash over the logo fires at the shut (85%) and fades off |
+| **LinkedIn** resting | hovered | 300ms | same overshoot | the i's stem stands 1.2× taller from its foot; the dot rides up on it and swells 1.15× |
+| **Instagram** resting | hovered | 450ms, once per hover | `ease-in-out` | shutter: lens closes to 0.35×, opens past to 1.12×, settles. The flash dot pops to 1.8× as it shuts, and shrinks back |
 | **X** resting | hovered | 300ms | same overshoot | the X flicks a half turn and lands looking the same |
-| **email** resting | hovered | 300ms | same overshoot | the M tips its nose up 12° and lifts off up-right, like a sent letter; hangs there until you leave |
+| **email** resting | hovered | 300ms | same overshoot | the envelope tips its nose up 12° and lifts off up-right, like a sent letter; hangs there until you leave |
 | hovered | resting (all but GitHub) | same | same | the reverse, from wherever it is. Instagram's click just stops |
 
 **GitHub** has the big one: the cat jumps out of the circle and sits on top, and an arrow takes its place. Its moves are one 700ms timeline; percentages are of that.
@@ -159,14 +159,16 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 | open | resting | same timeline backwards, 1.5× faster (~470ms) | — | from wherever it is: leave mid-jump and it turns around |
 
 **Decisions**
-- **Grey, not black, and small.** The links are a footnote to the experiment, not part of it. Grey sits back with the list; hovering one brings it forward to near-black.
-- **Every logo the same height, not the same box.** Each viewBox crops tight around its logo and only the height is set, so the M gets to be wider than the squares instead of shrinking to fit one.
-- **The logos are drawn as they are.** LinkedIn, Instagram and X are their squares with the mark cut out; the cut-outs are painted the page's grey, so they read as holes.
-- **They grow by height, not by scale.** Taller makes them wider too, so they take up more room and the logos beside them slide over. The row is pinned on its right, so it's the ones to the left that move.
-- **LinkedIn sits up straight.** It's the "be professional" one. The dot stays inside the square: any higher and it pokes out the top.
-- **Instagram takes a photo.** Shutter closes and opens, flash fires at the shut. A keyframe animation, not a transition, because a shutter goes two ways on one property. It's short enough that cutting it off when you leave doesn't snap visibly.
+- **Grey, not black, small, and low.** The links are a footnote to the experiment, not part of it. Grey sits back with the list, and 24px from the bottom (the title's distance from the top) keeps them out of the toolbar's line. Hovering one brings it forward to near-black.
+- **Every logo the same height, not the same box.** Each viewBox is 16 units tall and crops tight around its logo, and only the height is set, so the envelope gets to be wider than the camera instead of shrinking to fit.
+- **One line thickness for all of them.** Same height on screen and same units per pixel means `--social-stroke` comes out exactly the same everywhere. Change it once and every line logo follows.
+- **Just the marks, no containers.** `in` without its square, the X without its black tile, the camera and envelope as outlines. The containers made them read as app icons; bare, they read as a set. GitHub keeps its circle because the circle is its mark.
+- **Drawn as code (SVG), not image files.** That's what lets them be grey, darken on hover, and move in pieces. A logo file can't do any of that.
+- **They grow by scale, so nothing beside them moves.** The toolbar's buttons push their neighbours aside; here that was too busy for a row of small marks, so a hovered logo just grows over the gap.
+- **LinkedIn sits up straight.** It's the "be professional" one: the i stands taller and its dot rides up with it.
+- **Instagram takes a photo.** Shutter closes and opens, the flash dot fires at the shut. A keyframe animation, not a transition, because a shutter goes two ways on one property. It's short enough that cutting it off when you leave doesn't snap visibly.
 - **X flicks a half turn.** Half, not quarter: it lands looking like itself, so the motion is the only thing that changed.
-- **Email takes off.** The M is Gmail's, which is an envelope from the front. Tipping it up and away reads as "sent". (A flap flipping open was tried first: the M with its V turned up looked like a house.)
+- **Email takes off.** Tipping the envelope up and away reads as "sent". (On Gmail's M, a flap flipping open was tried first: the M with its V turned up looked like a house.)
 - **Moved here from the toolbar (GitHub).** It started as the toolbar's "view code" button. Now it's the GitHub link among the contact links, and the toolbar got a plain `</>`.
 - **The cat is the GitHub logo taken apart.** The logo is a circle with a cat-shaped hole. Here it's a circle with a page-coloured cat drawn on top, so the cat can move on its own. The cat that jumps out is the same outline in the logo's colour, hidden behind the hole until it climbs out; solid on solid, so you only see it once it pokes past the edge.
 - **Squash, stretch, squash.** Gather, reach, push off: the anticipation before a jump, straight from the sketch. The squash gets wider as it gets flatter, so the cat keeps its weight.
