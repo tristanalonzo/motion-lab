@@ -33,8 +33,8 @@
   --pointer-height: 320px;         /* top to bottom, tails included */
   --pointer-color: #000000;
   --pointer-blunt-duration: 70ms;  /* switching: the tip pulls back flat, fast */
-  --pointer-blunt-hold: 90ms;      /* how long after a switch it starts sharpening again. Keep scrolling and it stays blunt */
-  --pointer-sharpen-duration: 200ms; /* the tip coming back. Hold + this (290ms) beats the list's 450ms slide */
+  --pointer-blunt-hold: 160ms;     /* how long after a switch it starts sharpening again. Keep scrolling and it stays flat */
+  --pointer-sharpen-duration: 200ms; /* the tip coming back. Hold + this (360ms) still beats the list's 450ms slide */
   --pointer-sharpen-ease: cubic-bezier(0.3, 1.5, 0.5, 1); /* the 1.5 overshoots: the tip stabs out a little past, then settles */
 }
 
