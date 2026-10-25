@@ -82,7 +82,7 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 | — | page loads | instant | — | circle starts parked left of the title; title already shifted 38px right |
 | away | circle / hand | ~0.4s spring + 500ms | spring + `cubic-bezier(0.22, 1, 0.36, 1)` | circle flies from beside the title to the mouse (mouse enters window); title slides 38px back left |
 | circle / hand | away | ~0.4s spring + 500ms | spring + `cubic-bezier(0.22, 1, 0.36, 1)` | circle flies back beside the title (mouse leaves window); title slides 38px right to make room |
-| circle | hand | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs circle → hand (slight overshoot), fingertip on the mouse tip |
+| circle | hand | 80ms wait + 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs circle → hand (slight overshoot), fingertip on the mouse tip |
 | hand | circle | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs hand → circle |
 | circle / hand | hidden / native | 150ms | `ease` | fades out because an experiment asked |
 | — | — | ~53ms behind | spring (stiffness 600, damping 32) | follows the mouse; overshoots ~15px after a fast flick, settles in ~0.4s |
@@ -103,6 +103,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **28px circle.** Big enough to read as a shape, small enough that you can still aim with it.
 - **The morph works because both shapes are built from the same 13 curves.** The circle's 13 points are spaced in proportion to how far apart they are on the hand, so each point slides straight to its partner with no twisting.
 - **The hand has no corners at all.** Every point where two curves meet shares one direction, so the outline never kinks. It's 28px tall, the same as the circle.
+- **80ms wait before the hand, none before the circle.** Skimming across a row of links doesn't flicker hand-circle-hand, and the hand feels like it answers your pause instead of firing the instant you touch an edge. Going back has no wait, so it never feels stuck as a hand.
 - **Fingertip on the mouse, not the hand's center.** You aim with the tip of your finger.
 - **SVG path, not `clip-path`.** `clip-path` left a faint hairline on screens scaled to 125%/150%/175%.
 - **"Clickable" means `a[href], button:not(:disabled), [role='button'], label, select, summary`.** Disabled buttons keep the circle.
@@ -125,6 +126,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--cursor-damping: 10`. The circle turns to jelly. Then try `90`: no overshoot at all, just a sluggish drag.
 - Set `--cursor-morph-duration: 1200ms` and slowly hover on and off a button. You'll see the circle stretch into the palm and the thumb grow out of its side.
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
+- Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
