@@ -47,6 +47,19 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - Leaving and coming back always starts the experiment fresh. Nothing is remembered between visits.
 - A broken experiment stays broken until you refresh the page, even after you fix the file.
 
+## Shared: the copyright line
+
+`site/site.css` — "© 2026 Tristan Alonzo · Taguig, PH" in the bottom left, 11px, #C7C7CC. It doesn't move.
+
+**Decisions**
+- **Bottom left, the title's opposite corner.** Same distance from the left as the title, and level with the middle of the contact logos across the screen, so the bottom edge reads as one line.
+- **Lighter than everything else.** The logos are #A1A1A6; this is lighter still. There if you look, invisible if you don't.
+- **Above the logos on phones.** The bottom left is the list's strip there.
+
+**Rough edges**
+- Its grey is faint on purpose; it's below the contrast that accessibility guidelines ask for text.
+- The keyboard hints are planned for the bottom left too (ROADMAP.md). When they're built, the two have to share the corner.
+
 ## Shared: the list
 
 `site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black, grows from 12px light to 14px regular, and steps right. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
@@ -130,7 +143,7 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the corner links
 
-`site/socials.js` + `site/socials.css` — where else to find me, in the bottom right: GitHub, LinkedIn, Instagram, X, email, left to right. Light grey logos, all 24px tall, 24px from the bottom, with "© 2026 Tristan Alonzo · Taguig, PH" in an even lighter grey right above them. Except GitHub's cat, they're bare line marks with no containers, all drawn with the same line thickness. On phones the row sits centered, just above the toolbar.
+`site/socials.js` + `site/socials.css` — where else to find me, in the bottom right: GitHub, LinkedIn, Instagram, X, email, left to right. Light grey logos, all 24px tall, 24px from the bottom. Except GitHub's cat, they're bare line marks with no containers, all drawn with the same line thickness. On phones the row sits centered, just above the toolbar.
 
 Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). They also share the same base: darkens to near-black, grows a little, and shows its name above.
 
@@ -138,7 +151,6 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 |---|---|---|---|---|
 | resting | hovered / focused (all) | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | logo grows to 1.12× (a touch past, then settles), over its neighbours, which stay put. Grey → near-black (plain `ease`) |
 | resting | hovered / focused (all but GitHub) | 80ms wait + 200ms | `ease` | its name fades in and rises 4px above it |
-| resting | any link hovered / focused | 200ms | `ease` | the © line fades out, so the link's name takes its place; fades back when you leave |
 | any | pressed (all) | 100ms | `ease` | squashes to 0.92× |
 | **LinkedIn** resting | hovered | 300ms | same overshoot | the i's stem stands 1.2× taller from its foot; the dot rides up on it and swells 1.15× |
 | **Instagram** resting | hovered | 450ms, once per hover | `ease-in-out` | shutter: lens closes to 0.35×, opens past to 1.12×, settles. The flash dot pops to 1.8× as it shuts, and shrinks back |
@@ -160,8 +172,7 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 | open | resting | same timeline backwards, 1.5× faster (~470ms) | — | from wherever it is: leave mid-jump and it turns around |
 
 **Decisions**
-- **Two light greys.** Logos #A1A1A6, a step lighter than the list; the © line #C7C7CC, lighter still. The further from the experiment, the quieter.
-- **The © line steps aside on hover.** Each link's name shows up right where it sits, and two lines of grey text stacked there read as clutter. It fades with `:has()`, the same CSS trick the title uses: the corner watches its own links.
+- **A light grey, #A1A1A6.** A step lighter than the list: the further from the experiment, the quieter.
 - **Grey, not black, small, and low.** The links are a footnote to the experiment, not part of it. Grey sits back with the list, and 24px from the bottom (the title's distance from the top) keeps them out of the toolbar's line. Hovering one brings it forward to near-black.
 - **Every logo the same height, not the same box.** Each viewBox is 16 units tall and crops tight around its logo, and only the height is set, so the envelope gets to be wider than the camera instead of shrinking to fit.
 - **One line thickness for all of them.** Same height on screen and same units per pixel means `--social-stroke` comes out exactly the same everywhere. Change it once and every line logo follows.
@@ -188,7 +199,6 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - On a phone a tap plays the hover and opens the link at the same moment, so you don't get to see it.
 - Instagram's click restarts every time the mouse comes back, even if you only left for a moment.
 - The email address is in the page, so bots that scrape for addresses will find it.
-- The © line's grey is faint on purpose; it's below the contrast accessibility guidelines ask for body text.
 - The cat's beats (the percentages) live inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in socials.css.
 
 ## Shared: the cursor
