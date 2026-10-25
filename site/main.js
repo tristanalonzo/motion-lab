@@ -8,7 +8,7 @@
 import { EXPERIMENTS } from "./experiments.js";
 import { startCursor, refreshCursor } from "./cursor.js";
 import { createNav } from "./nav.js";
-import { showExperiment, showTitle } from "./stage.js";
+import { showExperiment } from "./stage.js";
 
 startCursor();
 
@@ -31,8 +31,6 @@ function addressFor(experiment) {
 
 // ---------- the list drives everything ----------
 
-let previous = 0; // the row selected before this one, to know which way the list moved
-
 const nav = createNav(EXPERIMENTS, (index) => {
   const experiment = EXPERIMENTS[index];
 
@@ -42,11 +40,6 @@ const nav = createNav(EXPERIMENTS, (index) => {
   document.title = index === 0
     ? "tristan’s motion lab"
     : `${experiment.number} — ${experiment.name} · tristan’s motion lab`;
-
-  // The name above the experiment. Not on the front page: that's the lab
-  // itself, and the site title already says so.
-  showTitle(index === 0 ? "" : experiment.name, Math.sign(index - previous) || 1);
-  previous = index;
 
   // The neighbours get their files fetched early, so stepping to them is instant.
   showExperiment(experiment, [EXPERIMENTS[index - 1], EXPERIMENTS[index + 1]]);
