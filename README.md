@@ -55,14 +55,15 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 |---|---|---|---|---|
 | page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, top row first |
 | item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, weight 700 → 400, steps 18px back left; new one the reverse |
-| pointing | switching | 70ms | `ease-out` | pointer tip rounds off: 22px sharp point → 15px soft bump |
-| switching | pointing | 90ms after the switch, then 200ms | `cubic-bezier(0.3, 1.5, 0.5, 1)` | tip sharpens again, stabs ~1px past 22px, settles. Done by ~260ms, before the list lands |
+| pointing | switching | 70ms | `ease-out` | pointer pulls back flat: 22px sharp point → a shallow 4px arc along the edge |
+| switching | pointing | 90ms after the switch, then 200ms | `cubic-bezier(0.3, 1.5, 0.5, 1)` | tip shoots back out, stabs ~1.5px past 22px, settles. Done by ~260ms, before the list lands |
 
 **Decisions**
 - **The pointer never moves; the list comes to it.** The selected row always lands on the middle, so the pointer can stay pinned there.
 - **The pointer finishes before the text.** Blunt and sharp again in ~260ms, while the list takes 450ms. The pointer reacts, the text follows, so it reads as the pointer pulling the row in.
-- **Blunt while you're moving, sharp when you stop.** Every step restarts the 90ms wait, so a long scroll keeps it rounded and it only sharpens on the row you land on.
-- **The morph works like the cursor's.** Both shapes are 4 curves in the same order, so each point slides to its partner. The blunt bump has no corner at its tip; the point has one.
+- **Flat while you're moving, sharp when you stop.** Every step restarts the 90ms wait, so a long scroll keeps it flat and it only points at the row you land on.
+- **Flat, not just rounded.** A rounded bump (15px) still read as pointing at something mid-switch. Pulled back to a 4px arc, it reads as "not aiming at anything right now", so the point coming back means "here".
+- **The morph works like the cursor's.** Both shapes are 4 curves in the same order, so each point slides to its partner. The flat arc has no corner at its middle; the point has one.
 - **Bold animates instead of snapping.** Inter now loads as one "variable" font covering weights 400 to 700, so the weight can pass through every step in between. San Francisco on a Mac does the same.
 - **Selected steps right 18px.** Moves the selected row away from the pointer, so the two read as pointer and target, not one shape.
 
