@@ -112,7 +112,8 @@ All of the GitHub button's moves are one 700ms timeline. Percentages are of that
 | open | resting | same timeline backwards, 1.5× faster (~470ms) | — | from wherever it is: leave mid-jump and it turns around |
 | resting | open | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | whole button grows to 1.1×, alongside the jump (shrinks back the same way) |
 | any | pressed | 100ms | `ease` | whole button squashes to 0.92× |
-| real experiment | planned one | instant | — | cat goes home, button fades to 35%, stops reacting |
+| real experiment | planned one | 250ms | `ease` | button fades to 35% (cat goes home first if it was out). Stops reacting straight away |
+| planned one | real experiment | 250ms | `ease` | fades back to full, clickable straight away |
 
 **Decisions**
 - **The cat is the GitHub logo taken apart.** The logo is a circle with a cat-shaped hole. Here it's a black circle with a white cat drawn on top, so the cat can move on its own. The black cat that jumps out is the same outline, hidden behind the white one until it climbs out; black on black, so you only see it once it pokes past the edge.
@@ -123,6 +124,7 @@ All of the GitHub button's moves are one 700ms timeline. Percentages are of that
 - **CSS draws every frame, JS only presses play.** The keyframes are CSS, sitting paused. The browser exposes each running CSS animation as an object (the Web Animations API, built in, no library), and toolbar.js sets its speed to 1 or −1.5. CSS on its own can only restart an animation from the start, which would snap when you leave mid-jump.
 - **Keyboard focus counts as hover.** Tab to it and the cat comes out, so keyboard users see the arrow and the label too.
 - **40px from the bottom.** Lifted off the edge so the button and the cat on top of it have room to breathe.
+- **The grey-out fades in 250ms, same as the experiment.** The button changes at the same pace as the thing it belongs to, so the two read as one switch.
 - **48px wide, 1.1× on hover.** Big enough that the cat reads as a cat. The grow is a plain transition, separate from the jump: it already turns around by itself, so it needs no JS.
 - **Planned experiments grey it out instead of hiding it.** The toolbar doesn't jump around as you scroll. A link with no `href` also can't be clicked, tabbed to, or make the hand.
 - **New tab.** Clicking through to the code shouldn't lose your place in the lab.
