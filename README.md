@@ -55,14 +55,15 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 |---|---|---|---|---|
 | page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, top row first |
 | item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, weight 700 → 400, steps 18px back left; new one the reverse |
-| pointing | switching | 70ms | `ease-out` | pointer pulls back flat: 22px sharp point → a shallow 4px arc along the edge |
-| switching | pointing | 160ms after the switch, then 200ms | `cubic-bezier(0.3, 1.5, 0.5, 1)` | tip shoots back out, stabs ~1px past 22px, settles. Done by ~360ms, before the list lands |
+| pointing | switching | 140ms | `cubic-bezier(0.4, 0, 0.2, 1)` | pointer sinks back flat: 22px sharp point → a shallow 4px arc along the edge |
+| switching | pointing | 240ms after the switch, then 380ms | `cubic-bezier(0.34, 1.3, 0.64, 1)` | tip grows back out, pokes ~0.5px past 22px, settles. Done by ~620ms, just after the list lands |
 
 **Decisions**
 - **The pointer never moves; the list comes to it.** The selected row always lands on the middle, so the pointer can stay pinned there.
-- **The pointer finishes before the text.** Flat and sharp again in ~360ms, while the list takes 450ms. The pointer reacts, the text follows, so it reads as the pointer pulling the row in.
-- **It rests flat for about 100ms.** First tried 90ms after the switch, which only showed the flat shape for an instant. 160ms lets you actually see it, and still lands before the text.
-- **Flat while you're moving, sharp when you stop.** Every step restarts the 160ms wait, so a long scroll keeps it flat and it only points at the row you land on.
+- **The pointer reacts first, then lands last.** It starts sinking the instant you switch, ahead of the text, but grows back slowly enough to finish ~170ms after the list. The first version finished before the text (70ms flat, 200ms back), but it was so fast the morph read as the point just appearing.
+- **Slow, steady growth instead of a stab.** 380ms with a gentle curve, so you watch the point grow out of the arc. The old 1.5 overshoot curve did most of its travel in the first few frames, which is why it looked like a pop.
+- **It rests flat for about 100ms.** From 140ms (fully flat) to 240ms (starts pointing). Long enough to read the flat shape as its own moment.
+- **Flat while you're moving, sharp when you stop.** Every step restarts the 240ms wait, so a long scroll keeps it flat and it only points at the row you land on.
 - **Flat, not just rounded.** A rounded bump (15px) still read as pointing at something mid-switch. Pulled back to a 4px arc, it reads as "not aiming at anything right now", so the point coming back means "here".
 - **The morph works like the cursor's.** Both shapes are 4 curves in the same order, so each point slides to its partner. The flat arc has no corner at its middle; the point has one.
 - **Bold animates instead of snapping.** Inter now loads as one "variable" font covering weights 400 to 700, so the weight can pass through every step in between. San Francisco on a Mac does the same.
@@ -142,6 +143,6 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
 - Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
-- Set `--pointer-blunt-hold: 400ms` and step through the list. The pointer now sharpens after the text lands, and it feels like it's lagging behind instead of leading. Then try `--pointer-sharpen-ease: ease` to lose the stab at the end.
+- Set `--pointer-sharpen-duration: 120ms` and step through the list. The point stops growing and just appears, which is what the first version looked like. Then try `--pointer-blunt-hold: 600ms`: it waits so long that it feels like it's lagging behind the list instead of following it.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
