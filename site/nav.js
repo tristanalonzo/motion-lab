@@ -45,6 +45,18 @@ export function createNav(experiments, onSelect) {
   nav.append(list);
   document.body.append(nav);
 
+  // The pointer on the screen's left edge, aimed at the middle row. Outside
+  // the nav, so the nav's fade doesn't touch it. The d="" is the pointing
+  // shape, for browsers that can't set a path's shape from CSS (Safari).
+  // viewBox is its drawing grid; preserveAspectRatio="none" lets nav.css
+  // stretch it to any width and height.
+  document.body.insertAdjacentHTML("beforeend", `
+    <svg class="nav-pointer" data-state="pointing" viewBox="0 0 22 320" preserveAspectRatio="none" aria-hidden="true">
+      <path class="nav-pointer-shape" d="M 0 0 C 1 60, 5 130, 6 140 C 7 150, 15 157, 22 160 C 15 163, 7 170, 6 180 C 5 190, 1 260, 0 320 Z" />
+    </svg>`);
+  const pointer = document.querySelector(".nav-pointer");
+  let sharpenTimer = null;
+
 
   // ---------- selecting ----------
 
@@ -53,7 +65,19 @@ export function createNav(experiments, onSelect) {
   function select(index) {
     index = Math.min(Math.max(index, 0), experiments.length - 1); // stop at the ends
     if (index === selected) return;
+    const isFirst = selected === -1;
     selected = index;
+
+    // The pointer goes blunt, then sharpens again (nav.css draws both).
+    // Every step restarts the wait, so it stays blunt while you keep scrolling.
+    // Not on the first selection, when the page opens: nothing is switching.
+    if (!isFirst) {
+      pointer.dataset.state = "switching";
+      clearTimeout(sharpenTimer);
+      sharpenTimer = setTimeout(() => {
+        pointer.dataset.state = "pointing";
+      }, readSetting("--pointer-blunt-hold"));
+    }
 
     // The list slides so this row is in the middle (CSS does the sliding).
     nav.style.setProperty("--selected", index);

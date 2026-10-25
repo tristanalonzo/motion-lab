@@ -12,14 +12,15 @@ http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
 
 **Where it stands:** the site is one page. Experiments swap in without page
 loads, each sealed in its own box, with one cursor for the whole site. 000 (intro)
-and 001 (submit button, now a pill) are built; 002–005 are "coming soon".
+and 001 (submit button, now a pill) are built. 002–005 are placeholder ideas,
+built whenever; they're not the priority. The site around them is.
 How to add an experiment: CLAUDE.md, "The experiment contract".
 
-**Next, in this order:**
-1. **003 evading button.** The first experiment that needs the mouse everywhere,
-   so it's the real test of the new setup. A pill, per the button rule.
-2. **Experiment title** above the experiment (below). Small, and on every page.
-3. The toolbar: reset icon, GitHub link, then the about panel (the biggest one).
+**Done 2026-10-25:** the list slides in on load; the cursor parks beside the
+title when the mouse is away (title makes room); 80ms wait before the hand;
+a pointer on the left edge aims at the selected row, which is now bold.
+
+**Next:** the toolbar: reset icon, GitHub link, then the about panel (the biggest one).
 
 **Still undecided:** the lab dashboard's categories, glass or plain for the
 keyboard-hints pop-up, and what each hover animation should be.
@@ -49,11 +50,6 @@ keyboard-hints pop-up, and what each hover animation should be.
       undecided) that follows the cursor, with a short preview of each command:
       ↑ / ↓ or scroll to move through the list.
 
-## Above the experiment
-
-- [ ] **Experiment title.** Sits just above the interactive part. Not on the same line
-      as "tristan's motion lab", not too close to the experiment either.
-
 ## 000 — intro
 
 - [x] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
@@ -71,6 +67,9 @@ keyboard-hints pop-up, and what each hover animation should be.
 
 ## Dropped
 
+- ~~**Experiment title** above the experiment.~~ Built, then taken out: the
+  pointer and the bold row on the left already say which one you're on.
+
 - ~~**Dark mode** button, site-wide.~~ Every experiment would need a dark version,
   forever. "002 dark mode button" stays as an experiment of its own.
 
@@ -83,8 +82,8 @@ keyboard-hints pop-up, and what each hover animation should be.
 - [ ] **Counter-style numbering.** Only the selected item shows its number, like a
       counter, instead of every row having one.
 - [ ] **Hover focus.** Hovering the list shrinks the other items and the selected one
-      smoothly gets bolder. That needs a font whose weight can animate. Inter (from
-      Google Fonts) and San Francisco both can.
+      smoothly gets bolder. That needs a font whose weight can animate. Inter now
+      loads as a variable font (400–700) for the bold selected row, so this is ready.
 
 ## Everywhere — later
 

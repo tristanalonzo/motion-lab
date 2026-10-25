@@ -49,14 +49,23 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the list
 
-`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓) to step through experiments one at a time. The selected one slides to the middle and turns black.
+`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓) to step through experiments one at a time. The selected one slides to the middle, turns black and bold, and steps right. A black pointer on the screen's left edge aims at it.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
 | page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, top row first |
-| item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, new one to black |
+| item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, weight 700 → 400, steps 18px back left; new one the reverse |
+| pointing | switching | 70ms | `ease-out` | pointer tip rounds off: 22px sharp point → 15px soft bump |
+| switching | pointing | 90ms after the switch, then 200ms | `cubic-bezier(0.3, 1.5, 0.5, 1)` | tip sharpens again, stabs ~1px past 22px, settles. Done by ~260ms, before the list lands |
 
 **Decisions**
+- **The pointer never moves; the list comes to it.** The selected row always lands on the middle, so the pointer can stay pinned there.
+- **The pointer finishes before the text.** Blunt and sharp again in ~260ms, while the list takes 450ms. The pointer reacts, the text follows, so it reads as the pointer pulling the row in.
+- **Blunt while you're moving, sharp when you stop.** Every step restarts the 90ms wait, so a long scroll keeps it rounded and it only sharpens on the row you land on.
+- **The morph works like the cursor's.** Both shapes are 4 curves in the same order, so each point slides to its partner. The blunt bump has no corner at its tip; the point has one.
+- **Bold animates instead of snapping.** Inter now loads as one "variable" font covering weights 400 to 700, so the weight can pass through every step in between. San Francisco on a Mac does the same.
+- **Selected steps right 18px.** Moves the selected row away from the pointer, so the two read as pointer and target, not one shape.
+
 - **Rows come in 60ms apart but take 800ms each.** Each row starts long before the one above it has landed, so they read as one wave rolling down, not a queue of separate moves.
 - **32px in from the right, not further.** Just enough to read as "arriving". Further and the faded rows at the bottom are still visibly sliding after the top has settled.
 - **A CSS keyframe animation, not a transition.** A transition needs something to change; a keyframe animation plays by itself the moment the row appears.
@@ -72,6 +81,9 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - Hidden below 900px wide, so there's no way to switch on phones yet. No swipe support.
 - Back doesn't step through experiments; it leaves the site.
 - Opening a link straight to a later item (like `#005`) still staggers from row 000, so the selected row arrives last, after the experiment is already showing.
+- The pointer doesn't join the slide-in on load. It's just there from the start.
+- Safari can't set an SVG path's shape from CSS, so the pointer stays sharp there and never morphs.
+- Bold text is wider, so the selected name grows to the right as it gets bolder.
 
 ## Shared: the cursor
 
@@ -128,5 +140,6 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
 - Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
+- Set `--pointer-blunt-hold: 400ms` and step through the list. The pointer now sharpens after the text lands, and it feels like it's lagging behind instead of leading. Then try `--pointer-sharpen-ease: ease` to lose the stab at the end.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
