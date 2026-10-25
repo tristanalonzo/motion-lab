@@ -18,7 +18,8 @@ How to add an experiment: CLAUDE.md, "The experiment contract".
 
 **Done 2026-10-25:** the list slides in on load; the cursor parks beside the
 title when the mouse is away (title makes room); 80ms wait before the hand;
-a pointer on the left edge aims at the selected row, which is now bold.
+a pointer on the left edge aims at the selected row, which is now bold; on
+phones the list sits in a strip along the bottom and a swipe steps it.
 
 **Next:** the toolbar: reset icon, GitHub link, then the about panel (the biggest one).
 

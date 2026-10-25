@@ -49,7 +49,7 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the list
 
-`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓) to step through experiments one at a time. The selected one slides to the middle, turns black and bold, and steps right. A black pointer on the screen's left edge aims at it.
+`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black and bold, and steps right. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
@@ -77,11 +77,17 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **Only the middle row is solid.** Even the neighbours are slightly faded, so the black one is the only thing that reads as "selected".
 - **Hover goes darker grey, not black.** Only the selected item is ever pure black.
 - **Only the selected row is a Tab stop.** With hundreds of rows, Tab would otherwise take forever to get past the list. ↑/↓ move between rows.
-- **Experiments can keep a key or the wheel.** If an experiment calls `e.preventDefault()` on it, the list ignores that event. Arrows inside text boxes and sliders are left alone automatically.
+- **Experiments can keep a key, the wheel or a drag.** If an experiment calls `e.preventDefault()` on it, the list ignores that event. Arrows inside text boxes and sliders are left alone automatically.
+- **Phones get the same list, moved to the bottom.** Not a different menu: same rows, same pointer, same slide, so the site feels like one thing at any size. The bottom is where thumbs are, and it leaves the experiment the top of the screen.
+- **Swipe anywhere, not just on the list.** "Scroll down" on the front page should work wherever your thumb lands. Every 40px of drag is one row, the same "add it up, step at a threshold" idea as the wheel, so a long swipe steps through several rows evenly.
+- **Finger up = next.** The same direction as scrolling a normal page down.
+- **Taps go through.** Only a drag steps the list, so tapping a button in an experiment still works, and tapping a row selects it.
 
 **Rough edges**
 - A trackpad flick keeps coasting after your fingers lift, so it can carry you several items past where you meant to stop.
-- Hidden below 900px wide, so there's no way to switch on phones yet. No swipe support.
+- A swipe steps rows but doesn't fling: the list doesn't keep coasting after your finger lifts, like a real page would.
+- The front page says "press ↓", which means nothing on a phone.
+- Only tested with simulated touch in Firefox, not yet on a real phone.
 - Back doesn't step through experiments; it leaves the site.
 - Opening a link straight to a later item (like `#005`) still staggers from row 000, so the selected row arrives last, after the experiment is already showing.
 - The pointer doesn't join the slide-in on load. It's just there from the start.

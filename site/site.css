@@ -37,6 +37,7 @@ body {
   margin: 0;
   height: 100dvh;
   overflow: hidden;                /* nothing scrolls: the wheel steps the list instead */
+  overscroll-behavior: none;       /* phones: no pull-to-refresh or rubber-band bounce when you swipe */
   background: var(--page-bg);
   color: var(--text-color);
   /* San Francisco first: -apple-system and BlinkMacSystemFont mean "the
@@ -120,6 +121,16 @@ body {
 
 .stage-message[data-state="empty"] {
   opacity: 0;
+}
+
+/* Phones and narrow windows: the list takes a strip along the bottom
+   (nav.css), so the stage stops above it and experiments center in the
+   space that's left. */
+@media (max-width: 900px) {
+  .stage-area,
+  .stage-message {
+    bottom: var(--nav-phone-height);
+  }
 }
 
 /* Reduced motion: every swap is instant. Setting the variable to 0 (instead

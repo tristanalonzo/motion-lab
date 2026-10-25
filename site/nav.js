@@ -139,6 +139,36 @@ export function createNav(experiments, onSelect) {
   }, { passive: true });
 
 
+  // ---------- swiping (phones) ----------
+
+  // A finger dragged up or down anywhere on the page steps the list, like
+  // the scroll wheel: every --nav-swipe-step pixels of travel is one item.
+  // Finger up = next, the same as scrolling down.
+  let touchY = null; // where the finger was at the last step, or null = not ours
+
+  window.addEventListener("touchstart", (e) => {
+    // One finger only: two fingers is a pinch-zoom, leave it alone.
+    touchY = e.touches.length === 1 && !isTypingIn(e) ? e.touches[0].clientY : null;
+  }, { passive: true });
+
+  // passive: false, so preventDefault() below is allowed to work.
+  window.addEventListener("touchmove", (e) => {
+    if (touchY === null || !listIsVisible()) return;
+    if (e.defaultPrevented) {      // an experiment is using this drag itself
+      touchY = null;
+      return;
+    }
+    e.preventDefault();            // the page doesn't scroll or bounce; the list steps instead
+
+    const step = readSetting("--nav-swipe-step");
+    const travelled = touchY - e.touches[0].clientY; // positive = finger moved up
+    if (Math.abs(travelled) < step) return;
+    select(selected + Math.sign(travelled));
+    // Keep the rest of the drag, so one long swipe steps evenly through several items.
+    touchY -= Math.sign(travelled) * step;
+  }, { passive: false });
+
+
   // ---------- arrow keys ----------
 
   window.addEventListener("keydown", (e) => {
