@@ -12,6 +12,8 @@
   --title-inset: 24px;             /* distance from the top and left edges */
   --message-size: 14px;            /* "coming soon", "loading" */
   --message-color: #86868B;        /* Apple's secondary grey, same as the list */
+  --colophon-size: 11px;           /* "© 2026 Tristan Alonzo · Taguig, PH", bottom left */
+  --colophon-color: #C7C7CC;       /* lighter still than the contact logos: there if you look, invisible if you don't */
 
   /* --- feel --- */
   --stage-fade: 250ms;             /* experiment fading in / out (use ms: JS reads this too) */
@@ -65,6 +67,22 @@ body {
   outline: 2px solid var(--title-color);
   outline-offset: 4px;
   border-radius: 4px;
+}
+
+/* Bottom-left copyright line: the title's quiet opposite corner. Same
+   distance from the left as the title; up and down, level with the
+   middle of the contact logos across the screen (socials.css). */
+.colophon {
+  position: fixed;
+  left: var(--title-inset);
+  bottom: calc(var(--socials-bottom) + var(--social-size) / 2);
+  z-index: 2;
+  margin: 0;
+  font-size: var(--colophon-size);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--colophon-color);
+  transform: translateY(50%);      /* placed by its middle, like the toolbar */
 }
 
 /* ---------- the stage ---------- */
@@ -130,6 +148,15 @@ body {
   .stage-area,
   .stage-message {
     bottom: var(--nav-phone-height);
+  }
+
+  /* The bottom left is the list's strip on phones, so the line goes
+     centered, just above the contact logos (which sit above the toolbar). */
+  .colophon {
+    left: 50%;
+    bottom: calc(var(--nav-phone-height) + var(--toolbar-phone-gap) + var(--tool-size) + 2 * var(--toolbar-padding)
+                 + var(--socials-phone-gap) + var(--social-size) + 10px);
+    transform: translateX(-50%);
   }
 }
 
