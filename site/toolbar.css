@@ -8,6 +8,7 @@
   --tool-size: 48px;               /* each button: a circle this wide */
   --tool-color: #1D1D1F;           /* Apple's near-black: the GitHub circle, the focus ring */
   --tool-disabled-opacity: 0.35;   /* a planned experiment has no folder, so no code to link to */
+  --tool-fade: 250ms;              /* fading between clickable and not, as you switch. Same as the experiment's own fade */
   --tool-press-scale: 0.92;        /* squashes while held down */
   --tool-press-duration: 100ms;    /* fast: a press should feel instant */
   --tool-label-size: 12px;         /* the word that appears above on hover */
@@ -56,7 +57,9 @@
   height: var(--tool-size);
   border-radius: 999px;
   -webkit-tap-highlight-color: transparent; /* phones: no grey flash on tap */
-  transition: transform var(--tool-press-duration) ease;
+  transition:
+    transform var(--tool-press-duration) ease,
+    opacity var(--tool-fade) ease;
 }
 
 .tool svg {
@@ -89,8 +92,9 @@
   outline-offset: 3px;
 }
 
-/* Nothing to do here (toolbar.js sets this). Faded, and ignores the mouse
-   completely, so it can't play its hover or turn the cursor into a hand. */
+/* Nothing to do here (toolbar.js sets this). Fades out, and ignores the mouse
+   completely, so it can't play its hover or turn the cursor into a hand.
+   The fade is gradual; not being clickable starts straight away. */
 .tool[data-state="disabled"] {
   opacity: var(--tool-disabled-opacity);
   pointer-events: none;
@@ -117,7 +121,9 @@
 /* The whole button grows while open, cat and all. A plain transition, not
    part of the jump: transitions already turn around mid-way by themselves. */
 .tool-source {
-  transition: transform var(--source-grow-duration) var(--source-grow-ease);
+  transition:
+    transform var(--source-grow-duration) var(--source-grow-ease),
+    opacity var(--tool-fade) ease; /* repeated from .tool: this rule replaces its whole list */
 }
 
 .tool-source[data-state="open"] {
