@@ -9,6 +9,10 @@
   --intro-gap: 8px;                /* space between the paragraphs */
   --intro-hint-gap: 32px;          /* extra space above the hint */
   --intro-hint-color: #86868B;     /* the hint: Apple's secondary grey, same as the list */
+  --key-size: 22px;                /* the ↓ key: width and height */
+  --key-radius: 6px;               /* its corners. A key, not a button, so not a circle or a pill */
+  --key-border: #D2D2D7;           /* its outline: Apple's light grey */
+  --key-shadow: #D2D2D7;           /* the thicker bottom edge that makes it look pressable */
 }
 
 /* ============================================================
@@ -29,4 +33,21 @@
 .intro .intro-hint {
   margin-top: var(--intro-hint-gap);
   color: var(--intro-hint-color);
+}
+
+/* The ↓ key. inline-grid + place-items centers the arrow in the square.
+   vertical-align: middle keeps it sitting level with the words around it. */
+kbd {
+  display: inline-grid;
+  place-items: center;
+  width: var(--key-size);
+  height: var(--key-size);
+  margin: 0 2px;
+  border: 1px solid var(--key-border);
+  border-radius: var(--key-radius);
+  box-shadow: 0 1px 0 var(--key-shadow);
+  font-family: inherit;            /* browsers give <kbd> a typewriter font by default */
+  font-size: 0.85em;
+  line-height: 1;
+  vertical-align: middle;
 }
