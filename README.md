@@ -130,42 +130,60 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the corner links
 
-`site/socials.js` + `site/socials.css` — links to elsewhere, in the bottom right corner. For now, one: GitHub's cat logo, linking to github.com/tristanalonzo. Hover it and the cat jumps out of the circle and sits on top, and an arrow takes its place. On phones it sits just above the list's strip, on the right.
+`site/socials.js` + `site/socials.css` — where else to find me, in the bottom right: GitHub, LinkedIn, Instagram, X, email, left to right. Grey logos, all 24px tall, level with the toolbar's middle. On phones the row sits centered, just above the toolbar.
 
-All of the cat's moves are one 700ms timeline. Percentages are of that.
+**The rule: every link has its own hover animation.** Not a shared one: each logo gets a move that fits what it is. A new link isn't done until it has one, and it goes in this section's table. Every link also shares the same base: darkens to near-black, grows 3px taller (its neighbours make room), and shows its name above.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
-| resting | open (hover or keyboard focus) | 0–12% | `ease-in-out` | white cat: small squash (1.1 wide, 0.88 tall), feet planted |
-| | | 12–30% | `ease-in-out` | white cat: stretches tall and thin (0.75 × 1.15) |
-| | | 30–45% | `ease-in-out` | white cat: squashes flat (1.3 × 0.45), pushing off. Black cat's head pokes up through the top of the circle |
-| | | 45–60% | `ease-in-out` | white cat flattens to nothing; black cat flies up 12% past its seat |
-| | | 60–100% | `ease-in-out` | black cat drops onto the circle, squashes landing (0.9 tall), wobbles, settles |
+| resting | hovered / focused (all) | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | logo grows 24 → 27px tall (a touch past, then settles); the logos to its left slide over to make room. Grey → near-black (plain `ease`) |
+| resting | hovered / focused (all but GitHub) | 80ms wait + 200ms | `ease` | its name fades in and rises 4px above it |
+| any | pressed (all) | 100ms | `ease` | squashes to 0.92× |
+| **LinkedIn** resting | hovered | 300ms | same overshoot | the i's stem stands 1.2× taller from its foot; the dot rides up on it and swells 1.1× |
+| **Instagram** resting | hovered | 450ms, once per hover | `ease-in-out` | shutter: lens closes to 0.35×, opens past to 1.12×, settles. A white flash over the logo fires at the shut (85%) and fades off |
+| **X** resting | hovered | 300ms | same overshoot | the X flicks a half turn and lands looking the same |
+| **email** resting | hovered | 300ms | same overshoot | the M tips its nose up 12° and lifts off up-right, like a sent letter; hangs there until you leave |
+| hovered | resting (all but GitHub) | same | same | the reverse, from wherever it is. Instagram's click just stops |
+
+**GitHub** has the big one: the cat jumps out of the circle and sits on top, and an arrow takes its place. Its moves are one 700ms timeline; percentages are of that.
+
+| From | To | Duration | Easing | What moves |
+|---|---|---|---|---|
+| resting | open (hover or keyboard focus) | 0–12% | `ease-in-out` | cat in the circle: small squash (1.1 wide, 0.88 tall), feet planted |
+| | | 12–30% | `ease-in-out` | stretches tall and thin (0.75 × 1.15) |
+| | | 30–45% | `ease-in-out` | squashes flat (1.3 × 0.45), pushing off. The solid cat's head pokes up through the top of the circle |
+| | | 45–60% | `ease-in-out` | the cat in the circle flattens to nothing; the solid one flies up 12% past its seat |
+| | | 60–100% | `ease-in-out` | drops onto the circle, squashes landing (0.9 tall), wobbles, settles |
 | | | 55–100% | `ease-in-out` | arrow pops in: 0 → 1.15 → 0.95 → 1 |
 | | | 65–85% | `ease-out` | "github" fades in and rises 4px, above the cat |
 | open | resting | same timeline backwards, 1.5× faster (~470ms) | — | from wherever it is: leave mid-jump and it turns around |
-| resting | open | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | whole button grows to 1.1×, alongside the jump (shrinks back the same way) |
-| any | pressed | 100ms | `ease` | whole button squashes to 0.92× |
 
 **Decisions**
-- **Moved here from the toolbar.** It started as the toolbar's "view code" button. Now it's the GitHub link among the contact links, and the toolbar got a plain `</>`.
-- **The cat is the GitHub logo taken apart.** The logo is a circle with a cat-shaped hole. Here it's a black circle with a white cat drawn on top, so the cat can move on its own. The black cat that jumps out is the same outline, hidden behind the white one until it climbs out; black on black, so you only see it once it pokes past the edge.
+- **Grey, not black, and small.** The links are a footnote to the experiment, not part of it. Grey sits back with the list; hovering one brings it forward to near-black.
+- **Every logo the same height, not the same box.** Each viewBox crops tight around its logo and only the height is set, so the M gets to be wider than the squares instead of shrinking to fit one.
+- **The logos are drawn as they are.** LinkedIn, Instagram and X are their squares with the mark cut out; the cut-outs are painted the page's grey, so they read as holes.
+- **They grow by height, not by scale.** Taller makes them wider too, so they take up more room and the logos beside them slide over. The row is pinned on its right, so it's the ones to the left that move.
+- **LinkedIn sits up straight.** It's the "be professional" one. The dot stays inside the square: any higher and it pokes out the top.
+- **Instagram takes a photo.** Shutter closes and opens, flash fires at the shut. A keyframe animation, not a transition, because a shutter goes two ways on one property. It's short enough that cutting it off when you leave doesn't snap visibly.
+- **X flicks a half turn.** Half, not quarter: it lands looking like itself, so the motion is the only thing that changed.
+- **Email takes off.** The M is Gmail's, which is an envelope from the front. Tipping it up and away reads as "sent". (A flap flipping open was tried first: the M with its V turned up looked like a house.)
+- **Moved here from the toolbar (GitHub).** It started as the toolbar's "view code" button. Now it's the GitHub link among the contact links, and the toolbar got a plain `</>`.
+- **The cat is the GitHub logo taken apart.** The logo is a circle with a cat-shaped hole. Here it's a circle with a page-coloured cat drawn on top, so the cat can move on its own. The cat that jumps out is the same outline in the logo's colour, hidden behind the hole until it climbs out; solid on solid, so you only see it once it pokes past the edge.
 - **Squash, stretch, squash.** Gather, reach, push off: the anticipation before a jump, straight from the sketch. The squash gets wider as it gets flatter, so the cat keeps its weight.
 - **It flies 12% past its seat and drops back.** Without it the cat just slides to a stop on top, which reads as moving, not jumping.
-- **The label waits for the landing.** It used to appear at 80ms, with the cursor's hand. Now it would float above empty space while the cat is still inside, so it comes in once the cat is seated under it.
-- **Leaving plays it backwards, not a separate "out".** The cat climbs back into the circle the way it came, from whatever frame it was on. 1.5× faster because leaving shouldn't make you wait.
+- **The cat's label waits for the landing.** At 80ms it would float above empty space while the cat is still inside, so it comes in once the cat is seated under it.
+- **Leaving plays the jump backwards, not a separate "out".** The cat climbs back into the circle the way it came, from whatever frame it was on. 1.5× faster because leaving shouldn't make you wait.
 - **CSS draws every frame, JS only presses play.** The keyframes are CSS, sitting paused. The browser exposes each running CSS animation as an object (the Web Animations API, built in, no library), and socials.js sets its speed to 1 or −1.5. CSS on its own can only restart an animation from the start, which would snap when you leave mid-jump.
-- **Keyboard focus counts as hover.** Tab to it and the cat comes out, so keyboard users see the arrow and the label too.
-- **40px from the bottom and right.** Same bottom as the toolbar, and the same height, so their middles line up across the screen.
-- **48px wide, 1.1× on hover.** Big enough that the cat reads as a cat. The grow is a plain transition, separate from the jump: it already turns around by itself, so it needs no JS.
-- **New tab.** Clicking through to GitHub shouldn't lose your place in the lab.
+- **Keyboard focus counts as hover.** Tab to any of them and it plays, so keyboard users see the same thing.
+- **New tab, except email.** Clicking through shouldn't lose your place in the lab. Email opens your mail app instead, so it needs no tab.
 
 **Rough edges**
-- The cursor's hand sits right on the arrow, so while you hover you mostly see the hand, not the arrow.
+- The cursor's hand sits right on the logos while you hover, so you see a lot of hand. At 24px the hand is bigger than the logo.
 - The cat's tail sticks out to the left of its neck when it's sitting on top. Kept it: it's a cat.
-- On a phone a tap plays the jump and opens GitHub at the same moment, so you don't get to see it.
-- It grows with `scale`, unlike the toolbar's buttons, so it won't push neighbours aside. When LinkedIn and the rest join it, switch it to growing by width like the toolbar.
-- The beats' timing (the percentages) lives inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in socials.css.
+- On a phone a tap plays the hover and opens the link at the same moment, so you don't get to see it.
+- Instagram's click restarts every time the mouse comes back, even if you only left for a moment.
+- The email address is in the page, so bots that scrape for addresses will find it.
+- The cat's beats (the percentages) live inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in socials.css.
 
 ## Shared: the cursor
 
@@ -227,5 +245,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--github-duration: 3000ms` and hover the GitHub cat. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.
 - Set `--github-squash: 1` and `--github-stretch: 1`. No gather, no push-off: the cat just floats up out of the circle. That's what the anticipation was doing.
 - Set `--github-overshoot: 0%`. It slides up and stops, like it's on a lift, instead of jumping.
+- Set `--x-turn: 90deg` and hover X. It lands sideways and looks broken: that's why it's a half turn.
+- Set `--instagram-shut: 0` and `--instagram-burst: 1`. The shutter slams fully shut and the flash goes solid white: a real camera, and much too loud for a footer.
 - Set `--tool-grow: 20px` and hover `</>`. The pill bulges around it; once there are more buttons, you'll see them get shoved aside. Then set `--tool-grow-ease: linear`: same size change, but it stops dead instead of settling.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.

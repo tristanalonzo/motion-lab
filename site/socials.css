@@ -1,16 +1,28 @@
 /* ============================================================
    TUNE HERE. The links in the bottom right corner.
+   Order, left to right: GitHub, LinkedIn, Instagram, X, email.
+   Every link has its own hover animation (README.md, "the corner links").
    ============================================================ */
 :root {
-  /* --- the corner --- */
-  --socials-inset: 40px;           /* distance from the bottom and right edges. Bottom matches the toolbar, so their middles line up */
-  --social-size: 48px;             /* each link: a circle this wide */
-  --social-color: #1D1D1F;         /* Apple's near-black: the GitHub circle, the focus ring */
+  /* --- the row --- */
+  --socials-inset: 40px;           /* distance from the right edge. Up and down, the row lines up with the toolbar's middle */
+  --socials-gap: 16px;             /* space between logos */
+  --social-size: 24px;             /* every logo's height. Widths follow each logo's own shape */
+  --social-color: #86868B;         /* Apple's secondary grey, same as the list */
+  --social-color-hover: #1D1D1F;   /* the hovered logo darkens to near-black */
+  --social-grow: 3px;              /* how much taller a hovered logo gets. Its neighbours make room */
+  --social-grow-duration: 300ms;   /* growing, darkening, and most hover moves below */
+  --social-grow-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* same curve as the cursor's morph: pops a touch past, settles */
   --social-press-scale: 0.92;      /* squashes while held down */
   --social-press-duration: 100ms;  /* fast: a press should feel instant */
   --social-label-size: 12px;       /* the word that appears above on hover */
   --social-label-color: #86868B;   /* Apple's secondary grey, same as the list */
   --social-label-rise: 4px;        /* how far the label rises while fading in */
+  --social-label-delay: 80ms;      /* the label waits as long as the cursor waits to become a hand */
+  --social-label-duration: 200ms;  /* the label fading up */
+
+  /* Distances inside a logo are in the logo's own units: 16 across = 24px,
+     so 1 unit = 1.5px on screen. */
 
   /* --- GitHub: the cat jumps out, an arrow takes its place --- */
   --github-duration: 700ms;        /* the whole jump, start to settled. Every beat below scales with it */
@@ -20,49 +32,108 @@
   --github-cat-rise: 105%;         /* where the cat ends up, as a share of its own height. 100% = chin level with the top of the circle */
   --github-overshoot: 12%;         /* how far past its seat it flies before dropping back */
   --github-land-squash: 0.9;       /* how much it squashes landing on the circle. 1 = lands stiff */
-  --github-label-lift: 40px;       /* label's distance above the button: clears the cat sitting on it */
-  --github-hover-scale: 1.1;       /* the whole button grows this much while open. 1 = doesn't grow */
-  --github-grow-duration: 300ms;   /* growing and shrinking back */
-  --github-grow-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* same curve as the cursor's morph: pops a touch past, settles */
+  --github-label-lift: 22px;       /* label's distance above the logo: clears the cat sitting on it */
+
+  /* --- LinkedIn: the "i" sits up straight --- */
+  --linkedin-stand: 1.2;           /* how much taller the i's stem gets. 1 = doesn't move */
+  --linkedin-dot-lift: 1.5px;      /* how far the dot rides up on it, in logo units. Keep it ≈ 7.7 (the stem) × (stand − 1) */
+  --linkedin-dot-grow: 1.1;        /* the dot swells a little as it rises. Much more and it pokes out the top of the square */
+
+  /* --- Instagram: the camera takes a photo --- */
+  --instagram-snap-duration: 450ms; /* the shutter closing and opening again */
+  --instagram-shut: 0.35;          /* how far the lens closes. 0 = shut completely, 1 = doesn't move */
+  --instagram-burst: 0.85;         /* how bright the flash gets. 0 = no flash, 1 = solid white */
+
+  /* --- X: a flick of a half turn --- */
+  --x-turn: 180deg;                /* half a turn lands it looking the same. 90deg = it ends up sideways */
+
+  /* --- email: the M takes off, like a letter being sent --- */
+  --email-tilt: -12deg;            /* tips its nose up. 0 = flies off flat */
+  --email-fly-x: 1.5px;            /* how far right it lifts, in logo units */
+  --email-fly-y: -1.5px;           /* how far up (negative = up), in logo units */
 
   /* --- phones and narrow windows (under 900px) --- */
-  --socials-phone-inset: 24px;     /* distance from the right edge */
-  --socials-phone-gap: 16px;       /* space between the links and the list's strip under them */
+  --socials-phone-gap: 16px;       /* space between the logos and the toolbar under them */
 }
 
 /* ============================================================
    Wiring.
    ============================================================ */
 
-/* Pinned to the bottom right, above the stage. A row, ready for more links. */
+/* A row pinned to the bottom right, above the stage.
+   Placed by its middle, like the toolbar: bottom puts the middle level with
+   the toolbar's, translateY(50%) pulls it back down half its height. So a
+   growing logo grows up and down evenly, and the row stays level. */
 .socials {
   position: fixed;
   right: var(--socials-inset);
-  bottom: var(--socials-inset);
+  bottom: calc(var(--toolbar-inset) + var(--toolbar-padding) + var(--tool-size) / 2);
   z-index: 2;
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: var(--socials-gap);
+  transform: translateY(50%);
 }
 
-/* Icon-only, so a circle (CLAUDE.md). */
+/* The box is as tall as the logo, and as wide as the logo makes it.
+   Growing changes its real height (and so its width), not a scale, so the
+   logos beside it slide over to make room. */
 .social {
   position: relative;              /* the label is placed against this */
   display: block;
-  width: var(--social-size);
+  flex: none;
   height: var(--social-size);
-  border-radius: 999px;
+  border-radius: 999px;            /* only shows as the shape of the focus ring */
+  color: var(--social-color);
   -webkit-tap-highlight-color: transparent; /* phones: no grey flash on tap */
+  transition:
+    height var(--social-grow-duration) var(--social-grow-ease),
+    color var(--social-grow-duration) ease,
+    transform var(--social-press-duration) ease;
 }
 
+.social:hover,
+.social:focus-visible {
+  height: calc(var(--social-size) + var(--social-grow));
+  color: var(--social-color-hover);
+}
+
+.social:active {
+  transform: scale(var(--social-press-scale));
+}
+
+.social:focus-visible {
+  outline: 2px solid var(--social-color-hover);
+  outline-offset: 3px;
+}
+
+/* Height from the box; width: auto works it out from the viewBox's shape. */
 .social svg {
   display: block;
-  width: 100%;
   height: 100%;
-  overflow: visible;               /* the cat climbs out past the button's edge */
+  width: auto;
+  overflow: visible;               /* hover moves can poke past the logo's edge */
 }
 
-/* The word above the link. Always there for screen readers (it's the
-   link's name); the animation below decides when it's drawn. */
+/* fill-box = measure from the shape itself, not the whole picture.
+   Without it, transform-origin on an SVG piece means the top-left corner
+   of the whole logo. */
+.social svg * {
+  transform-box: fill-box;
+}
+
+/* Two paints. The logo itself follows the link's colour (grey, darker on
+   hover). Its cut-outs are the page's own grey, so they read as holes. */
+.social-fill {
+  fill: currentColor;
+}
+
+.social-hole {
+  fill: var(--page-bg);
+}
+
+/* The word above the logo. Always there for screen readers (it's the
+   link's name); only drawn on hover or keyboard focus. */
 .social-label {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -73,11 +144,19 @@
   opacity: 0;
   transform: translate(-50%, var(--social-label-rise));
   pointer-events: none;
+  /* Going away: no wait. The delay is on the hover rule below, because a
+     transition uses the settings of the state it's going TO. */
+  transition:
+    opacity var(--social-label-duration) ease,
+    transform var(--social-label-duration) ease;
 }
 
-.social:focus-visible {
-  outline: 2px solid var(--social-color);
-  outline-offset: 3px;
+/* GitHub's label is part of its jump instead (below). */
+.social:not(.social-github):hover .social-label,
+.social:not(.social-github):focus-visible .social-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: var(--social-label-delay);
 }
 
 /* ---------- GitHub ---------- */
@@ -89,60 +168,28 @@
    (CSS alone can only restart an animation from the beginning.)
 
    The beats, as a share of --github-duration (700ms):
-     0–12%   white cat: small squash
-     12–30%  white cat: stretches tall
-     30–45%  white cat: squashes flat, pushing off
-     35–45%  black cat: head pokes up through the top of the circle
-     45–60%  white cat flattens away; black cat flies up past its seat
-     60–76%  black cat drops back and lands with a squash
+     0–12%   cat in the circle: small squash
+     12–30%  stretches tall
+     30–45%  squashes flat, pushing off
+     35–45%  the cat outside: head pokes up through the top of the circle
+     45–60%  the cat inside flattens away; the one outside flies up past its seat
+     60–76%  drops back and lands with a squash
      55–88%  arrow pops in
-     65–85%  label fades up                                           */
+     65–85%  label fades up
 
-/* The whole link grows while open, cat and all. A plain transition, not
-   part of the jump: transitions already turn around mid-way by themselves. */
-.social-github {
-  transition: transform var(--github-grow-duration) var(--github-grow-ease);
-}
-
-.social-github[data-state="open"] {
-  transform: scale(var(--github-hover-scale));
-}
-
-/* Pressing wins over growing, and stays quick. */
-.social-github:active {
-  transform: scale(var(--social-press-scale));
-  transition-duration: var(--social-press-duration);
-}
-
-.github-circle {
-  fill: var(--social-color);
-}
-
-.github-cat-in {
-  fill: #FFFFFF;
-}
-
-/* The same cat, black. It starts exactly behind the white one, hidden by
-   it and by the circle (black on black), and climbs out from there. */
-.github-cat-out {
-  fill: var(--social-color);
-}
+   There are two cats: the hole (page-coloured, inside the circle) and a
+   solid one in the logo's colour, starting exactly behind the hole. Solid
+   on solid, it's invisible until it pokes out past the circle's edge. */
 
 .github-arrow {
   fill: none;
-  stroke: #FFFFFF;
+  stroke: var(--page-bg);
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-/* fill-box = measure from the shape itself, not the whole picture.
-   So 50% 100% is the cat's own feet, and the arrow's own middle. */
-.github-cat,
-.github-arrow {
-  transform-box: fill-box;
-}
-
+/* 50% 100% is the cat's own feet; 50% 50% the arrow's own middle. */
 .github-cat {
   transform-origin: 50% 100%;
 }
@@ -158,6 +205,7 @@
 .github-arrow   { animation: github-arrow   var(--github-duration) ease-in-out both paused; }
 .social-github .social-label {
   bottom: calc(100% + var(--github-label-lift));
+  transition: none;
   animation: github-label var(--github-duration) ease-out both paused;
 }
 
@@ -191,26 +239,146 @@
   85%, 100% { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Phones: the list's strip takes the bottom (nav.css), so sit just above it. */
+/* ---------- LinkedIn: the "i" sits up straight ---------- */
+
+/* The stem grows up from its foot; the dot rides up on top of it.
+   Plain transitions, so leaving halfway just sinks back down. */
+.linkedin-i,
+.linkedin-dot {
+  transition: transform var(--social-grow-duration) var(--social-grow-ease);
+}
+
+.linkedin-i {
+  transform-origin: 50% 100%;
+}
+
+.linkedin-dot {
+  transform-origin: 50% 50%;
+}
+
+.social-linkedin:hover .linkedin-i,
+.social-linkedin:focus-visible .linkedin-i {
+  transform: scaleY(var(--linkedin-stand));
+}
+
+.social-linkedin:hover .linkedin-dot,
+.social-linkedin:focus-visible .linkedin-dot {
+  transform: translateY(calc(-1 * var(--linkedin-dot-lift))) scale(var(--linkedin-dot-grow));
+}
+
+/* ---------- Instagram: the camera takes a photo ---------- */
+
+/* The camera's outline and lens are cut out as strokes, page-coloured. */
+.instagram-body,
+.instagram-lens {
+  fill: none;
+  stroke: var(--page-bg);
+  stroke-width: 1.06;
+}
+
+.instagram-lens {
+  transform-origin: 50% 50%;
+}
+
+/* A white square over the whole logo, invisible until the flash. */
+.instagram-burst {
+  fill: #FFFFFF;
+  opacity: 0;
+}
+
+/* Keyframe animations, not transitions: a shutter closes AND opens, two
+   moves on one property. They play once each time the mouse arrives.
+   Leaving mid-click just stops them; it's over in under half a second. */
+.social-instagram:hover .instagram-lens,
+.social-instagram:focus-visible .instagram-lens {
+  animation: instagram-shutter var(--instagram-snap-duration) ease-in-out;
+}
+
+.social-instagram:hover .instagram-burst,
+.social-instagram:focus-visible .instagram-burst {
+  animation: instagram-burst var(--instagram-snap-duration) ease-out;
+}
+
+/* Close fast, open with a little pop past, settle. */
+@keyframes instagram-shutter {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(var(--instagram-shut)); }
+  70%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* The flash fires as the shutter is shut, and fades off slower than it came. */
+@keyframes instagram-burst {
+  0%, 25% { opacity: 0; }
+  35%     { opacity: var(--instagram-burst); }
+  100%    { opacity: 0; }
+}
+
+/* ---------- X: a flick of a half turn ---------- */
+
+.x-mark {
+  transform-origin: 50% 50%;
+  transition: transform var(--social-grow-duration) var(--social-grow-ease);
+}
+
+.social-x:hover .x-mark,
+.social-x:focus-visible .x-mark {
+  transform: rotate(var(--x-turn));
+}
+
+/* ---------- email: the M takes off, like a letter being sent ---------- */
+
+/* Tips its nose up and lifts off to the top right, pivoting on its back
+   corner, then hangs there until the mouse leaves and it settles back. */
+.email-m {
+  transform-origin: 0% 100%;
+  transition: transform var(--social-grow-duration) var(--social-grow-ease);
+}
+
+.social-email:hover .email-m,
+.social-email:focus-visible .email-m {
+  transform: translate(var(--email-fly-x), var(--email-fly-y)) rotate(var(--email-tilt));
+}
+
+/* The lifted M comes up under its label, so the label sits higher. */
+.social-email .social-label {
+  bottom: calc(100% + 14px);
+}
+
+/* Phones: no room in the corner beside the toolbar, so the row sits
+   centered, just above it. */
 @media (max-width: 900px) {
   .socials {
-    right: var(--socials-phone-inset);
-    bottom: calc(var(--nav-phone-height) + var(--socials-phone-gap));
+    right: auto;
+    left: 50%;
+    bottom: calc(var(--nav-phone-height) + var(--toolbar-phone-gap) + var(--tool-size) + 2 * var(--toolbar-padding)
+                 + var(--socials-phone-gap) + var(--social-size) / 2);
+    transform: translate(-50%, 50%);
   }
 }
 
-/* Reduced motion: no jump. 1ms makes the swap instant, cat straight to its
-   seat and the arrow straight in, while socials.js works exactly the same. */
+/* Reduced motion: GitHub's jump becomes an instant swap (1ms), and every
+   other logo just darkens: the colour and label say you're on it. */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --github-duration: 1ms;
   }
 
-  .social-github {
+  .social,
+  .social-label,
+  .social svg * {
     transition: none;
   }
 
-  .social-github:active {
+  .social:hover,
+  .social:focus-visible {
+    height: var(--social-size);
+  }
+
+  .social:active,
+  .social:not(.social-github):hover svg *,
+  .social:not(.social-github):focus-visible svg * {
     transform: none;
+    animation: none;
   }
 }

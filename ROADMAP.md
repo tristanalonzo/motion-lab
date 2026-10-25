@@ -25,7 +25,8 @@ phones the list sits in a strip along the bottom and a swipe steps it.
 `</>` link to the open experiment's folder; hovered buttons grow and push
 their neighbours aside. The GitHub cat (jumps out on hover) moved to the
 bottom right as the first contact link. The list is lighter: 12px light
-around, 14px regular selected.
+around, 14px regular selected. Contact links in the bottom right: GitHub, LinkedIn,
+Instagram, X, email, grey, each with its own hover.
 
 **Next:** the reset icon (decide first how experiments say "something to reset"),
 then the about panel (the biggest one).
@@ -90,9 +91,8 @@ keyboard-hints pop-up, and what each hover animation should be.
 
 ## Bottom right
 
-- [ ] **Social links:** GitHub, LinkedIn, X, Instagram.
-  - Built: GitHub (the cat that jumps out), in `site/socials.js` + `socials.css`.
-  - When the others join: grow by width like the toolbar, so neighbours move aside.
+- [x] **Social links:** GitHub, LinkedIn, Instagram, X, email, in `site/socials.js` + `socials.css`.
+  - Rule: every link has its own hover animation (README.md, "the corner links").
 
 ## Left list — ideas
 
