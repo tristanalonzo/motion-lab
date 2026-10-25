@@ -62,8 +62,6 @@ keyboard-hints pop-up, and what each hover animation should be.
 
 ## Bottom left — keyboard hints
 
-The © line lives here now (bottom left, level with the contact logos). The hints have to share the corner with it.
-
 - [ ] **Keyboard commands.** Hovering shows a small Apple-style pop-up (glass or plain,
       undecided) that follows the cursor, with a short preview of each command:
       ↑ / ↓ or scroll to move through the list.

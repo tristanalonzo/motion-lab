@@ -47,19 +47,6 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - Leaving and coming back always starts the experiment fresh. Nothing is remembered between visits.
 - A broken experiment stays broken until you refresh the page, even after you fix the file.
 
-## Shared: the copyright line
-
-`site/site.css` — "© 2026 Tristan Alonzo · Taguig, PH" in the bottom left, 11px, #C7C7CC. It doesn't move.
-
-**Decisions**
-- **Bottom left, the title's opposite corner.** Same distance from the left as the title, and level with the middle of the contact logos across the screen, so the bottom edge reads as one line.
-- **Lighter than everything else.** The logos are #A1A1A6; this is lighter still. There if you look, invisible if you don't.
-- **Above the logos on phones.** The bottom left is the list's strip there.
-
-**Rough edges**
-- Its grey is faint on purpose; it's below the contrast that accessibility guidelines ask for text.
-- The keyboard hints are planned for the bottom left too (ROADMAP.md). When they're built, the two have to share the corner.
-
 ## Shared: the list
 
 `site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black, grows from 12px light to 14px regular, and steps right. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
