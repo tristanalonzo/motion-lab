@@ -224,6 +224,35 @@ function leave() {
 }
 
 
+// ---------- the title above the experiment ----------
+//
+// A new <h1> for every name, like the boxes: the old one fades out and is
+// deleted, the new one fades in (site.css does the moving). Both can be on
+// screen at once, so fast scrolling never waits for a fade to finish.
+//
+// direction: 1 = moved down the list, -1 = moved up. The names slide the
+// same way the list does.
+
+const titleArea = document.querySelector(".stage-title-area");
+
+export function showTitle(text, direction) {
+  for (const old of titleArea.querySelectorAll('[data-state="shown"]')) {
+    old.style.setProperty("--direction", direction);
+    old.dataset.state = "leaving";
+    old.setAttribute("aria-hidden", "true"); // screen readers only hear the new one
+    setTimeout(() => old.remove(), readSetting("--exp-title-duration"));
+  }
+  if (!text) return;
+
+  const title = document.createElement("h1");
+  title.className = "stage-title";
+  title.style.setProperty("--direction", direction);
+  title.dataset.state = "shown";
+  title.textContent = text;
+  titleArea.append(title);
+}
+
+
 // ---------- the message in the middle ----------
 
 function say(text) {
