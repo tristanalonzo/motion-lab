@@ -2,31 +2,30 @@
    TUNE HERE. The toolbar at the bottom middle.
    ============================================================ */
 :root {
-  /* --- look --- */
-  --toolbar-inset: 24px;           /* distance from the bottom edge (same as the title's from the top) */
+  /* --- the row --- */
+  --toolbar-inset: 40px;           /* distance from the bottom edge */
   --toolbar-gap: 12px;             /* space between buttons, once there's more than one */
   --tool-size: 40px;               /* each button: a circle this wide */
-  --tool-icon-size: 18px;
-  --tool-bg: #FFFFFF;              /* white circle on the grey page */
-  --tool-bg-hover: #E8E8ED;        /* Apple's light grey fill */
-  --tool-icon-color: #1D1D1F;
-  --tool-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* just enough to lift the white off the grey. "none" = flat */
+  --tool-color: #1D1D1F;           /* Apple's near-black: the GitHub circle, the focus ring */
   --tool-disabled-opacity: 0.35;   /* a planned experiment has no folder, so no code to link to */
-  --tool-label-size: 12px;         /* the word that appears above on hover */
-  --tool-label-color: #86868B;     /* Apple's secondary grey, same as the list */
-
-  /* --- feel --- */
-  --tool-hover-scale: 1.08;        /* the button grows this much under the mouse. 1 = doesn't grow */
-  --tool-hover-duration: 260ms;    /* growing and shrinking back */
-  --tool-hover-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* same curve as the cursor's morph: pops a touch past, settles */
   --tool-press-scale: 0.92;        /* squashes while held down */
   --tool-press-duration: 100ms;    /* fast: a press should feel instant */
-  --tool-label-delay: 80ms;        /* the label waits as long as the cursor waits to become a hand, so both arrive together */
-  --tool-label-duration: 200ms;    /* the label fading up */
-  --tool-label-rise: 4px;          /* how far it rises while fading in */
+  --tool-label-size: 12px;         /* the word that appears above on hover */
+  --tool-label-color: #86868B;     /* Apple's secondary grey, same as the list */
+  --tool-label-rise: 4px;          /* how far the label rises while fading in */
+
+  /* --- the GitHub button: the cat jumps out, an arrow takes its place --- */
+  --source-duration: 700ms;        /* the whole jump, start to settled. Every beat below scales with it */
+  --source-rewind: 1.5;            /* mouse leaves: the jump plays backwards this many times faster. 1 = same speed */
+  --source-stretch: 1.15;          /* how tall the cat gets gathering itself, before it pushes off */
+  --source-squash: 0.45;           /* how flat it gets pushing off. 1 = no squash, 0.2 = pancake */
+  --source-cat-rise: 105%;         /* where the cat ends up, as a share of its own height. 100% = chin level with the top of the circle */
+  --source-overshoot: 12%;         /* how far past its seat it flies before dropping back */
+  --source-land-squash: 0.9;       /* how much it squashes landing on the circle. 1 = lands stiff */
+  --source-label-lift: 34px;       /* label's distance above the button: clears the cat sitting on it */
 
   /* --- phones and narrow windows (under 900px) --- */
-  --toolbar-phone-gap: 12px;       /* space between the toolbar and the list's strip under it */
+  --toolbar-phone-gap: 16px;       /* space between the toolbar and the list's strip under it */
 }
 
 /* ============================================================
@@ -45,31 +44,27 @@
   transform: translateX(-50%);
 }
 
-/* Icon-only, so a circle (CLAUDE.md). */
+/* Icon-only, so a circle (CLAUDE.md). Each button draws its own look and
+   its own hover; these are only the parts they all share. */
 .tool {
   position: relative;              /* the label is placed against this */
-  display: grid;
-  place-items: center;
+  display: block;
   width: var(--tool-size);
   height: var(--tool-size);
   border-radius: 999px;
-  background: var(--tool-bg);
-  box-shadow: var(--tool-shadow);
-  color: var(--tool-icon-color);
   -webkit-tap-highlight-color: transparent; /* phones: no grey flash on tap */
-  transition:
-    background-color var(--tool-hover-duration) ease,
-    transform var(--tool-hover-duration) var(--tool-hover-ease);
+  transition: transform var(--tool-press-duration) ease;
 }
 
 .tool svg {
-  width: var(--tool-icon-size);
-  height: var(--tool-icon-size);
-  fill: currentColor;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;               /* things can climb out past the button's edge */
 }
 
 /* The word above the button. Always there for screen readers (it's the
-   link's name); only drawn on hover or keyboard focus. */
+   link's name); each button decides when it's drawn. */
 .tool-label {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -80,43 +75,117 @@
   opacity: 0;
   transform: translate(-50%, var(--tool-label-rise));
   pointer-events: none;
-  /* Going away: no wait. The delay is on the hover rule below, because a
-     transition uses the settings of the state it's going TO. */
-  transition:
-    opacity var(--tool-label-duration) ease,
-    transform var(--tool-label-duration) ease;
 }
 
-.tool:hover,
-.tool:focus-visible {
-  background: var(--tool-bg-hover);
-  transform: scale(var(--tool-hover-scale));
-}
-
-.tool:hover .tool-label,
-.tool:focus-visible .tool-label {
-  opacity: 1;
-  transform: translate(-50%, 0);
-  transition-delay: var(--tool-label-delay);
-}
-
-/* Held down. Its own short duration, so the squash is instant and the
-   release springs back with the hover curve above. */
 .tool:active {
   transform: scale(var(--tool-press-scale));
-  transition-duration: var(--tool-press-duration);
 }
 
 .tool:focus-visible {
-  outline: 2px solid var(--tool-icon-color);
+  outline: 2px solid var(--tool-color);
   outline-offset: 3px;
 }
 
 /* Nothing to do here (toolbar.js sets this). Faded, and ignores the mouse
-   completely, so it can't grow, show its label or turn the cursor into a hand. */
+   completely, so it can't play its hover or turn the cursor into a hand. */
 .tool[data-state="disabled"] {
   opacity: var(--tool-disabled-opacity);
   pointer-events: none;
+}
+
+/* ---------- the GitHub button ---------- */
+
+/* How it plays: every part below has a keyframe animation, all the same
+   length, sitting paused on its first frame. toolbar.js presses play when
+   the mouse arrives, and plays them backwards when it leaves. Backwards
+   picks up from wherever it is, so leaving mid-jump just turns it around.
+   (CSS alone can only restart an animation from the beginning.)
+
+   The beats, as a share of --source-duration (700ms):
+     0–12%   white cat: small squash
+     12–30%  white cat: stretches tall
+     30–45%  white cat: squashes flat, pushing off
+     35–45%  black cat: head pokes up through the top of the circle
+     45–60%  white cat flattens away; black cat flies up past its seat
+     60–76%  black cat drops back and lands with a squash
+     55–88%  arrow pops in
+     65–85%  label fades up                                           */
+
+.source-circle {
+  fill: var(--tool-color);
+}
+
+.source-cat-in {
+  fill: #FFFFFF;
+}
+
+/* The same cat, black. It starts exactly behind the white one, hidden by
+   it and by the circle (black on black), and climbs out from there. */
+.source-cat-out {
+  fill: var(--tool-color);
+}
+
+.source-arrow {
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* fill-box = measure from the shape itself, not the whole picture.
+   So 50% 100% is the cat's own feet, and the arrow's own middle. */
+.source-cat,
+.source-arrow {
+  transform-box: fill-box;
+}
+
+.source-cat {
+  transform-origin: 50% 100%;
+}
+
+.source-arrow {
+  transform-origin: 50% 50%;
+}
+
+/* "both" holds the first frame before it plays and the last after.
+   "paused" because toolbar.js decides when it runs. */
+.source-cat-in  { animation: source-cat-in  var(--source-duration) ease-in-out both paused; }
+.source-cat-out { animation: source-cat-out var(--source-duration) ease-in-out both paused; }
+.source-arrow   { animation: source-arrow   var(--source-duration) ease-in-out both paused; }
+.tool-source .tool-label {
+  bottom: calc(100% + var(--source-label-lift));
+  animation: source-label var(--source-duration) ease-out both paused;
+}
+
+/* scale(wide, tall). Squashing gets wider as it gets flatter, like a real squash. */
+@keyframes source-cat-in {
+  0%        { transform: scale(1, 1); }
+  12%       { transform: scale(1.1, 0.88); }
+  30%       { transform: scale(0.75, var(--source-stretch)); }
+  45%       { transform: scale(1.3, var(--source-squash)); }
+  60%, 100% { transform: scale(0.8, 0); }
+}
+
+@keyframes source-cat-out {
+  0%, 35% { transform: translateY(0) scale(1, 1); }
+  45%     { transform: translateY(-45%) scale(0.9, 1.1); }
+  60%     { transform: translateY(calc(-1 * (var(--source-cat-rise) + var(--source-overshoot)))) scale(0.95, 1.05); }
+  76%     { transform: translateY(calc(-1 * var(--source-cat-rise))) scale(1.08, var(--source-land-squash)); }
+  88%     { transform: translateY(calc(-1 * var(--source-cat-rise))) scale(0.98, 1.02); }
+  100%    { transform: translateY(calc(-1 * var(--source-cat-rise))) scale(1, 1); }
+}
+
+@keyframes source-arrow {
+  0%, 55% { transform: scale(0); }
+  75%     { transform: scale(1.15); }
+  88%     { transform: scale(0.95); }
+  100%    { transform: scale(1); }
+}
+
+@keyframes source-label {
+  0%, 65%   { opacity: 0; transform: translate(-50%, var(--tool-label-rise)); }
+  85%, 100% { opacity: 1; transform: translate(-50%, 0); }
 }
 
 /* Phones: the list's strip takes the bottom (nav.css), so sit just above it. */
@@ -126,15 +195,17 @@
   }
 }
 
+/* Reduced motion: no jump. 1ms makes the swap instant, cat straight to its
+   seat and the arrow straight in, while toolbar.js works exactly the same. */
 @media (prefers-reduced-motion: reduce) {
-  .tool,
-  .tool-label {
+  :root {
+    --source-duration: 1ms;
+  }
+
+  .tool {
     transition: none;
   }
 
-  /* No growing or squashing: the color change alone says "you're on it". */
-  .tool:hover,
-  .tool:focus-visible,
   .tool:active {
     transform: none;
   }

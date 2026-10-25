@@ -96,28 +96,42 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the toolbar
 
-`site/toolbar.js` + `site/toolbar.css` — a row of round buttons at the bottom middle, about the open experiment. For now, one: a GitHub link to the experiment's folder, which opens in a new tab. The buttons are in `index.html`; toolbar.js re-points them on every switch. On phones it sits just above the list's strip.
+`site/toolbar.js` + `site/toolbar.css` — a row of round buttons at the bottom middle, about the open experiment. For now, one: GitHub's cat logo, linking to the experiment's folder (opens in a new tab). Hover it and the cat jumps out of the circle and sits on top, and an arrow takes its place. The buttons are in `index.html`; toolbar.js re-points them on every switch. On phones it sits just above the list's strip.
+
+All of the GitHub button's moves are one 700ms timeline. Percentages are of that.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
-| resting | hovered / focused | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | button grows to 1.08×, white → light grey (plain `ease`) |
-| resting | hovered / focused | 80ms wait + 200ms | `ease` | "view code" fades in and rises 4px above it |
-| hovered | resting | 260ms / 200ms | same | the reverse, with no wait |
-| hovered | pressed | 100ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | squashes to 0.92× |
-| real experiment | planned one | instant | — | fades to 35%, stops reacting to the mouse |
+| resting | open (hover or keyboard focus) | 0–12% | `ease-in-out` | white cat: small squash (1.1 wide, 0.88 tall), feet planted |
+| | | 12–30% | `ease-in-out` | white cat: stretches tall and thin (0.75 × 1.15) |
+| | | 30–45% | `ease-in-out` | white cat: squashes flat (1.3 × 0.45), pushing off. Black cat's head pokes up through the top of the circle |
+| | | 45–60% | `ease-in-out` | white cat flattens to nothing; black cat flies up 12% past its seat |
+| | | 60–100% | `ease-in-out` | black cat drops onto the circle, squashes landing (0.9 tall), wobbles, settles |
+| | | 55–100% | `ease-in-out` | arrow pops in: 0 → 1.15 → 0.95 → 1 |
+| | | 65–85% | `ease-out` | "view code" fades in and rises 4px, above the cat |
+| open | resting | same timeline backwards, 1.5× faster (~470ms) | — | from wherever it is: leave mid-jump and it turns around |
+| any | pressed | 100ms | `ease` | whole button squashes to 0.92× |
+| real experiment | planned one | instant | — | cat goes home, button fades to 35%, stops reacting |
 
 **Decisions**
-- **Bottom middle, under the experiment.** The experiment is centered, so its tools line up under it. The corners are taken (title, lab button, social links).
-- **The label waits 80ms, like the cursor's hand.** Both answer the same pause, so they arrive together. Leaving has no wait, same as the cursor.
-- **Same overshoot curve as the cursor's morph.** The grow pops a touch past 1.08 and settles, so it feels like it belongs to the hand that's on it.
-- **The label is the link's name.** It's always there for screen readers; hover only decides whether it's drawn.
+- **The cat is the GitHub logo taken apart.** The logo is a circle with a cat-shaped hole. Here it's a black circle with a white cat drawn on top, so the cat can move on its own. The black cat that jumps out is the same outline, hidden behind the white one until it climbs out; black on black, so you only see it once it pokes past the edge.
+- **Squash, stretch, squash.** Gather, reach, push off: the anticipation before a jump, straight from the sketch. The squash gets wider as it gets flatter, so the cat keeps its weight.
+- **It flies 12% past its seat and drops back.** Without it the cat just slides to a stop on top, which reads as moving, not jumping.
+- **The label waits for the landing.** It used to appear at 80ms, with the cursor's hand. Now it would float above empty space while the cat is still inside, so it comes in once the cat is seated under it.
+- **Leaving plays it backwards, not a separate "out".** The cat climbs back into the circle the way it came, from whatever frame it was on. 1.5× faster because leaving shouldn't make you wait.
+- **CSS draws every frame, JS only presses play.** The keyframes are CSS, sitting paused. The browser exposes each running CSS animation as an object (the Web Animations API, built in, no library), and toolbar.js sets its speed to 1 or −1.5. CSS on its own can only restart an animation from the start, which would snap when you leave mid-jump.
+- **Keyboard focus counts as hover.** Tab to it and the cat comes out, so keyboard users see the arrow and the label too.
+- **40px from the bottom.** Lifted off the edge so the button and the cat on top of it have room to breathe.
 - **Planned experiments grey it out instead of hiding it.** The toolbar doesn't jump around as you scroll. A link with no `href` also can't be clicked, tabbed to, or make the hand.
 - **New tab.** Clicking through to the code shouldn't lose your place in the lab.
 
 **Rough edges**
-- On a phone the label never shows (no hover), so the icon has to speak for itself.
+- The cursor's hand sits right on the arrow, so while you hover you mostly see the hand, not the arrow.
+- The cat's tail sticks out to the left of its neck when it's sitting on top. Kept it: it's a cat.
+- On a phone a tap plays the jump and opens GitHub at the same moment, so you don't get to see it.
 - On phones it overlaps the bottom of the experiment's area. Fine for centered experiments; one that uses its bottom edge would sit under it.
 - The link points at `main`. Code you haven't pushed yet gives GitHub's 404.
+- The beats' timing (the percentages) lives inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in toolbar.css.
 
 ## Shared: the cursor
 
@@ -176,6 +190,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--pointer-sharpen-duration: 120ms` and step through the list. The point stops growing and just appears, which is what the first version looked like. Then try `--pointer-blunt-hold: 600ms`: it waits so long that it feels like it's lagging behind the list instead of following it.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
-- Set `--tool-label-delay: 0ms` and sweep the mouse across the button: the word blinks on and off. Then `400ms`: you're already clicking before it shows.
-- Set `--tool-hover-scale: 1.3`. It stops reading as "this reacts to you" and starts reading as a cartoon.
+- Set `--source-duration: 3000ms` and hover the GitHub button. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.
+- Set `--source-squash: 1` and `--source-stretch: 1`. No gather, no push-off: the cat just floats up out of the circle. That's what the anticipation was doing.
+- Set `--source-overshoot: 0%`. It slides up and stops, like it's on a lift, instead of jumping.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
