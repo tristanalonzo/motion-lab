@@ -11,6 +11,8 @@
   --nav-color: #86868B;            /* everything that isn't selected: Apple's secondary grey */
   --nav-color-hover: #48484A;      /* hovering an item: darker grey, still not black */
   --nav-color-selected: #000000;   /* the selected item, and only that one */
+  --nav-selected-weight: 700;      /* bold. 400 = regular, 500 = medium, 600 = semibold */
+  --nav-selected-indent: 18px;     /* the selected item steps right, away from the pointer */
   --nav-fade-solid: 18px;          /* only the middle row is fully visible... */
   --nav-fade-end: 180px;           /* ...everything fades out completely by this far from the middle */
 
@@ -25,6 +27,15 @@
   --nav-in-duration: 800ms;        /* how long each row takes to land */
   --nav-in-distance: 32px;         /* how far right each row starts */
   --nav-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* same soft landing as the slide */
+
+  /* --- the pointer on the screen's left edge --- */
+  --pointer-width: 22px;           /* how far the tip reaches in from the edge */
+  --pointer-height: 320px;         /* top to bottom, tails included */
+  --pointer-color: #000000;
+  --pointer-blunt-duration: 70ms;  /* switching: the tip rounds off, fast */
+  --pointer-blunt-hold: 90ms;      /* how long after a switch it starts sharpening again. Keep scrolling and it stays blunt */
+  --pointer-sharpen-duration: 200ms; /* the tip coming back. Hold + this (290ms) beats the list's 450ms slide */
+  --pointer-sharpen-ease: cubic-bezier(0.3, 1.5, 0.5, 1); /* the 1.5 overshoots: the tip stabs out a little past, then settles */
 }
 
 /* ============================================================
@@ -94,7 +105,10 @@
   letter-spacing: -0.01em;
   text-decoration: none;
   color: var(--nav-color);
-  transition: color var(--nav-step-duration) var(--nav-step-ease);
+  transition:
+    color var(--nav-step-duration) var(--nav-step-ease),
+    font-weight var(--nav-step-duration) var(--nav-step-ease),
+    transform var(--nav-step-duration) var(--nav-step-ease);
 }
 
 .nav-number {
@@ -105,9 +119,11 @@
   color: var(--nav-color-hover);
 }
 
+/* The weight animates smoothly because the font is "variable" (see index.html). */
 .nav-item[data-state="selected"] {
   color: var(--nav-color-selected);
-  font-weight: 500;
+  font-weight: var(--nav-selected-weight);
+  transform: translateX(var(--nav-selected-indent));
 }
 
 .nav-item:focus-visible {
@@ -116,16 +132,50 @@
   border-radius: 6px;
 }
 
+/* ---------- the pointer ---------- */
+
+/* Pinned to the screen's left edge, at the middle, where the selected row
+   always lands. It never moves up or down: the list slides to it. */
+.nav-pointer {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  z-index: 1;
+  width: var(--pointer-width);
+  height: var(--pointer-height);
+  margin-top: calc(var(--pointer-height) / -2);
+  pointer-events: none;
+}
+
+/* Pointing: thin tails along the edge that sweep out to a sharp tip.
+   Both shapes below are the same 4 curves in the same order (top tail,
+   into the tip, out of the tip, bottom tail), so the browser can slide
+   every point from one to the other, like the cursor's morph. */
+.nav-pointer-shape {
+  fill: var(--pointer-color);
+  d: path("M 0 0 C 1 60, 5 130, 6 140 C 7 150, 15 157, 22 160 C 15 163, 7 170, 6 180 C 5 190, 1 260, 0 320 Z");
+  transition: d var(--pointer-sharpen-duration) var(--pointer-sharpen-ease);
+}
+
+/* Switching: the tip rounds off into a soft bump, 15 wide instead of 22.
+   nav.js sets this on every switch, and puts "pointing" back a moment later. */
+.nav-pointer[data-state="switching"] .nav-pointer-shape {
+  d: path("M 0 0 C 1 60, 5 130, 6 140 C 7.5 155, 15 152, 15 160 C 15 168, 7.5 165, 6 180 C 5 190, 1 260, 0 320 Z");
+  transition: d var(--pointer-blunt-duration) ease-out;
+}
+
 /* Below this width the list would run into the experiment. Hide it for now. */
 @media (max-width: 900px) {
-  .nav {
+  .nav,
+  .nav-pointer {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nav ol,
-  .nav-item {
+  .nav-item,
+  .nav-pointer-shape {
     transition: none;
   }
 
