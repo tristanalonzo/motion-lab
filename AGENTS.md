@@ -126,9 +126,11 @@ Rules that keep experiments from leaking into each other:
    stopped in the cleanup function.
 4. Never set `cursor:` in CSS. Ask the site: `data-cursor="hidden"`,
    `"native"`, `"circle"` or `"hand"` on an element, or `lab.setCursor()`.
-5. To use the scroll wheel or arrow keys yourself, call `e.preventDefault()`
-   in your handler; the list then leaves that event alone. (For the wheel,
-   the listener needs `{ passive: false }`.)
+5. To use the scroll wheel, arrow keys or a finger drag yourself, call
+   `e.preventDefault()` in your handler; the list then leaves that event
+   alone. (For `wheel` and `touchmove`, the listener needs `{ passive: false }`.)
+   On phones a vertical drag anywhere steps the list, so an experiment you
+   drag on must claim its `touchmove` this way.
 6. Fonts load in `index.html`, never from an experiment's CSS.
 7. Libraries that find elements by selector string (like `gsap.to(".btn")`)
    can't see inside the box. Hand them elements instead:
