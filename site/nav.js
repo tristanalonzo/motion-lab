@@ -36,6 +36,7 @@ export function createNav(experiments, onSelect) {
     });
 
     const row = document.createElement("li");
+    row.style.setProperty("--i", index); // its place in line for the slide-in (nav.css)
     row.append(item);
     list.append(row);
     return item;
