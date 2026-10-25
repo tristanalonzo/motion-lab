@@ -12,17 +12,11 @@
   --title-inset: 24px;             /* distance from the top and left edges */
   --message-size: 14px;            /* "coming soon", "loading" */
   --message-color: #86868B;        /* Apple's secondary grey, same as the list */
-  --exp-title-size: 17px;          /* the experiment's name, above it */
-  --exp-title-weight: 500;
-  --exp-title-gap: 72px;           /* from the middle of the screen up to the name. Experiments sit on the middle, so bigger = more space above them */
 
   /* --- feel --- */
   --stage-fade: 250ms;             /* experiment fading in / out (use ms: JS reads this too) */
   --stage-settle: 150ms;           /* how long the list must rest on an item before it loads. Lower = appears sooner, but fast scrolling loads everything you pass */
   --stage-loading-delay: 400ms;    /* "loading" only shows if it takes longer than this, so fast loads never flicker */
-  --exp-title-duration: 400ms;     /* the name sliding out and the next sliding in, at the same time (use ms: JS reads this too) */
-  --exp-title-distance: 12px;      /* how far a name slides as it comes and goes */
-  --exp-title-ease: cubic-bezier(0.22, 1, 0.36, 1); /* same soft landing as the list */
 }
 
 /* ============================================================
@@ -109,52 +103,6 @@ body {
   }
 }
 
-/* ---------- the title above the experiment ---------- */
-
-/* A strip across the screen. Its bottom edge sits --exp-title-gap above the
-   middle, so the name stays in one place whatever the experiment is. */
-.stage-title-area {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(50% + var(--exp-title-gap));
-  z-index: 1;
-  pointer-events: none;            /* never in the way of the experiment */
-}
-
-/* Every name sits in the same spot, on top of each other, so the old and
-   the new one cross over in place. */
-.stage-title {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0;
-  text-align: center;
-  font-size: var(--exp-title-size);
-  font-weight: var(--exp-title-weight);
-  letter-spacing: -0.01em;
-  color: var(--text-color);
-  transition:
-    opacity var(--exp-title-duration) var(--exp-title-ease),
-    transform var(--exp-title-duration) var(--exp-title-ease);
-}
-
-/* --direction (set by stage.js) is 1 going down the list, -1 going up.
-   Going down, the list moves up, so the old name leaves upward... */
-.stage-title[data-state="leaving"] {
-  opacity: 0;
-  transform: translateY(calc(var(--direction) * var(--exp-title-distance) * -1));
-}
-
-/* ...and the new one rises in from below. (Going up: the other way round.) */
-@starting-style {
-  .stage-title[data-state="shown"] {
-    opacity: 0;
-    transform: translateY(calc(var(--direction) * var(--exp-title-distance)));
-  }
-}
-
 /* ---------- the message in the middle ---------- */
 
 .stage-message {
@@ -180,6 +128,5 @@ body {
 @media (prefers-reduced-motion: reduce) {
   :root {
     --stage-fade: 0ms;
-    --exp-title-duration: 0ms;
   }
 }
