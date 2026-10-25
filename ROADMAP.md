@@ -12,14 +12,15 @@ http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
 
 **Where it stands:** the site is one page. Experiments swap in without page
 loads, each sealed in its own box, with one cursor for the whole site. 000 (intro)
-and 001 (submit button, now a pill) are built; 002–005 are "coming soon".
+and 001 (submit button, now a pill) are built. 002–005 are placeholder ideas,
+built whenever; they're not the priority. The site around them is.
 How to add an experiment: CLAUDE.md, "The experiment contract".
 
-**Next, in this order:**
-1. **003 evading button.** The first experiment that needs the mouse everywhere,
-   so it's the real test of the new setup. A pill, per the button rule.
-2. **Experiment title** above the experiment (below). Small, and on every page.
-3. The toolbar: reset icon, GitHub link, then the about panel (the biggest one).
+**Done 2026-10-25:** the list slides in on load; the cursor parks beside the
+title when the mouse is away (title makes room); 80ms wait before the hand;
+the experiment's name above it.
+
+**Next:** the toolbar: reset icon, GitHub link, then the about panel (the biggest one).
 
 **Still undecided:** the lab dashboard's categories, glass or plain for the
 keyboard-hints pop-up, and what each hover animation should be.
@@ -51,8 +52,9 @@ keyboard-hints pop-up, and what each hover animation should be.
 
 ## Above the experiment
 
-- [ ] **Experiment title.** Sits just above the interactive part. Not on the same line
+- [x] **Experiment title.** Sits just above the interactive part. Not on the same line
       as "tristan's motion lab", not too close to the experiment either.
+  - Done: a fixed spot 72px above the middle, slides with the list. None on 000.
 
 ## 000 — intro
 

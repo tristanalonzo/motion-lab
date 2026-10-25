@@ -36,16 +36,23 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 | loaded | shown | 250ms | `ease` | the new one fades in |
 | loading | "loading" shown | 250ms | `ease` | only if loading takes over 400ms |
 | anything | planned item selected | 250ms | `ease` | "coming soon" fades in |
+| name shown | another one selected | 400ms | `cubic-bezier(0.22, 1, 0.36, 1)` | the name above the experiment: old one slides 12px and fades out, new one slides 12px in from the other side, both at once. Same direction the list moves |
+| name shown | 000 selected | 400ms | `cubic-bezier(0.22, 1, 0.36, 1)` | the name slides out; the front page has none |
 
 **Decisions**
 - **Fade out on select, fade in when settled.** The middle never shows the wrong experiment under the selected number, even mid-scroll.
 - **150ms rest before loading.** Scrolling fast past 20 items loads none of them. It's shorter than the list's 450ms slide, so the experiment arrives while the list is still landing.
 - **"loading" waits 400ms.** Most loads are instant; a word that flashes for 50ms reads as a glitch.
+- **The name sits in one fixed spot, 72px above the middle.** Not measured from each experiment: then it would jump up and down as you scroll. 72px leaves about 47px above 001's button.
+- **The name changes the instant you select, not when the experiment arrives.** It's feedback for the list, like the black row.
+- **The name moves with the list.** Scroll down and the list moves up, so the old name leaves upward and the new one comes from below. The two directions agreeing is what makes it feel like one motion.
+- **No name on 000.** It's the lab itself, and the site title already says it.
 - **Neighbours preload, but don't run.** Their files are fetched so stepping to them is instant. Running them early would start their animations off screen.
 
 **Rough edges**
 - Leaving and coming back always starts the experiment fresh. Nothing is remembered between visits.
 - A broken experiment stays broken until you refresh the page, even after you fix the file.
+- An experiment taller than about 140px will run into its own name. Experiments can't move it yet; the fix then is a bigger `--exp-title-gap`, or a way for an experiment to ask for one.
 
 ## Shared: the list
 
@@ -129,4 +136,5 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
-- Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
+- Set `--stage-fade: 1200ms` and switch back and forth quickly.
+- Set `--exp-title-distance: 60px`. The names fly instead of shift, and the title starts competing with the list for your eye. Then `0px`: a plain cross-fade, which loses the sense of direction. You'll see the old one fading under the new one.
