@@ -23,12 +23,21 @@
   <!-- Experiments are put in here, one at a time, by site/stage.js. -->
   <div class="stage-area"></div>
 
-  <!-- Says "coming soon", "loading", or that something broke.
-       The text below only stays if the site's code never ran, which is what
-       happens when this file is opened by double-clicking instead of through a server. -->
-  <p class="stage-message" data-state="shown" aria-live="polite">
-    Run <code>py -m http.server</code> in this folder, then open localhost:8000.
-  </p>
+  <!-- Says "coming soon", "loading", or that something broke. Starts empty. -->
+  <p class="stage-message" data-state="empty" aria-live="polite"></p>
+
+  <!-- Opened by double-clicking (a file:/// address)? Then the site's code
+       can't load, so say how to run it. Runs before anything is drawn, so
+       on a real server (localhost, GitHub Pages) this never flashes. -->
+  <script>
+    if (location.protocol === "file:") {
+      const message = document.querySelector(".stage-message");
+      // One <span> around it all: the message is a grid, which would put
+      // each loose piece of text on its own row.
+      message.innerHTML = "<span>Run <code>py -m http.server</code> in this folder, then open localhost:8000.</span>";
+      message.dataset.state = "shown";
+    }
+  </script>
 
   <!-- The list on the left is built by site/nav.js. -->
 
