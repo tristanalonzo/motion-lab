@@ -3,7 +3,8 @@
 // ask it to change shape (see "what experiments can ask for" below).
 //
 // data-state on the cursor is the one source of truth. It's one of:
-//   away    the mouse isn't on the page (left the window, or hasn't moved yet)
+//   away    the mouse isn't on the page (left the window, or hasn't moved yet).
+//           The circle waits beside the title, and the title makes room.
 //   circle  the normal cursor
 //   hand    over something clickable
 //   hidden  an experiment asked for no cursor
@@ -16,6 +17,7 @@
 // A spring remembers how fast it's going, and that leftover speed is the overshoot.
 
 const cursor = document.querySelector(".cursor");
+const title = document.querySelector(".site-title");
 
 // Things that get the hand. :not(:disabled) so a greyed-out button doesn't.
 const CLICKABLE = "a[href], button:not(:disabled), [role='button'], label, select, summary";
@@ -39,13 +41,17 @@ function readSetting(name) {
 // ---------- starting ----------
 
 export function startCursor() {
+  // Start parked beside the title: the mouse hasn't been seen yet.
+  jumpTo(parkingSpot());
+
   window.addEventListener("pointermove", onPointerMove);
 
   // The mouse left the browser window. <html> fills the whole window, so it
   // only "leaves" when the mouse really leaves, never because an experiment
-  // under the mouse was swapped out.
+  // under the mouse was swapped out. The spring flies the circle home.
   document.documentElement.addEventListener("mouseleave", () => {
     cursor.dataset.state = "away";
+    startSpring();
   });
 }
 
@@ -53,7 +59,6 @@ function onPointerMove(e) {
   if (e.pointerType !== "mouse") return; // fingers and pens get no cursor
   mouse.x = e.clientX;
   mouse.y = e.clientY;
-  const wasAway = cursor.dataset.state === "away";
 
   // Tells cursor.css ours can be drawn now, so it's safe to hide the system
   // arrow. Not before the first move: until then the browser hasn't said where
@@ -65,17 +70,9 @@ function onPointerMove(e) {
   // experiment's sealed box. (e.target would only say "the box".)
   cursor.dataset.state = shapeFor(e.composedPath()[0]);
 
-  // Coming back into the window, or reduced motion: no spring, just be there.
-  if (wasAway || reduceMotion.matches) {
-    jumpToMouse();
-    return;
-  }
-
-  if (!animating) {
-    animating = true;
-    lastTime = performance.now();
-    requestAnimationFrame(frame);
-  }
+  // Coming back into the window, this flies the circle from beside the title
+  // to the mouse. Otherwise it just follows.
+  startSpring();
 }
 
 
@@ -145,12 +142,41 @@ function draw() {
   cursor.style.setProperty("--y", circle.y + "px");
 }
 
-function jumpToMouse() {
-  circle.x = mouse.x;
-  circle.y = mouse.y;
+// Where the circle waits while the mouse is away: just left of the title,
+// level with its middle. offsetLeft/offsetTop ignore the title's own slide,
+// so this spot stays put while the title moves out of the way.
+function parkingSpot() {
+  const radius = 14 * readSetting("--cursor-scale"); // the circle is 28px across at scale 1
+  return {
+    x: title.offsetLeft + radius,
+    y: title.offsetTop + title.offsetHeight / 2,
+  };
+}
+
+// What the spring pulls toward: the mouse, or the parking spot while away.
+function target() {
+  return cursor.dataset.state === "away" ? parkingSpot() : mouse;
+}
+
+function jumpTo(point) {
+  circle.x = point.x;
+  circle.y = point.y;
   speed.x = 0;
   speed.y = 0;
   draw();
+}
+
+// Start the frame loop if it isn't already running. Reduced motion: no
+// flying, just be there.
+function startSpring() {
+  if (reduceMotion.matches) {
+    jumpTo(target());
+    return;
+  }
+  if (animating) return;
+  animating = true;
+  lastTime = performance.now();
+  requestAnimationFrame(frame);
 }
 
 function frame(time) {
@@ -161,13 +187,14 @@ function frame(time) {
   // doesn't make the circle fly off from one giant step.
   let seconds = Math.min(Math.max((time - lastTime) / 1000, 0), 1 / 30);
   lastTime = time;
+  const goal = target();
 
   // Do the math in tiny slices (1/240s). Big slices with extreme settings
   // can make the spring blow up and fly off screen.
   while (seconds > 0) {
     const slice = Math.min(seconds, 1 / 240);
     for (const axis of ["x", "y"]) {
-      const pull = stiffness * (mouse[axis] - circle[axis]); // farther away = stronger pull
+      const pull = stiffness * (goal[axis] - circle[axis]);  // farther away = stronger pull
       const brake = damping * speed[axis];                   // faster = stronger brake
       speed[axis] += (pull - brake) * slice;
       circle[axis] += speed[axis] * slice;
@@ -178,10 +205,10 @@ function frame(time) {
 
   // Close enough and barely moving: snap the last fraction of a pixel and stop
   // the loop, so nothing runs while the mouse is still.
-  const distance = Math.hypot(mouse.x - circle.x, mouse.y - circle.y);
+  const distance = Math.hypot(goal.x - circle.x, goal.y - circle.y);
   const moving = Math.hypot(speed.x, speed.y);
   if (distance < 0.1 && moving < 1) {
-    jumpToMouse();
+    jumpTo(goal);
     animating = false;
     return;
   }

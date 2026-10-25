@@ -75,12 +75,13 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the cursor
 
-`site/cursor.js` + `site/cursor.css` — one cursor for the whole site: a circle that inverts whatever it's over, follows the mouse on a spring, and morphs into a pointing hand over anything clickable. Started life in 001.
+`site/cursor.js` + `site/cursor.css` — one cursor for the whole site: a circle that inverts whatever it's over, follows the mouse on a spring, and morphs into a pointing hand over anything clickable. When the mouse is off the page, it waits beside the title. Started life in 001.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
-| away | circle / hand | 150ms | `ease` | opacity 0 → 1 (mouse enters window) |
-| circle / hand | away | 150ms | `ease` | opacity 1 → 0 (mouse leaves window) |
+| — | page loads | instant | — | circle starts parked left of the title; title already shifted 38px right |
+| away | circle / hand | ~0.4s spring + 500ms | spring + `cubic-bezier(0.22, 1, 0.36, 1)` | circle flies from beside the title to the mouse (mouse enters window); title slides 38px back left |
+| circle / hand | away | ~0.4s spring + 500ms | spring + `cubic-bezier(0.22, 1, 0.36, 1)` | circle flies back beside the title (mouse leaves window); title slides 38px right to make room |
 | circle | hand | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs circle → hand (slight overshoot), fingertip on the mouse tip |
 | hand | circle | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs hand → circle |
 | circle / hand | hidden / native | 150ms | `ease` | fades out because an experiment asked |
@@ -89,6 +90,10 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"` on an element, or `lab.setCursor(...)` from script.js (cleared automatically when the experiment leaves).
 
 **Decisions**
+- **Away means parked, not gone.** The circle is the site's signature, so it's on screen even before you touch the mouse, sitting next to the name like a logo.
+- **The parking spot is just another target for the same spring.** Leaving the window doesn't animate anything new: the spring simply starts pulling toward the title instead of the mouse, so going home and coming back feel exactly like following.
+- **The title moves by the circle's width plus 10px (38px).** Enough to read as "making room", not so much that the name looks shoved aside.
+- **The title reacts with CSS `:has()`, not JS.** It just watches the cursor's `data-state`, so there's still one source of truth. The title's slide is a plain CSS transition, so it's interruptible: leave and come back fast and it turns around mid-slide.
 - **The site owns it, not experiments.** It lives above every experiment's box, so it exists over the list, the title and everything else, and a switch never makes it vanish.
 - **After every switch it re-checks what's under the mouse.** A still mouse gets the hand the moment a button appears under it.
 - **It inverts with `mix-blend-mode: difference`, not with JS.** A white shape set to "difference" flips every color under it, including text, for free.
@@ -104,7 +109,9 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **The system arrow is only hidden after the first mouse move.** Before that the browser hasn't said where the mouse is, so ours can't be drawn; hiding the arrow earlier would leave no cursor at all. If the script breaks, you keep the normal arrow too.
 
 **Rough edges**
-- After a refresh or opening a link, you see the system arrow until the first mouse move, then ours takes over. Browsers don't say where the mouse is until it moves.
+- After a refresh or opening a link, you see the system arrow until the first mouse move, then ours flies over from the title. Browsers don't say where the mouse is until it moves, so for that moment there are two cursors.
+- Going home, the spring overshoots past the parking spot, so half the circle pokes off the left edge of the screen for a split second.
+- "Away" only means the mouse left the browser window. Switching apps with Alt+Tab while the mouse is over the page leaves the circle where it was.
 - The delay is in time, so it grows with speed. A very fast flick can leave the circle 150px behind for a moment.
 - Flick into a window edge and the overshoot pokes out before pulling back.
 - Over a mid-grey (#808080) "difference" gives the same grey back, so the circle disappears. Matters over photos.
@@ -118,5 +125,6 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--cursor-damping: 10`. The circle turns to jelly. Then try `90`: no overshoot at all, just a sluggish drag.
 - Set `--cursor-morph-duration: 1200ms` and slowly hover on and off a button. You'll see the circle stretch into the palm and the thumb grow out of its side.
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
+- Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
