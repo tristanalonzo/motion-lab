@@ -1,0 +1,141 @@
+/* ============================================================
+   TUNE HERE. The toolbar at the bottom middle.
+   ============================================================ */
+:root {
+  /* --- look --- */
+  --toolbar-inset: 24px;           /* distance from the bottom edge (same as the title's from the top) */
+  --toolbar-gap: 12px;             /* space between buttons, once there's more than one */
+  --tool-size: 40px;               /* each button: a circle this wide */
+  --tool-icon-size: 18px;
+  --tool-bg: #FFFFFF;              /* white circle on the grey page */
+  --tool-bg-hover: #E8E8ED;        /* Apple's light grey fill */
+  --tool-icon-color: #1D1D1F;
+  --tool-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* just enough to lift the white off the grey. "none" = flat */
+  --tool-disabled-opacity: 0.35;   /* a planned experiment has no folder, so no code to link to */
+  --tool-label-size: 12px;         /* the word that appears above on hover */
+  --tool-label-color: #86868B;     /* Apple's secondary grey, same as the list */
+
+  /* --- feel --- */
+  --tool-hover-scale: 1.08;        /* the button grows this much under the mouse. 1 = doesn't grow */
+  --tool-hover-duration: 260ms;    /* growing and shrinking back */
+  --tool-hover-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* same curve as the cursor's morph: pops a touch past, settles */
+  --tool-press-scale: 0.92;        /* squashes while held down */
+  --tool-press-duration: 100ms;    /* fast: a press should feel instant */
+  --tool-label-delay: 80ms;        /* the label waits as long as the cursor waits to become a hand, so both arrive together */
+  --tool-label-duration: 200ms;    /* the label fading up */
+  --tool-label-rise: 4px;          /* how far it rises while fading in */
+
+  /* --- phones and narrow windows (under 900px) --- */
+  --toolbar-phone-gap: 12px;       /* space between the toolbar and the list's strip under it */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+/* A row of buttons pinned to the bottom middle, above the stage.
+   left: 50% + translateX(-50%) = centered, however many buttons it holds. */
+.toolbar {
+  position: fixed;
+  bottom: var(--toolbar-inset);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: var(--toolbar-gap);
+  transform: translateX(-50%);
+}
+
+/* Icon-only, so a circle (CLAUDE.md). */
+.tool {
+  position: relative;              /* the label is placed against this */
+  display: grid;
+  place-items: center;
+  width: var(--tool-size);
+  height: var(--tool-size);
+  border-radius: 999px;
+  background: var(--tool-bg);
+  box-shadow: var(--tool-shadow);
+  color: var(--tool-icon-color);
+  -webkit-tap-highlight-color: transparent; /* phones: no grey flash on tap */
+  transition:
+    background-color var(--tool-hover-duration) ease,
+    transform var(--tool-hover-duration) var(--tool-hover-ease);
+}
+
+.tool svg {
+  width: var(--tool-icon-size);
+  height: var(--tool-icon-size);
+  fill: currentColor;
+}
+
+/* The word above the button. Always there for screen readers (it's the
+   link's name); only drawn on hover or keyboard focus. */
+.tool-label {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  font-size: var(--tool-label-size);
+  white-space: nowrap;
+  color: var(--tool-label-color);
+  opacity: 0;
+  transform: translate(-50%, var(--tool-label-rise));
+  pointer-events: none;
+  /* Going away: no wait. The delay is on the hover rule below, because a
+     transition uses the settings of the state it's going TO. */
+  transition:
+    opacity var(--tool-label-duration) ease,
+    transform var(--tool-label-duration) ease;
+}
+
+.tool:hover,
+.tool:focus-visible {
+  background: var(--tool-bg-hover);
+  transform: scale(var(--tool-hover-scale));
+}
+
+.tool:hover .tool-label,
+.tool:focus-visible .tool-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: var(--tool-label-delay);
+}
+
+/* Held down. Its own short duration, so the squash is instant and the
+   release springs back with the hover curve above. */
+.tool:active {
+  transform: scale(var(--tool-press-scale));
+  transition-duration: var(--tool-press-duration);
+}
+
+.tool:focus-visible {
+  outline: 2px solid var(--tool-icon-color);
+  outline-offset: 3px;
+}
+
+/* Nothing to do here (toolbar.js sets this). Faded, and ignores the mouse
+   completely, so it can't grow, show its label or turn the cursor into a hand. */
+.tool[data-state="disabled"] {
+  opacity: var(--tool-disabled-opacity);
+  pointer-events: none;
+}
+
+/* Phones: the list's strip takes the bottom (nav.css), so sit just above it. */
+@media (max-width: 900px) {
+  .toolbar {
+    bottom: calc(var(--nav-phone-height) + var(--toolbar-phone-gap));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool,
+  .tool-label {
+    transition: none;
+  }
+
+  /* No growing or squashing: the color change alone says "you're on it". */
+  .tool:hover,
+  .tool:focus-visible,
+  .tool:active {
+    transform: none;
+  }
+}

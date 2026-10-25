@@ -9,6 +9,7 @@ import { EXPERIMENTS } from "./experiments.js";
 import { startCursor, refreshCursor } from "./cursor.js";
 import { createNav } from "./nav.js";
 import { showExperiment } from "./stage.js";
+import { updateToolbar } from "./toolbar.js";
 
 startCursor();
 
@@ -43,6 +44,7 @@ const nav = createNav(EXPERIMENTS, (index) => {
 
   // The neighbours get their files fetched early, so stepping to them is instant.
   showExperiment(experiment, [EXPERIMENTS[index - 1], EXPERIMENTS[index + 1]]);
+  updateToolbar(experiment);
   refreshCursor(); // whatever is under a still mouse may have just changed
 });
 

@@ -21,7 +21,11 @@ title when the mouse is away (title makes room); 80ms wait before the hand;
 a pointer on the left edge aims at the selected row, which is now bold; on
 phones the list sits in a strip along the bottom and a swipe steps it.
 
-**Next:** the toolbar: reset icon, GitHub link, then the about panel (the biggest one).
+**Done later 2026-10-25:** the toolbar at the bottom middle, with its first
+button: a GitHub link to the open experiment's folder.
+
+**Next:** the reset icon (decide first how experiments say "something to reset"),
+then the about panel (the biggest one).
 
 **Still undecided:** the lab dashboard's categories, glass or plain for the
 keyboard-hints pop-up, and what each hover animation should be.
@@ -42,8 +46,15 @@ keyboard-hints pop-up, and what each hover animation should be.
   - Mobile is out of scope for now.
 - [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
-- [ ] **GitHub source link** to the current experiment's folder, e.g.
+  - Needs: a way for experiments to tell the site "there's something to reset now".
+    That's a new rule for every experiment, so decide it before building.
+  - Later idea: **auto-reset.** Hovering reset slides an on/off switch up out of it.
+    On = the experiment resets itself after a fixed wait once it's done.
+    Open: how long the wait is, and whether "done" is decided by each experiment.
+- [x] **GitHub source link** to the current experiment's folder, e.g.
       `https://github.com/tristanalonzo/motion-lab/tree/main/001-submit-button`.
+  - Built: `site/toolbar.js` + `toolbar.css`. The toolbar row is there for the
+    other buttons to join.
 
 ## Bottom left — keyboard hints
 
