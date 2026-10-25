@@ -86,6 +86,19 @@ keyboard-hints pop-up, and what each hover animation should be.
       smoothly gets bolder. That needs a font whose weight can animate. Inter now
       loads as a variable font (400–700) for the bold selected row, so this is ready.
 
+## Cursor — ideas
+
+- [ ] **Cursor feel sliders.** Two sliders that change the site cursor live:
+      **follow delay** (how far behind the mouse it trails) and **overshoot** (how
+      far it swings past when you stop).
+  - Note: the spring doesn't have those two knobs directly. It has stiffness and
+    damping (`--cursor-stiffness`, `--cursor-damping` in cursor.css). Delay is
+    roughly damping ÷ stiffness, and overshoot comes from how low damping is for
+    that stiffness. The sliders would speak delay and overshoot and work out the
+    two spring numbers behind the scenes.
+  - Open: where the sliders live. A hidden tuning panel only you open, or a
+    visible spot visitors can play with.
+
 ## Everywhere — later
 
 - [ ] **A hover animation on every interactive thing.** Rows, links, buttons, icons:
