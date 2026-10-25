@@ -4,13 +4,19 @@
    Every link has its own hover animation (ROADMAP.md, "Bottom right").
    ============================================================ */
 :root {
-  /* --- the row --- */
+  /* --- the corner --- */
   --socials-right: 40px;           /* distance from the right edge */
   --socials-bottom: 24px;          /* distance from the bottom edge. Same as the title's from the top */
+  --colophon-size: 11px;           /* "© 2026 Tristan Alonzo · Taguig, PH" */
+  --colophon-color: #C7C7CC;       /* lighter still than the logos: there if you look, invisible if you don't */
+  --colophon-gap: 10px;            /* space between that line and the logos under it */
+  --colophon-fade: 200ms;          /* it steps aside while a link's name shows in its place */
+
+  /* --- the row --- */
   --socials-gap: 16px;             /* space between logos */
   --social-size: 24px;             /* every logo's height. Widths follow each logo's own shape */
   --social-stroke: 1.5;            /* line thickness of every line logo, in logo units (1 unit = 1.5px), so 1.5 = 2.25px */
-  --social-color: #86868B;         /* Apple's secondary grey, same as the list */
+  --social-color: #A1A1A6;         /* a light grey: a step lighter than the list, so the links sit further back */
   --social-color-hover: #1D1D1F;   /* the hovered logo darkens to near-black */
   --social-hover-scale: 1.12;      /* how much bigger a hovered logo gets. It grows over its neighbours, not into them */
   --social-grow-duration: 300ms;   /* growing, darkening, and most hover moves below */
@@ -62,12 +68,36 @@
    Wiring.
    ============================================================ */
 
-/* A row pinned to the bottom right, above the stage. */
-.socials {
+/* The corner, pinned to the bottom right above the stage: the copyright
+   line on top, the row of logos under it, both lined up on the right. */
+.corner {
   position: fixed;
   right: var(--socials-right);
   bottom: var(--socials-bottom);
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--colophon-gap);
+}
+
+.colophon {
+  margin: 0;
+  font-size: var(--colophon-size);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--colophon-color);
+  transition: opacity var(--colophon-fade) ease;
+}
+
+/* A link's name appears right where this line sits, so the line fades out
+   while any link is hovered or focused. :has() = "the corner has a link
+   that's hovered"; CSS reacting to a child, no JS. */
+.corner:has(.social:hover, .social:focus-visible) .colophon {
+  opacity: 0;
+}
+
+.socials {
   display: flex;
   align-items: center;
   gap: var(--socials-gap);
@@ -344,11 +374,12 @@
 /* Phones: no room in the corner beside the toolbar, so the row sits
    centered, just above it. */
 @media (max-width: 900px) {
-  .socials {
+  .corner {
     right: auto;
     left: 50%;
     bottom: calc(var(--nav-phone-height) + var(--toolbar-phone-gap) + var(--tool-size) + 2 * var(--toolbar-padding)
                  + var(--socials-phone-gap));
+    align-items: center;
     transform: translateX(-50%);
   }
 }
@@ -362,7 +393,8 @@
 
   .social,
   .social-label,
-  .social svg * {
+  .social svg *,
+  .colophon {
     transition: none;
   }
 
