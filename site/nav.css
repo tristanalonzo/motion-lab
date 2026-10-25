@@ -7,11 +7,13 @@
   --nav-width: 240px;              /* how wide the panel is */
   --nav-row-height: 36px;          /* space per item, and how far the list slides per step */
   --nav-gap: 16px;                 /* space between the number and the name */
-  --nav-font-size: 14px;
+  --nav-font-size: 12px;           /* every item that isn't selected */
+  --nav-selected-size: 14px;       /* the selected item grows to this */
+  --nav-weight: 300;               /* light, for everything that isn't selected. 300 = light, 400 = regular, 700 = bold */
+  --nav-selected-weight: 400;      /* regular, for the selected item */
   --nav-color: #86868B;            /* everything that isn't selected: Apple's secondary grey */
   --nav-color-hover: #48484A;      /* hovering an item: darker grey, still not black */
   --nav-color-selected: #000000;   /* the selected item, and only that one */
-  --nav-selected-weight: 700;      /* bold. 400 = regular, 500 = medium, 600 = semibold */
   --nav-selected-indent: 18px;     /* the selected item steps right, away from the pointer */
   --nav-fade-solid: 18px;          /* only the middle row is fully visible... */
   --nav-fade-end: 180px;           /* ...everything fades out completely by this far from the middle */
@@ -110,6 +112,7 @@
   width: 100%;
   height: var(--nav-row-height);
   font-size: var(--nav-font-size);
+  font-weight: var(--nav-weight);
   letter-spacing: -0.01em;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent; /* phones: no grey flash over a tapped row */
@@ -117,6 +120,7 @@
   transition:
     color var(--nav-step-duration) var(--nav-step-ease),
     font-weight var(--nav-step-duration) var(--nav-step-ease),
+    font-size var(--nav-step-duration) var(--nav-step-ease),
     transform var(--nav-step-duration) var(--nav-step-ease);
 }
 
@@ -128,9 +132,11 @@
   color: var(--nav-color-hover);
 }
 
-/* The weight animates smoothly because the font is "variable" (see index.html). */
+/* Size and weight both animate. The weight can because the font is
+   "variable" (see index.html): light to regular passes through every step. */
 .nav-item[data-state="selected"] {
   color: var(--nav-color-selected);
+  font-size: var(--nav-selected-size);
   font-weight: var(--nav-selected-weight);
   transform: translateX(var(--nav-selected-indent));
 }
