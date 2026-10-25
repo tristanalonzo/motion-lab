@@ -18,6 +18,13 @@
   --nav-step-duration: 450ms;      /* how long the list takes to slide one item */
   --nav-step-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, long soft landing */
   --nav-wheel-threshold: 100;      /* how much scrolling per step. 100 = one mouse-wheel click. Lower = faster through the list */
+
+  /* --- coming in, when the site loads --- */
+  --nav-in-delay: 200ms;           /* wait before the first row starts */
+  --nav-in-stagger: 60ms;          /* gap between one row starting and the next. Lower = more like one wave */
+  --nav-in-duration: 800ms;        /* how long each row takes to land */
+  --nav-in-distance: 32px;         /* how far right each row starts */
+  --nav-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* same soft landing as the slide */
 }
 
 /* ============================================================
@@ -59,6 +66,22 @@
   list-style: none;
   transform: translateY(calc(var(--selected, 0) * var(--nav-row-height) * -1));
   transition: transform var(--nav-step-duration) var(--nav-step-ease);
+}
+
+/* Coming in: every row slides in from the right and fades up, once, when the
+   page loads. --i (set by nav.js) is the row's number, so row 0 starts first,
+   row 1 one stagger later, and so on down. "both" keeps each row invisible
+   while it waits for its turn, and in place after it lands. */
+.nav li {
+  animation: nav-in var(--nav-in-duration) var(--nav-in-ease)
+             calc(var(--nav-in-delay) + var(--i) * var(--nav-in-stagger)) both;
+}
+
+@keyframes nav-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--nav-in-distance));
+  }
 }
 
 .nav-item {
@@ -104,5 +127,9 @@
   .nav ol,
   .nav-item {
     transition: none;
+  }
+
+  .nav li {
+    animation: none;
   }
 }

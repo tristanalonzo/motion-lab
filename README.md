@@ -53,9 +53,13 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
+| page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, top row first |
 | item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, new one to black |
 
 **Decisions**
+- **Rows come in 60ms apart but take 800ms each.** Each row starts long before the one above it has landed, so they read as one wave rolling down, not a queue of separate moves.
+- **32px in from the right, not further.** Just enough to read as "arriving". Further and the faded rows at the bottom are still visibly sliding after the top has settled.
+- **A CSS keyframe animation, not a transition.** A transition needs something to change; a keyframe animation plays by itself the moment the row appears.
 - **100px of scrolling = one item, no pause.** 100px is one mouse-wheel click in Chrome. A steady trackpad scroll steps evenly instead of stopping after each item.
 - **One item per scroll event, at most.** A single huge flick still only moves one item, so the list never jumps over a row.
 - **Only the middle row is solid.** Even the neighbours are slightly faded, so the black one is the only thing that reads as "selected".
@@ -67,6 +71,7 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - A trackpad flick keeps coasting after your fingers lift, so it can carry you several items past where you meant to stop.
 - Hidden below 900px wide, so there's no way to switch on phones yet. No swipe support.
 - Back doesn't step through experiments; it leaves the site.
+- Opening a link straight to a later item (like `#005`) still staggers from row 000, so the selected row arrives last, after the experiment is already showing.
 
 ## Shared: the cursor
 
@@ -113,4 +118,5 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--cursor-damping: 10`. The circle turns to jelly. Then try `90`: no overshoot at all, just a sluggish drag.
 - Set `--cursor-morph-duration: 1200ms` and slowly hover on and off a button. You'll see the circle stretch into the palm and the thumb grow out of its side.
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
+- Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
