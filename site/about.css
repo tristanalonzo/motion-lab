@@ -10,7 +10,15 @@
   --about-width: 420px;            /* never wider than the screen, see .about-panel */
   --about-max-height: 72vh;        /* taller than this and the text scrolls instead */
   --about-radius: 14px;            /* a window, not a button: the pill rule doesn't apply */
-  --about-bg: #FFFFFF;
+
+  /* Glass. The window is part see-through and blurs whatever is behind it.
+     To go back to plain white: --about-bg to #FFFFFF and --about-glass-blur to 0.
+     Lower alpha on --about-bg = more see-through = harder to read. */
+  --about-bg: rgba(255, 255, 255, 0.86);
+  --about-glass-blur: 30px;        /* how soft what's behind it goes. Apple sits around 20-30px */
+  --about-glass-boost: 180%;       /* colour behind it is pushed up, so it doesn't go grey when blurred. 100% = off */
+  --about-edge: rgba(0, 0, 0, 0.08); /* a hairline all the way round. Glass needs an edge or it reads as a smudge */
+
   --about-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.14); /* a tight one for the edge, a big soft one for lift */
   --about-shadow-drag: 0 1px 2px rgba(0, 0, 0, 0.04), 0 22px 60px rgba(0, 0, 0, 0.18); /* while you hold it: lifts further off the page */
   --about-lift-duration: 200ms;    /* the shadow growing as you pick it up */
@@ -20,7 +28,7 @@
 
   /* --- the title bar (the part you drag) --- */
   --about-bar-height: 44px;
-  --about-bar-line: #EBEBED;       /* the hairline under the bar */
+  --about-bar-line: rgba(0, 0, 0, 0.08); /* the hairline under the bar. Part see-through, so it sits on glass without looking painted on */
   --about-title-size: 13px;
   --about-title-weight: 500;       /* medium, same as the site title */
   --about-number-color: #86868B;   /* the 001 before the name: Apple's secondary grey */
@@ -68,8 +76,13 @@
   flex-direction: column;
   width: min(var(--about-width), calc(100vw - 2 * var(--about-margin)));
   max-height: var(--about-max-height);
+  border: 1px solid var(--about-edge);
   border-radius: var(--about-radius);
   background: var(--about-bg);
+  /* Blurs the page behind the window, not the window itself. The -webkit- line
+     is the same thing under an older name, for Safari. */
+  -webkit-backdrop-filter: blur(var(--about-glass-blur)) saturate(var(--about-glass-boost));
+  backdrop-filter: blur(var(--about-glass-blur)) saturate(var(--about-glass-boost));
   box-shadow: var(--about-shadow);
   overflow: hidden;                /* the scrolling text stays inside the rounded corners */
   transition:
@@ -77,6 +90,14 @@
     transform var(--about-in-duration) var(--about-in-ease),
     box-shadow var(--about-lift-duration) ease,
     visibility 0s;
+}
+
+/* No blur available (an old browser, or it's switched off): go solid white.
+   Part see-through with nothing blurring behind it is just hard to read. */
+@supports not (backdrop-filter: blur(1px)) {
+  .about-panel {
+    background: #FFFFFF;
+  }
 }
 
 /* Shut. visibility: hidden puts it out of reach of the mouse, the Tab key and
