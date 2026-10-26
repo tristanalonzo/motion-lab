@@ -5,7 +5,7 @@ done on its own, then ticked off here.
 
 Open questions are things to decide before (or while) building that item.
 
-## Pick up here (left off 2026-10-26)
+## Pick up here (left off 2026-10-27)
 
 **Start:** `git pull`, then `py -m http.server` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
@@ -28,8 +28,13 @@ bottom right as the first contact link. The list is lighter: 12px light
 around, 14px regular selected. Contact links in the bottom right: GitHub, LinkedIn,
 Instagram, X, email, grey, each with its own hover.
 
+**Done 2026-10-27:** the about panel. An **i** in the toolbar opens a small
+white window with notes on the open experiment, dragged by its title bar. The
+text lives in an `about.html` in each experiment's folder, so every experiment
+now has five files, not four (CLAUDE.md's contract says what goes in it).
+
 **Next:** the reset icon (decide first how experiments say "something to reset"),
-then the about panel (the biggest one).
+then the keyboard hints in the bottom left.
 
 **Still undecided:** the lab dashboard's categories, glass or plain for the
 keyboard-hints pop-up, and what each hover animation should be.
@@ -38,16 +43,18 @@ keyboard-hints pop-up, and what each hover animation should be.
 
 ## Bottom middle — toolbar
 
-- [ ] **About this experiment.** An info / brain / question-mark icon. Clicking it opens a
-      short, blog-style panel: Apple-style window, close X on the top left. It's draggable
-      like a desktop window, but it lives inside the page, not a real pop-up window.
+- [x] **About this experiment.** An **i** icon. Clicking it opens a short, blog-style
+      panel: Apple-style window, close X on the top left, draggable by its title bar.
       Shows: experiment name, description, thought process, date, inspirations,
       possible additions.
-  - Decided: an `about.html` in each experiment's folder, loaded when the panel opens.
-    The site runs on a server now, so loading a file on demand works. Plain HTML, not
-    Markdown: Markdown would need a library to turn it into HTML.
-    Only the open experiment's text loads, so this works the same at 400 experiments.
-  - Mobile is out of scope for now.
+  - Built: `site/about.js` + `about.css`, and an `about.html` in each experiment's
+    folder, fetched when the panel opens and remembered after. Docs in README.md,
+    "the about panel"; what goes in an `about.html` is in CLAUDE.md's contract.
+  - Decided while building: it opens on the right, not in the middle, so it isn't
+    sitting on top of the experiment it's describing. Clicking the page doesn't close
+    it — it's a window, not a pop-up. Switching experiments does close it.
+  - Mobile is out of scope for now. It fits and scrolls, but it isn't really a window
+    on a phone.
 - [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
   - Needs: a way for experiments to tell the site "there's something to reset now".

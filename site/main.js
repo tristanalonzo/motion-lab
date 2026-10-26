@@ -10,6 +10,7 @@ import { startCursor, refreshCursor } from "./cursor.js";
 import { createNav } from "./nav.js";
 import { showExperiment } from "./stage.js";
 import { updateToolbar } from "./toolbar.js";
+import { updateAbout } from "./about.js";
 import { startSocials } from "./socials.js";
 
 startCursor();
@@ -47,6 +48,7 @@ const nav = createNav(EXPERIMENTS, (index) => {
   // The neighbours get their files fetched early, so stepping to them is instant.
   showExperiment(experiment, [EXPERIMENTS[index - 1], EXPERIMENTS[index + 1]]);
   updateToolbar(experiment);
+  updateAbout(experiment); // shuts the panel: its notes are about one experiment
   refreshCursor(); // whatever is under a still mouse may have just changed
 });
 

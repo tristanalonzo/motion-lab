@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="site/site.css">
   <link rel="stylesheet" href="site/nav.css">
   <link rel="stylesheet" href="site/toolbar.css">
+  <link rel="stylesheet" href="site/about.css">
   <link rel="stylesheet" href="site/socials.css">
   <link rel="stylesheet" href="site/cursor.css">
 </head>
@@ -50,6 +51,20 @@
        lab stays where you left it; rel="noopener" stops that tab from being
        able to reach back into this one. -->
   <nav class="toolbar" aria-label="experiment tools">
+    <!-- Opens the about panel below. aria-expanded tells a screen reader
+         whether the window is open; site/about.js keeps it true or false. -->
+    <button class="tool tool-about" type="button" aria-expanded="false">
+      <!-- An i in a circle. The dot is a path 0.01 units long with a round
+           cap: a line that short draws as a dot, and it keeps the same
+           thickness as every other stroke in the icon. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle class="about-ring" cx="12" cy="12" r="9" />
+        <path class="about-dot" d="M12 7.9v0.01" />
+        <path class="about-stem" d="M12 11.6v4.8" />
+      </svg>
+      <span class="tool-label">about</span>
+    </button>
+
     <a class="tool tool-code" target="_blank" rel="noopener">
       <!-- </>: three strokes, so < and > can slide apart on their own. -->
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -60,6 +75,31 @@
       <span class="tool-label">view code</span>
     </a>
   </nav>
+
+  <!-- The about panel: notes on the open experiment, opened by the button
+       above. A window that lives inside the page, dragged by its title bar.
+       The text is fetched from the experiment's own about.html when it opens
+       (site/about.js). role="dialog" names it as a window to screen readers;
+       it isn't modal, so the rest of the page stays usable behind it. -->
+  <section class="about-panel" data-state="closed" role="dialog" aria-labelledby="about-title">
+    <!-- The handle. data-cursor tells the site's cursor to be a hand over it,
+         since this bar is draggable without being a link or a button. -->
+    <header class="about-bar" data-cursor="hand">
+      <button class="about-close" type="button" aria-label="close">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 7l10 10M17 7L7 17" />
+        </svg>
+      </button>
+      <h2 class="about-title" id="about-title">
+        <span class="about-number"></span>
+        <span class="about-name"></span>
+      </h2>
+    </header>
+
+    <!-- The notes go in here. tabindex="0" makes it a Tab stop, which is what
+         lets the arrow keys scroll it (about.css says more). -->
+    <div class="about-body" tabindex="0" role="region" aria-labelledby="about-title"></div>
+  </section>
 
   <!-- Bottom right: where else to find me. site/socials.js plays the cat. -->
   <nav class="socials" aria-label="elsewhere">

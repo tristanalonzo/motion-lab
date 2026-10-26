@@ -75,6 +75,7 @@ motion-lab/
     stage.js             ← loads, mounts and unmounts experiments
     site.css             ← page, title, stage fades
     toolbar.js toolbar.css ← the buttons at the bottom middle
+    about.js about.css   ← the about panel the i button opens
     socials.js socials.css ← the links in the bottom right corner
     cursor.js cursor.css ← the site-wide cursor
     experiment-base.css  ← defaults put inside every experiment's box
@@ -83,6 +84,7 @@ motion-lab/
     markup.html
     style.css
     script.js
+    about.html           ← the blog-style notes shown in the about panel
     README.md            ← the state doc
 ```
 
@@ -96,7 +98,7 @@ Planned ones can sit in that list with no folder; they show as "coming soon".
 
 ## The experiment contract
 
-Every experiment folder has exactly these four files:
+Every experiment folder has exactly these five files:
 
 - **`markup.html`** — just the experiment's elements. No `<html>`, `<head>`,
   `<body>`, `<link>` or `<script>`. File paths in `src` are relative to the
@@ -116,6 +118,14 @@ Every experiment folder has exactly these four files:
     return () => { /* optional cleanup: stop loops and timers */ };
   }
   ```
+- **`about.html`** — the notes the about panel shows: what it is, the date, the
+  thinking behind it, what it came from, what could come next. Written for a
+  visitor, not for a developer — short, blog-style, no tables. Just the content:
+  no `<html>`, `<head>` or `<body>`. Sections are `<h3>`, because the panel's own
+  title bar is the `<h2>`. Open with `<p class="about-lede">` (one line on what
+  it is) and `<p class="about-date">`. The site styles `<p>`, `<h3>`, `<ul>` and
+  links; anything else gets browser defaults. Leave it out and the panel says
+  "no notes for this one yet" — fine while you're building, not when you're done.
 - **`README.md`** — the state doc (below).
 
 Rules that keep experiments from leaking into each other:

@@ -18,7 +18,7 @@ Then open http://localhost:8000. GitHub Pages serves it the same way, so what yo
 
 ## Adding one
 
-1. Make a folder `NNN-name/` with `markup.html`, `style.css`, `script.js`, `README.md`.
+1. Make a folder `NNN-name/` with `markup.html`, `style.css`, `script.js`, `about.html`, `README.md`.
 2. Add one line to `site/experiments.js`.
 
 What goes in each file: CLAUDE.md, "The experiment contract".
@@ -97,12 +97,13 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 ## Shared: the toolbar
 
-`site/toolbar.js` + `site/toolbar.css` — a white pill at the bottom middle holding round buttons about the open experiment. For now, one: `</>`, linking to the experiment's folder on GitHub (opens in a new tab). The buttons are in `index.html`; toolbar.js re-points them on every switch. On phones it sits just above the list's strip.
+`site/toolbar.js` + `site/toolbar.css` — a white pill at the bottom middle holding round buttons about the open experiment. Two so far: an **i**, which opens the about panel (its own section below), and `</>`, which links to the experiment's folder on GitHub in a new tab. The buttons are in `index.html`; toolbar.js re-points `</>` on every switch, about.js looks after the **i**. On phones it sits just above the list's strip.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
 | resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | button grows 40 → 46px (a touch past, then settles); the pill and the buttons beside it make room; a light grey circle fades in behind it (plain `ease`) |
 | resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | `<` and `>` slide apart ~2px each; `/` stays put |
+| resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the dot of the **i** hops up ~1.2px; the ring and the stem stay put |
 | resting | hovered / focused | 80ms wait + 200ms | `ease` | "view code" fades in and rises 4px, above the pill |
 | hovered | resting | same, with no wait | same | the reverse, from wherever it is |
 | any | pressed | 100ms | `ease` | button squashes to 0.92× |
@@ -114,7 +115,8 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **The pill is placed by its middle.** So it grows evenly in every direction, not just upwards from the bottom edge.
 - **All plain CSS transitions.** They already turn around mid-way if you leave halfway through, so nothing here needs JS.
 - **Same overshoot curve as the cursor's morph.** The grow pops a touch past and settles, so it feels like it belongs to the hand that's on it.
-- **`<` and `>` move with the grow, same timing.** The button and the icon open up as one gesture.
+- **`<` and `>` move with the grow, same timing.** The button and the icon open up as one gesture. The **i**'s dot hops on the same timing, for the same reason.
+- **Every button's icon gets a move of its own.** Same rule as the corner links: a shared hover would make the row feel like a menu instead of a set of tools.
 - **A grey circle shows up on hover.** On a white pill, a white button growing would be invisible. The fill shows the button's edge right when it changes.
 - **The label waits 80ms, like the cursor's hand.** Both answer the same pause, so they arrive together.
 - **A very soft shadow, in two layers.** A tight one draws the edge, a wide faint one lifts it off the page.
@@ -123,10 +125,43 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **New tab.** Clicking through to the code shouldn't lose your place in the lab.
 
 **Rough edges**
-- With one button the "pill" is a circle. It turns into a pill once reset and about join.
 - Growing by width makes the browser lay the row out again every frame. Fine for a few buttons; it wouldn't be for hundreds.
 - On phones it overlaps the bottom of the experiment's area. Fine for centered experiments; one that uses its bottom edge would sit under it.
 - The link points at `main`. Code you haven't pushed yet gives GitHub's 404.
+
+## Shared: the about panel
+
+`site/about.js` + `site/about.css` — a small white window with notes on the open experiment: what it is, when it was made, the thinking behind it, what it came from, and what could come next. It opens from the toolbar's **i**, and you drag it around by its title bar. The window is in `index.html`; the text comes from an `about.html` in the experiment's own folder, fetched the first time you open the panel on it and remembered after. Only the experiment you're on is ever loaded, so this works the same at 400 experiments.
+
+| From | To | Duration | Easing | What moves |
+|---|---|---|---|---|
+| closed | open | 260ms | `cubic-bezier(0.2, 1.1, 0.4, 1)` | fades in, rises 10px, scales 0.96 → 1 (a touch past, then settles) |
+| open | closed | 160ms | `ease` | the reverse; it's then hidden outright, so nothing in it can be clicked or tabbed to |
+| resting | picked up | 200ms | `ease` | the shadow grows: the window lifts off the page |
+| any | dragged | — | none | left/top follow the pointer exactly. A window shouldn't lag behind your hand |
+| text arrives | — | — | none | the window is sized by its text, so it settles into place the moment the text is in |
+| close X resting | hovered / focused | 250ms | `cubic-bezier(0.2, 1.1, 0.4, 1)` | the X turns a quarter turn; a grey circle fades in behind it |
+
+**Decisions**
+- **A window, not a pop-up.** No dark backdrop, and clicking the page doesn't close it. You're meant to read it while poking at the experiment, so it stays until you close it.
+- **It opens on the right, not in the middle.** The middle is where the experiment is. Opening on top of the thing you're reading about defeats the point.
+- **It's sized by its text, and placed once the text is in.** Placing it first and filling it after put it half off the bottom of the screen, because it was centred while it was still 84px tall.
+- **Dragged position wins from then on.** Once you've moved it, reopening puts it back where you left it. It only ever gets pulled back inside if you shrink the browser window.
+- **It can't be dragged off the edge.** A window you can lose behind the edge of the screen is a window you have to reload the page to get back.
+- **Switching experiments closes it.** The notes are about one experiment. Leaving it open would either show the wrong notes under a new name, or flash through five sets of notes as you scroll past five.
+- **The text is fetched, not built into the page.** `index.html` would otherwise grow by a few hundred words per experiment, for text almost nobody opens.
+- **Plain HTML, not Markdown.** Markdown would need a library to turn it into HTML, and this repo doesn't install anything.
+- **The notes take the keyboard when it opens.** So ↑/↓ scroll what you just opened. While it's focused those keys belong to the panel, not the list; Escape hands them back.
+- **No `about.html` yet says so in the panel.** A missing file is a normal state for a new experiment, not a breakage, so the button stays live and the panel says "no notes for this one yet."
+- **A planned experiment greys the button out,** the same way and at the same pace as `</>`.
+- **Rounded corners, not a pill.** The pill-or-circle rule is about buttons. This is a window; the close X inside it is a circle.
+
+**Rough edges**
+- Mobile is out of scope. It fits the screen and scrolls, but a window you drag with a finger on a 375px phone isn't really a window.
+- Dragging it over the list blocks the list underneath. Normal for a window, but there's nothing to bring the list back except moving the window.
+- No way to resize it. Long notes scroll inside a fixed-height window.
+- Opening it from the keyboard moves focus into the notes, which means Tab lands on the close X before anything else. Right for a window, slightly abrupt if you only wanted a quick look.
+- The text is unstyled beyond `<p>`, `<h3>`, `<ul>` and links. An `about.html` that uses anything else gets browser defaults.
 
 ## Shared: the corner links
 
