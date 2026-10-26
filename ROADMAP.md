@@ -39,6 +39,13 @@ then the keyboard hints in the bottom left.
 **Still undecided:** the lab dashboard's categories, glass or plain for the
 keyboard-hints pop-up, and what each hover animation should be.
 
+**Learned 2026-10-27:** the about panel is glass (`backdrop-filter`), so the
+glass-or-plain question for the keyboard hints now has a working example to
+look at. What it taught: on a flat background glass is nearly invisible, and
+anything under 80% white lets text behind show through and fight the text in
+front. The hints pop-up follows the cursor over the same flat page, so expect
+the same — plain is probably right for it.
+
 ---
 
 ## Bottom middle — toolbar

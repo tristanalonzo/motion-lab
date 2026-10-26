@@ -155,8 +155,15 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **No `about.html` yet says so in the panel.** A missing file is a normal state for a new experiment, not a breakage, so the button stays live and the panel says "no notes for this one yet."
 - **A planned experiment greys the button out,** the same way and at the same pace as `</>`.
 - **Rounded corners, not a pill.** The pill-or-circle rule is about buttons. This is a window; the close X inside it is a circle.
+- **Glass, at 86% white over a 30px blur.** It's mostly opaque on purpose. At 72% the list showed through clearly enough to read, and two sets of text on top of each other is worse than no effect at all. At 86% what's behind is a soft ghost instead of competing words. `--about-bg` and `--about-glass-blur` are the two numbers; `#FFFFFF` and `0` turn it off.
+- **Saturation is pushed to 180% behind it.** Blurring colour drains it towards grey. Pushing it back up is what stops frosted glass looking like dirty plastic.
+- **A hairline all the way round.** A part-see-through panel with no edge reads as a smudge, not an object.
+- **Solid white if the browser can't blur.** Part see-through with nothing blurred behind it is just hard to read.
 
 **Rough edges**
+- The glass mostly can't be seen. The page behind it is flat `#F5F5F7` and the window opens on the right, where there's usually nothing at all behind it. It only shows when you drag it over the list or an experiment. On a site with photos or colour it would earn its keep; here it's close to decoration.
+- Even at 86%, the selected row in the list shows through as a faint ghost if you park the window on top of it.
+- The blur repaints while you drag the window. Fine for one 420px window; it's the first thing to drop if dragging ever feels heavy.
 - Mobile is out of scope. It fits the screen and scrolls, but a window you drag with a finger on a 375px phone isn't really a window.
 - Dragging it over the list blocks the list underneath. Normal for a window, but there's nothing to bring the list back except moving the window.
 - No way to resize it. Long notes scroll inside a fixed-height window.
