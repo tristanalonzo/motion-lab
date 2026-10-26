@@ -1,0 +1,267 @@
+/* ============================================================
+   TUNE HERE. The about panel: the little window that opens
+   from the toolbar's info button.
+
+   The button itself lives in toolbar.css with the other
+   buttons. This file is only the window.
+   ============================================================ */
+:root {
+  /* --- the window --- */
+  --about-width: 420px;            /* never wider than the screen, see .about-panel */
+  --about-max-height: 72vh;        /* taller than this and the text scrolls instead */
+  --about-radius: 14px;            /* a window, not a button: the pill rule doesn't apply */
+  --about-bg: #FFFFFF;
+  --about-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.14); /* a tight one for the edge, a big soft one for lift */
+  --about-shadow-drag: 0 1px 2px rgba(0, 0, 0, 0.04), 0 22px 60px rgba(0, 0, 0, 0.18); /* while you hold it: lifts further off the page */
+  --about-lift-duration: 200ms;    /* the shadow growing as you pick it up */
+  --about-margin: 16px;            /* it can't be dragged closer than this to any edge */
+  --about-home-inset: 48px;        /* where it opens: this far in from the right edge, so it doesn't sit on top of the experiment */
+  --about-padding: 20px;           /* space between the window's edge and the text */
+
+  /* --- the title bar (the part you drag) --- */
+  --about-bar-height: 44px;
+  --about-bar-line: #EBEBED;       /* the hairline under the bar */
+  --about-title-size: 13px;
+  --about-title-weight: 500;       /* medium, same as the site title */
+  --about-number-color: #86868B;   /* the 001 before the name: Apple's secondary grey */
+
+  /* --- the close X, top left --- */
+  --about-close-size: 24px;        /* icon-only, so a circle */
+  --about-close-icon: 60%;         /* the X, as a share of the button */
+  --about-close-color: #86868B;
+  --about-close-color-hover: #1D1D1F;
+  --about-close-bg-hover: #F0F0F2; /* the same grey circle a hovered toolbar button gets */
+  --about-close-spin: 90deg;       /* the X turns a quarter on hover */
+  --about-close-duration: 250ms;
+
+  /* --- the text --- */
+  --about-text-size: 13px;
+  --about-text-color: #1D1D1F;
+  --about-text-line: 1.55;         /* line spacing. Looser than the default: it's a column of prose */
+  --about-lede-size: 15px;         /* the one-line description at the top */
+  --about-dim-color: #86868B;      /* the date, and "no notes yet" */
+  --about-heading-size: 10px;      /* "thought process", "inspirations" */
+  --about-heading-space: 22px;     /* gap above each heading */
+  --about-heading-track: 0.08em;   /* letter spacing. Small uppercase text needs air to stay readable */
+  --about-focus-ring: #1D1D1F;     /* keyboard focus, the same near-black as everywhere else */
+
+  /* --- opening and closing --- */
+  --about-in-duration: 260ms;
+  --about-in-ease: cubic-bezier(0.2, 1.1, 0.4, 1); /* rises, pokes a touch past, settles */
+  --about-out-duration: 160ms;     /* quicker going than coming: you've stopped looking at it */
+  --about-start-scale: 0.96;       /* how small it starts. The same amount the submit button dips */
+  --about-rise: 10px;              /* how far it rises while fading in, so it reads as coming up from the toolbar */
+  --about-loading-delay: 400ms;    /* "loading" only shows if the text takes longer than this */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+/* A window floating over everything except the cursor. site/about.js sets
+   left and top in pixels: dragging changes those, so transform stays free
+   for the opening animation. */
+.about-panel {
+  position: fixed;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--about-width), calc(100vw - 2 * var(--about-margin)));
+  max-height: var(--about-max-height);
+  border-radius: var(--about-radius);
+  background: var(--about-bg);
+  box-shadow: var(--about-shadow);
+  overflow: hidden;                /* the scrolling text stays inside the rounded corners */
+  transition:
+    opacity var(--about-in-duration) var(--about-in-ease),
+    transform var(--about-in-duration) var(--about-in-ease),
+    box-shadow var(--about-lift-duration) ease,
+    visibility 0s;
+}
+
+/* Shut. visibility: hidden puts it out of reach of the mouse, the Tab key and
+   screen readers all at once -- but only once the fade is over, which is what
+   the delay on the end of that transition is for. */
+.about-panel[data-state="closed"] {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--about-rise)) scale(var(--about-start-scale));
+  transition:
+    opacity var(--about-out-duration) ease,
+    transform var(--about-out-duration) ease,
+    visibility 0s var(--about-out-duration);
+}
+
+/* Being dragged. */
+.about-panel[data-dragging] {
+  box-shadow: var(--about-shadow-drag);
+}
+
+/* ---------- the title bar ---------- */
+
+/* The handle. Padded by the width of the X on both sides, so the title sits
+   in the real middle with the X only on the left. */
+.about-bar {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--about-bar-height);
+  padding: 0 calc(var(--about-close-size) + 16px);
+  border-bottom: 1px solid var(--about-bar-line);
+  user-select: none;               /* dragging the bar shouldn't select the title */
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.about-title {
+  display: flex;
+  gap: 8px;
+  min-width: 0;                    /* lets a long name be cut short instead of widening the window */
+  margin: 0;
+  font-size: var(--about-title-size);
+  font-weight: var(--about-title-weight);
+  letter-spacing: -0.01em;
+}
+
+/* tabular-nums: every digit the same width, so 001 and 010 line up. */
+.about-number {
+  flex: none;
+  color: var(--about-number-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.about-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;         /* a very long name ends in a ... rather than stretching the window */
+}
+
+/* ---------- the close X ---------- */
+
+.about-close {
+  position: absolute;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: var(--about-close-size);
+  height: var(--about-close-size);
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  color: var(--about-close-color);
+  background: transparent;
+  transition:
+    color var(--about-close-duration) ease,
+    background-color var(--about-close-duration) ease;
+}
+
+.about-close:hover,
+.about-close:focus-visible {
+  color: var(--about-close-color-hover);
+  background: var(--about-close-bg-hover);
+}
+
+.about-close:focus-visible {
+  outline: 2px solid var(--about-focus-ring);
+  outline-offset: 2px;
+}
+
+.about-close svg {
+  width: var(--about-close-icon);
+  height: var(--about-close-icon);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: transform var(--about-close-duration) var(--about-in-ease);
+}
+
+.about-close:hover svg,
+.about-close:focus-visible svg {
+  transform: rotate(var(--about-close-spin));
+}
+
+/* ---------- the text ---------- */
+
+/* The scrolling part. tabindex="0" in index.html makes it a stop for the Tab
+   key, which is what lets the arrow keys scroll it (about.js keeps those keys
+   away from the list while the panel is open). */
+.about-body {
+  min-height: 0;                   /* lets it shrink and scroll inside the window instead of pushing it taller */
+  padding: var(--about-padding);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  font-size: var(--about-text-size);
+  line-height: var(--about-text-line);
+  color: var(--about-text-color);
+}
+
+.about-body:focus-visible {
+  outline: 2px solid var(--about-focus-ring);
+  outline-offset: -2px;            /* inside the edge: an outline outside it would be cut off by the rounded corners */
+}
+
+/* Everything below styles whatever an experiment's about.html puts in here. */
+
+.about-body > :first-child { margin-top: 0; }
+.about-body > :last-child { margin-bottom: 0; }
+
+.about-body p {
+  margin: 0 0 10px;
+}
+
+.about-lede {
+  font-size: var(--about-lede-size);
+  letter-spacing: -0.01em;
+}
+
+.about-date {
+  margin-top: -6px;                /* pulls it up under the lede, so the two read as one block */
+  color: var(--about-dim-color);
+}
+
+/* Section labels: small, grey, spaced out. Apple's way of marking a group
+   without drawing a line. */
+.about-body h3 {
+  margin: var(--about-heading-space) 0 8px;
+  font-size: var(--about-heading-size);
+  font-weight: 500;
+  letter-spacing: var(--about-heading-track);
+  text-transform: uppercase;
+  color: var(--about-dim-color);
+}
+
+.about-body ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+.about-body li {
+  margin-bottom: 5px;
+}
+
+.about-body a {
+  color: inherit;
+  text-decoration-color: var(--about-dim-color);
+  text-underline-offset: 2px;
+}
+
+/* "loading", or "no notes for this one yet". */
+.about-dim {
+  color: var(--about-dim-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-panel,
+  .about-close,
+  .about-close svg {
+    transition: none;
+  }
+
+  /* No rise, no scale: it's either there or it isn't. */
+  .about-panel[data-state="closed"] {
+    transform: none;
+  }
+}

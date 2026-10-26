@@ -30,6 +30,9 @@
   /* --- the </> button --- */
   --code-spread: 2.5px;            /* how far < and > each move apart on hover. In the icon's own units (it's 24 wide), so 2.5 ≈ 2px on screen */
 
+  /* --- the about button --- */
+  --about-dot-hop: 1.5px;          /* how far the dot of the i hops up on hover. Icon units again, so 1.5 ≈ 1.2px on screen */
+
   /* --- phones and narrow windows (under 900px) --- */
   --toolbar-phone-gap: 16px;       /* space between the toolbar and the list's strip under it */
 }
@@ -69,6 +72,8 @@
   flex: none;                      /* never squeezed by the row */
   width: var(--tool-size);
   height: var(--tool-size);
+  border: 0;                       /* some tools are <button>: strip what the browser gives them */
+  padding: 0;
   border-radius: 999px;
   color: var(--tool-color);
   background: transparent;
@@ -161,6 +166,19 @@
   transform: translateX(var(--code-spread));
 }
 
+/* ---------- the about button ---------- */
+
+/* The dot of the i hops up, the ring and the stem stay put. Same timing and
+   curve as the grow, so the button and its icon move as one thing. */
+.about-dot {
+  transition: transform var(--tool-grow-duration) var(--tool-grow-ease);
+}
+
+.tool-about:hover .about-dot,
+.tool-about:focus-visible .about-dot {
+  transform: translateY(calc(-1 * var(--about-dot-hop)));
+}
+
 /* Phones: the list's strip takes the bottom (nav.css), so sit just above it. */
 @media (max-width: 900px) {
   .toolbar {
@@ -172,7 +190,8 @@
   .tool,
   .tool-label,
   .code-left,
-  .code-right {
+  .code-right,
+  .about-dot {
     transition: none;
   }
 
