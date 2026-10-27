@@ -12,12 +12,19 @@
   --about-radius: 14px;            /* a window, not a button: the pill rule doesn't apply */
 
   /* Glass. The window is part see-through and blurs whatever is behind it.
-     To go back to plain white: --about-bg to #FFFFFF and --about-glass-blur to 0.
-     Lower alpha on --about-bg = more see-through = harder to read. */
-  --about-bg: rgba(255, 255, 255, 0.86);
-  --about-glass-blur: 30px;        /* how soft what's behind it goes. Apple sits around 20-30px */
-  --about-glass-boost: 180%;       /* colour behind it is pushed up, so it doesn't go grey when blurred. 100% = off */
+
+     TINTED or CLEAR — swap this one line:
+       rgba(255, 255, 255, 0.6)   tinted: a white wash over the blur. Frosted.
+       transparent                clear:  no wash at all. It takes its colour
+                                          only from whatever is behind it.
+     Plain white window, no glass at all: #FFFFFF, and --about-glass-blur to 0. */
+  --about-tint: transparent;
+
+  --about-glass-blur: 8px;         /* how soft what's behind it goes. Past ~20px on this page there's nothing left to see: the blur spreads the one dark shape behind it until it's gone */
+  --about-glass-boost: 200%;       /* colour behind it is pushed up, so it doesn't go grey when blurred. 100% = off */
+  --about-glass-lift: 1.08;        /* and lightened a little. This is what keeps dark text readable on the clear version. 1 = off */
   --about-edge: rgba(0, 0, 0, 0.08); /* a hairline all the way round. Glass needs an edge or it reads as a smudge */
+  --about-rim: rgba(255, 255, 255, 0.65); /* a bright line just inside the top edge, like light catching the lip of a pane. This, more than the blur, is what makes it read as glass instead of a blurry hole */
 
   --about-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.14); /* a tight one for the edge, a big soft one for lift */
   --about-shadow-drag: 0 1px 2px rgba(0, 0, 0, 0.04), 0 22px 60px rgba(0, 0, 0, 0.18); /* while you hold it: lifts further off the page */
@@ -78,12 +85,15 @@
   max-height: var(--about-max-height);
   border: 1px solid var(--about-edge);
   border-radius: var(--about-radius);
-  background: var(--about-bg);
-  /* Blurs the page behind the window, not the window itself. The -webkit- line
-     is the same thing under an older name, for Safari. */
-  -webkit-backdrop-filter: blur(var(--about-glass-blur)) saturate(var(--about-glass-boost));
-  backdrop-filter: blur(var(--about-glass-blur)) saturate(var(--about-glass-boost));
-  box-shadow: var(--about-shadow);
+  background: var(--about-tint);
+  /* Blurs the page behind the window, not the window itself: blur it, push its
+     colour back up (blurring drains colour towards grey), then lighten it a
+     little so dark text still reads on top. The -webkit- line is the same
+     thing under an older name, for Safari. */
+  -webkit-backdrop-filter: blur(var(--about-glass-blur)) saturate(var(--about-glass-boost)) brightness(var(--about-glass-lift));
+  backdrop-filter: blur(var(--about-glass-blur)) saturate(var(--about-glass-boost)) brightness(var(--about-glass-lift));
+  /* The rim goes first so it sits on top of the drop shadows. */
+  box-shadow: inset 0 1px 0 var(--about-rim), var(--about-shadow);
   overflow: hidden;                /* the scrolling text stays inside the rounded corners */
   transition:
     opacity var(--about-in-duration) var(--about-in-ease),
@@ -93,7 +103,8 @@
 }
 
 /* No blur available (an old browser, or it's switched off): go solid white.
-   Part see-through with nothing blurring behind it is just hard to read. */
+   Part see-through with nothing blurring behind it is just hard to read, and
+   the clear version would be text straight on top of the page. */
 @supports not (backdrop-filter: blur(1px)) {
   .about-panel {
     background: #FFFFFF;
@@ -115,7 +126,7 @@
 
 /* Being dragged. */
 .about-panel[data-dragging] {
-  box-shadow: var(--about-shadow-drag);
+  box-shadow: inset 0 1px 0 var(--about-rim), var(--about-shadow-drag);
 }
 
 /* ---------- the title bar ---------- */

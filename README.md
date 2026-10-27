@@ -155,14 +155,22 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **No `about.html` yet says so in the panel.** A missing file is a normal state for a new experiment, not a breakage, so the button stays live and the panel says "no notes for this one yet."
 - **A planned experiment greys the button out,** the same way and at the same pace as `</>`.
 - **Rounded corners, not a pill.** The pill-or-circle rule is about buttons. This is a window; the close X inside it is a circle.
-- **Glass, at 86% white over a 30px blur.** It's mostly opaque on purpose. At 72% the list showed through clearly enough to read, and two sets of text on top of each other is worse than no effect at all. At 86% what's behind is a soft ghost instead of competing words. `--about-bg` and `--about-glass-blur` are the two numbers; `#FFFFFF` and `0` turn it off.
+- **Clear glass over an 8px blur.** `--about-tint` is the one line that decides the look: `transparent` is clear, so the window takes its colour only from what's behind it; `rgba(255,255,255,0.6)` is tinted, a white wash over the blur. `#FFFFFF` plus `--about-glass-blur: 0` turns the whole thing off.
+- **Clear was chosen over tinted knowing the cost.** Tinted is the safer-reading one. Clear looks like the real thing, and on a page this light it mostly behaves — the brightness lift keeps the flat background near-white. It only bites over the black Submit button.
+- **The bright rim is what makes it read as glass.** A 1px white line just inside the top edge, like light catching the lip of a pane. Without it a see-through panel looks like a blurry hole in the page rather than an object sitting on it. This does more for the effect than the blur does.
+- **Colour behind it is pushed up and lightened** (`saturate(200%) brightness(1.08)`). Blurring drains colour towards grey, and the lift is what keeps dark text readable on the clear version.
+- **The blur is small on purpose.** This took three goes. 86% white *and* a 30px blur at once made the glass invisible: there's one dark shape on the whole page, and a wide blur spreads it until nothing is left. A small blur keeps enough of the shape to tint the window.
+- **Alpha only does anything where there's contrast behind.** Over the flat page, 30% white and 86% white look the same. The number only shows itself over the experiment or the list, which is why it took a black button to tell them apart.
+- **The ghosting is the price, and it was paid on purpose.** You can't have a panel that shows the black button behind it and hides the list behind it; both are just "things behind". Showing things won.
 - **Saturation is pushed to 180% behind it.** Blurring colour drains it towards grey. Pushing it back up is what stops frosted glass looking like dirty plastic.
 - **A hairline all the way round.** A part-see-through panel with no edge reads as a smudge, not an object.
 - **Solid white if the browser can't blur.** Part see-through with nothing blurred behind it is just hard to read.
 
 **Rough edges**
 - The glass mostly can't be seen. The page behind it is flat `#F5F5F7` and the window opens on the right, where there's usually nothing at all behind it. It only shows when you drag it over the list or an experiment. On a site with photos or colour it would earn its keep; here it's close to decoration.
-- Even at 86%, the selected row in the list shows through as a faint ghost if you park the window on top of it.
+- Park the window on the list and the rows read through the prose. Raising `--about-tint` towards 1 fixes that and kills the effect everywhere else at the same time.
+- Text sitting over the black Submit button is dark-on-dark and genuinely hard to read. Apple gets away with clear glass because iOS re-colours its text against what's behind it; this doesn't, and doing it properly needs JS sampling the backdrop every frame. Raising `--about-glass-lift` past `1.08` lightens what's behind and buys some of it back; `rgba(255,255,255,0.6)` on `--about-tint` buys all of it back and gives up the look.
+- No edge refraction. Real Liquid Glass bends what's behind it at the rim, like a lens. That's a displacement map, not a blur, and it isn't something plain CSS does.
 - The blur repaints while you drag the window. Fine for one 420px window; it's the first thing to drop if dragging ever feels heavy.
 - Mobile is out of scope. It fits the screen and scrolls, but a window you drag with a finger on a 375px phone isn't really a window.
 - Dragging it over the list blocks the list underneath. Normal for a window, but there's nothing to bring the list back except moving the window.
