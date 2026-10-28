@@ -43,7 +43,9 @@ animation should be.
 **Done 2026-10-29:** the list's slide-in now starts on the row you arrived on
 and spreads out from it, so a link straight to #005 lands that row first
 instead of last. And the keyboard hints: two keycaps in the bottom left, with a
-plain white pop-up of the site's commands that trails under the cursor.
+plain white pop-up of the site's commands that trails under the cursor —
+built and working, but it doesn't feel right and wants a rework before it
+stays. See "Bottom left — keyboard hints".
 
 **Learned 2026-10-27:** the about panel is glass (`backdrop-filter`), so the
 glass-or-plain question for the keyboard hints now has a working example to
@@ -97,6 +99,32 @@ the same — plain is probably right for it.
   - Open: it only knows the site's own keys. If an experiment ever wants to add a
     line of its own, that's a new rule for every experiment — the same shape of
     decision as the reset button's.
+
+- [ ] **Rework it. It's not good enough.** It works, it's documented, and it's dull.
+      It reads as a help menu on a site whose whole point is that things move.
+      Hunches about what's actually wrong, to agree or disagree with:
+  - **The drawing promises the wrong action.** The caps look like keys, and the ↓
+    even dips like it's being pressed — but pressing them isn't what does anything.
+    Hovering is. The best-looking part of it is a lie about how it works.
+  - **It's four grey sentences in a box.** Reading is the whole interaction. Nothing
+    on this site should ask to be read when it could be felt instead.
+  - **The first line is already on the front page.** 000 says "scroll down or press
+    ↓ to browse". The headline hint is repeating what you just read.
+  - **The trailing barely shows.** The pop-up lags behind the cursor, but the caps
+    are only 44px wide, so the mouse can't travel far enough for the lag to read.
+    Real code for an effect nobody will see.
+  - **At rest it's grey on grey.** Light grey caps on a light page in the corner
+    furthest from where you're looking. Easy to never notice it exists.
+  - **It arrives as one block.** All four lines fade up together. The list staggers
+    its rows and that's what makes it feel alive; this doesn't.
+  - **One idea worth trying:** stop making it a menu and make it a readout. The two
+    caps live in the corner, and pressing ↑ or ↓ anywhere on the page lights up the
+    matching cap. Then the corner isn't something you go and read — it's something
+    that reacts while you're using the site, and it teaches the keys by showing
+    them being used. The pop-up could go entirely, or shrink to one line.
+  - If the rework can't be expressed in plain CSS (a cap that's already lit getting
+    hit again, say, needs the glow to restart mid-flight), that's a real reason to
+    reach for GSAP rather than a made-up one.
 
 ## 000 — intro
 
