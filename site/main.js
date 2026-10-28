@@ -12,9 +12,11 @@ import { showExperiment } from "./stage.js";
 import { updateToolbar } from "./toolbar.js";
 import { updateAbout } from "./about.js";
 import { startSocials } from "./socials.js";
+import { startHints } from "./hints.js";
 
 startCursor();
 startSocials();
+startHints();
 
 
 // ---------- the address bar ----------

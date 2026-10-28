@@ -1,0 +1,208 @@
+/* ============================================================
+   TUNE HERE. The keyboard hints in the bottom left.
+   Two little keycaps; hover them and a pop-up of the site's
+   commands trails along under the cursor.
+   ============================================================ */
+:root {
+  /* --- the keycaps in the corner --- */
+  --hints-left: 24px;              /* distance from the left edge. Same as the title's from the top left */
+  --hints-bottom: 24px;            /* distance from the bottom edge. Same as the corner links on the other side */
+  --hints-key-size: 20px;          /* each cap: a rounded square this wide and tall */
+  --hints-key-gap: 4px;            /* space between the two caps */
+  --hints-key-radius: 6px;         /* their corners. A key, not a button, so not a circle or a pill (CLAUDE.md) */
+  --hints-key-arrow: 11px;         /* the ↑ and ↓ drawn inside them */
+  --hints-color: #A1A1A6;          /* resting: the same light grey as the corner links, so both corners sit equally far back */
+  --hints-color-hover: #1D1D1F;    /* hovered: Apple's near-black */
+  --hints-key-edge: #D2D2D7;       /* the outline and the thicker bottom edge, like the ↓ key on the front page */
+  --hints-key-dip: 2px;            /* how far the ↓ cap sinks on hover, as if pressed */
+  --hints-trigger-duration: 300ms; /* the caps darkening and dipping */
+  --hints-trigger-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* same curve as the toolbar and the corner links: pops a touch past, settles */
+
+  /* --- the pop-up --- */
+  --hints-bg: #FFFFFF;             /* plain white, not glass: see README, "Decisions" */
+  --hints-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06); /* the toolbar's shadow, so the two read as the same material */
+  --hints-radius: 14px;            /* a panel, not a button, so rounded rather than a pill */
+  --hints-pad-y: 12px;             /* space inside, top and bottom */
+  --hints-pad-x: 14px;             /* ...and left and right */
+  --hints-row-gap: 9px;            /* between one command and the next */
+  --hints-col-gap: 12px;           /* between a command's keys and what it does */
+  --hints-text-size: 12px;         /* what each command does */
+  --hints-text-color: #86868B;     /* Apple's secondary grey, same as the list */
+  --hints-cap-size: 11px;          /* the letters on the caps inside the pop-up (esc, tab) */
+  --hints-cap-color: #1D1D1F;      /* the caps' own text: near-black, so the keys lead and the words follow */
+
+  /* --- showing and hiding --- */
+  --hints-fade: 200ms;             /* fading up and away */
+  --hints-fade-ease: cubic-bezier(0.3, 1.3, 0.5, 1);
+  --hints-delay: 80ms;             /* the wait before it appears. The same wait the cursor takes to become a hand, so the two arrive together */
+  --hints-grow-from: 0.96;         /* the size it grows from. 1 = no grow, just a fade */
+
+  /* --- following the cursor --- */
+  --hints-nudge-x: 18px;           /* how far right of the cursor it sits, so the circle never covers it */
+  --hints-nudge-y: 14px;           /* how far above the cursor */
+  --hints-follow: 320ms;           /* how long it takes to catch up. Higher = it trails further behind */
+  --hints-follow-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, long soft landing, like the list */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+/* The two caps, pinned to the bottom left corner. z-index 2 puts it with the
+   title, the toolbar and the corner links, above the list's column (which
+   reaches down here but has nothing drawn in it this far from the middle). */
+.hints {
+  position: fixed;
+  bottom: var(--hints-bottom);
+  left: var(--hints-left);
+  z-index: 2;
+  display: flex;
+  gap: var(--hints-key-gap);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hints-color);
+  -webkit-tap-highlight-color: transparent; /* phones: no grey flash on tap */
+  transition: color var(--hints-trigger-duration) ease;
+}
+
+.hints:hover,
+.hints:focus-visible,
+.hints[aria-expanded="true"] {
+  color: var(--hints-color-hover);
+}
+
+.hints:focus-visible {
+  outline: 2px solid var(--hints-color-hover);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* One cap. Same drawing as the ↓ on the front page: a rounded square with a
+   thicker bottom edge, which is what makes it read as pressable. */
+.hints-key {
+  display: grid;
+  place-items: center;
+  width: var(--hints-key-size);
+  height: var(--hints-key-size);
+  border: 1px solid var(--hints-key-edge);
+  border-radius: var(--hints-key-radius);
+  box-shadow: 0 1px 0 var(--hints-key-edge);
+  font-size: var(--hints-key-arrow);
+  line-height: 1;
+  transition: transform var(--hints-trigger-duration) var(--hints-trigger-ease);
+}
+
+/* Only the ↓ dips, and only by the height of its own bottom edge plus a
+   little. Both caps dipping would read as the whole thing sinking; one
+   reads as a key being pressed. */
+.hints:hover .hints-key-down,
+.hints:focus-visible .hints-key-down {
+  transform: translateY(var(--hints-key-dip));
+}
+
+/* ---------- the pop-up ---------- */
+
+/* Placed by the two custom properties hints.js sets, which are the point it
+   should sit at. Two separate steps, on purpose:
+     translate   moves it to that point, and is what trails behind the cursor
+     transform   shifts it from there to above-right, and does the grow
+   The browser applies translate first and transform second, so the -100%
+   below is always measured against the pop-up's own height, wherever it is. */
+.hints-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;                      /* over the toolbar, under the about window (which is 10) */
+  display: grid;
+  grid-template-columns: auto 1fr; /* keys, then what they do */
+  align-items: center;
+  gap: var(--hints-row-gap) var(--hints-col-gap);
+  width: max-content;
+  margin: 0;
+  padding: var(--hints-pad-y) var(--hints-pad-x);
+  border-radius: var(--hints-radius);
+  background: var(--hints-bg);
+  box-shadow: var(--hints-shadow);
+  font-size: var(--hints-text-size);
+  color: var(--hints-text-color);
+  /* Never takes the mouse. If it did, the pop-up would slide under the cursor,
+     steal the hover from the caps, and flicker itself off and on forever. */
+  pointer-events: none;
+  translate: var(--hints-x, 0) var(--hints-y, 0);
+  transform: translate(var(--hints-nudge-x), calc(-100% - var(--hints-nudge-y)))
+             scale(var(--hints-grow-from));
+  opacity: 0;
+  transition:
+    translate var(--hints-follow) var(--hints-follow-ease),
+    transform var(--hints-fade) var(--hints-fade-ease),
+    opacity var(--hints-fade) ease;
+}
+
+.hints-panel[data-state="shown"] {
+  opacity: 1;
+  transform: translate(var(--hints-nudge-x), calc(-100% - var(--hints-nudge-y)))
+             scale(1);
+  /* Going away has no wait; only arriving does. A transition uses the settings
+     of the state it's going TO, so the delay belongs here. */
+  transition-delay: var(--hints-delay);
+}
+
+/* The keys for one command, e.g. "↑ ↓". */
+.hints-keys {
+  display: flex;
+  gap: var(--hints-key-gap);
+  justify-self: start;
+}
+
+/* A cap inside the pop-up. Same shape as the two in the corner, sized to
+   whatever is written on it, so "esc" and "↑" are the same height. */
+.hints-panel kbd {
+  display: grid;
+  place-items: center;
+  min-width: var(--hints-key-size);
+  height: var(--hints-key-size);
+  padding: 0 5px;
+  border: 1px solid var(--hints-key-edge);
+  border-radius: var(--hints-key-radius);
+  box-shadow: 0 1px 0 var(--hints-key-edge);
+  font-family: inherit;            /* browsers give <kbd> a typewriter font by default */
+  font-size: var(--hints-cap-size);
+  line-height: 1;
+  color: var(--hints-cap-color);
+}
+
+/* The wheel isn't a key, so it doesn't get a cap. Plain words instead, which
+   is also what tells you at a glance that this row is a different kind of thing.
+   It still stands as tall as a cap, though: without that its row is shorter
+   than the others and the spacing down the pop-up comes out uneven. */
+.hints-gesture {
+  display: grid;
+  place-items: center start;
+  height: var(--hints-key-size);
+  justify-self: start;
+  font-size: var(--hints-cap-size);
+}
+
+/* Under 900px the list moves to a strip along the bottom (nav.css) and this
+   corner belongs to it. There's no keyboard and no wheel on a phone anyway,
+   so the hints have nothing to say there. */
+@media (max-width: 900px) {
+  .hints,
+  .hints-panel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hints,
+  .hints-key,
+  .hints-panel {
+    transition: none;
+  }
+
+  /* No trailing either: it appears where the cursor is, not behind it. */
+  .hints-panel {
+    transition: opacity 1ms linear;
+  }
+}

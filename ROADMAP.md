@@ -33,11 +33,17 @@ white window with notes on the open experiment, dragged by its title bar. The
 text lives in an `about.html` in each experiment's folder, so every experiment
 now has five files, not four (CLAUDE.md's contract says what goes in it).
 
-**Next:** the reset icon (decide first how experiments say "something to reset"),
-then the keyboard hints in the bottom left.
+**Next:** the reset icon. Decide first how an experiment says "there's something
+to reset now" — that's a new rule for every experiment, so it's a decision
+before it's a build.
 
-**Still undecided:** the lab dashboard's categories, glass or plain for the
-keyboard-hints pop-up, and what each hover animation should be.
+**Still undecided:** the lab dashboard's categories, and what each hover
+animation should be.
+
+**Done 2026-10-29:** the list's slide-in now starts on the row you arrived on
+and spreads out from it, so a link straight to #005 lands that row first
+instead of last. And the keyboard hints: two keycaps in the bottom left, with a
+plain white pop-up of the site's commands that trails under the cursor.
 
 **Learned 2026-10-27:** the about panel is glass (`backdrop-filter`), so the
 glass-or-plain question for the keyboard hints now has a working example to
@@ -76,9 +82,21 @@ the same — plain is probably right for it.
 
 ## Bottom left — keyboard hints
 
-- [ ] **Keyboard commands.** Hovering shows a small Apple-style pop-up (glass or plain,
-      undecided) that follows the cursor, with a short preview of each command:
-      ↑ / ↓ or scroll to move through the list.
+- [x] **Keyboard commands.** Hovering shows a small Apple-style pop-up that follows the
+      cursor, with a short preview of each command: ↑ / ↓ or scroll to move through
+      the list.
+  - Built: `site/hints.js` + `site/hints.css`, with the caps and the pop-up's four
+    lines in `index.html`. Docs in README.md, "the keyboard hints".
+  - Decided: **plain, not glass** — the about panel had already shown that glass on
+    this flat page is nearly invisible, and this pop-up is smaller.
+  - Decided while building: the caps are a button, not just a hover target, so Tab
+    can reach them and a click pins the pop-up open. And the pop-up takes no mouse
+    events at all, or it slides under the cursor and flickers itself on and off.
+  - Hidden under 900px: that corner belongs to the list's strip there, and a phone
+    has no keyboard and no wheel.
+  - Open: it only knows the site's own keys. If an experiment ever wants to add a
+    line of its own, that's a new rule for every experiment — the same shape of
+    decision as the reset button's.
 
 ## 000 — intro
 

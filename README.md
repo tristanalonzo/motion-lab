@@ -238,6 +238,37 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - The email address is in the page, so bots that scrape for addresses will find it.
 - The cat's beats (the percentages) live inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in socials.css.
 
+## Shared: the keyboard hints
+
+`site/hints.js` + `site/hints.css` — two little keycaps in the bottom left corner. Hover them and a small white pop-up lists what the site answers to, trailing along above and right of the cursor. Move away and it goes. The caps are a button, so Tab reaches them and a click pins the pop-up open until you click again or press Escape. The caps and the pop-up's four lines are both in `index.html`.
+
+| From | To | Duration | Easing | What moves |
+|---|---|---|---|---|
+| caps resting | hovered | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | both caps darken from the corner-link grey to near-black; the ↓ cap alone sinks 2px, as if pressed |
+| pop-up hidden | shown | 200ms, after an 80ms wait | `cubic-bezier(0.3, 1.3, 0.5, 1)` | fades up and grows from 0.96 to full size |
+| pop-up shown | hidden | 200ms, no wait | `cubic-bezier(0.3, 1.3, 0.5, 1)` | fades out and shrinks back to 0.96 |
+| cursor moves | pop-up catches up | 320ms | `cubic-bezier(0.22, 1, 0.36, 1)` | the pop-up slides to its new spot, 18px right of the cursor and 14px above it |
+
+**Decisions**
+- **Plain white, not glass.** The about panel already proved what glass does on this page: over a flat `#F5F5F7` background there's nothing behind it to bend, so the effect is close to invisible, and anything clearer than 80% white lets what's underneath fight the text. This pop-up sits over the same flat page and is smaller, so it would have got all of the cost and none of the look.
+- **The pop-up never takes the mouse.** It's `pointer-events: none`. It has to be: it opens right next to the cursor, so the moment it could take a hover it would slide under the cursor, steal the hover from the caps, hide itself, hand the hover back, and flicker on and off forever.
+- **A button, not just something to hover.** Hover alone would leave it out of reach of the keyboard entirely. As a button it gets a Tab stop, focus shows the pop-up, and a click pins it so it can be read without holding the mouse still.
+- **Placed in two steps.** `translate` puts the pop-up at the cursor and is the part that trails; `transform` then shifts it up and right and does the grow. The browser always applies `translate` first, so the `-100%` that lifts it above the cursor is measured against the pop-up's own height no matter where it is or what size the text made it.
+- **Only the ↓ cap dips.** Both dipping reads as the whole thing sinking. One dipping reads as a key being pressed, which is the point of drawing them as keys at all.
+- **The wheel gets no keycap.** It isn't a key. Plain words in that column are also what tells you at a glance that the row is a different kind of thing. It still stands as tall as a cap, though, or its row is shorter than the others and the spacing down the pop-up comes out uneven.
+- **Keys near-black, words grey.** The caps lead and the description follows, so you can find the key you half-remember without reading the sentences.
+- **Same keycap as the front page.** A rounded square with a thicker bottom edge, which is what makes it read as pressable. Reusing 000's drawing means a key looks like a key everywhere on the site.
+- **It sits in the list's column and wins.** The list is a full-height column starting 56px from the left, so the caps are on top of it. That's fine only because the list's fade leaves nothing drawn this far from the middle; `z-index: 2` puts the caps with the title, the toolbar and the corner links, and the pop-up one higher so it clears the toolbar but still passes under the about window.
+- **Gone under 900px.** The list moves to a strip along the bottom at that width and this corner becomes its. There's no keyboard and no wheel on a phone anyway, so the hints have nothing to say there.
+
+**Rough edges**
+- Pinned, it stops following the cursor and parks above the caps. That's deliberate — a pinned pop-up chasing the mouse around the page would be unbearable — but if you pin it while hovering, it jumps from under your cursor back to the corner.
+- It only knows the site's own keys. An experiment with keys of its own (001 answers to Space and Enter) has no way to add a line to it.
+- `esc` closes the about panel and unpins this at the same time. One key doing two jobs is fine while there are two things to close; it won't scale.
+- The caps are last in the page, so they're last in the Tab order: you have to step through the list, the toolbar and all five corner links to reach them.
+- The pop-up is placed from the cursor with no check that it fits. In the bottom left corner there's always room up and to the right, so it can't currently go off screen — but moving the caps anywhere else would need that check written.
+- Four lines is the whole thing. A fifth would want grouping, and a real shortcuts window is a different idea from a hint that follows your mouse.
+
 ## Shared: the cursor
 
 `site/cursor.js` + `site/cursor.css` — one cursor for the whole site: a circle that inverts whatever it's over, follows the mouse on a spring, and morphs into a pointing hand over anything clickable. When the mouse is off the page, it waits beside the title. Started life in 001.
@@ -303,3 +334,5 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--instagram-shut: 0` and `--instagram-burst: 1`. The shutter slams fully shut and the flash goes solid white: a real camera, and much too loud for a footer.
 - Set `--tool-grow: 20px` and hover `</>`. The pill bulges around it; once there are more buttons, you'll see them get shoved aside. Then set `--tool-grow-ease: linear`: same size change, but it stops dead instead of settling.
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
+- Set `--hints-follow: 1200ms` and sweep the mouse back and forth across the keycaps. The pop-up swims after the cursor long after you've stopped. Then `0ms`: it's welded to the cursor, and the trailing that made it feel like a physical thing is gone.
+- Set `--hints-nudge-x: 0px` and `--hints-nudge-y: 0px`. The pop-up opens underneath the cursor and the circle sits on its first line. That's what the two nudges are for.
