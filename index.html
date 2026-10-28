@@ -177,32 +177,17 @@
     </a>
   </nav>
 
-  <!-- Bottom left: what the site answers to. The caps are a button, so Tab
-       reaches them and a click pins the pop-up open; site/hints.js shows it
-       and keeps it trailing under the cursor. The two caps are decoration
-       (aria-hidden) — the button's own name is what a screen reader reads,
-       and the pop-up below is always in the page for it to read after. -->
-  <button class="hints" type="button" aria-label="keyboard commands"
-          aria-expanded="false" aria-controls="hints-panel">
-    <span class="hints-key hints-key-up" aria-hidden="true">↑</span>
-    <span class="hints-key hints-key-down" aria-hidden="true">↓</span>
-  </button>
-
-  <!-- Two cells per row: the keys, then what they do. Only the wheel gets no
-       keycap, because it isn't a key. -->
-  <div class="hints-panel" id="hints-panel" data-state="hidden">
-    <span class="hints-keys"><kbd>↑</kbd><kbd>↓</kbd></span>
-    <span>move through the list</span>
-
-    <span class="hints-gesture">scroll</span>
-    <span>the same, with the wheel</span>
-
-    <span class="hints-keys"><kbd>tab</kbd></span>
-    <span>step through the buttons</span>
-
-    <span class="hints-keys"><kbd>esc</kbd></span>
-    <span>close the about panel</span>
+  <!-- Bottom left: a readout, not a menu. The two caps press themselves when
+       you step through the list, with the arrow keys or with the wheel, so
+       the corner shows the keys being used instead of listing them.
+       aria-hidden, because it's a picture of what just happened rather than
+       anything to operate; the line under it is what a screen reader gets
+       instead, and site/hints.css keeps that line off screen. -->
+  <div class="hints" aria-hidden="true">
+    <span class="hints-key hints-key-up" data-state="idle">↑</span>
+    <span class="hints-key hints-key-down" data-state="idle">↓</span>
   </div>
+  <p class="hints-sr">Press the up and down arrow keys, or scroll, to move through the experiments.</p>
 
   <!-- The site-wide cursor. aria-hidden: screen readers skip it, it's decoration.
        The shape is set in site/cursor.css. The d="" here is a plain circle,

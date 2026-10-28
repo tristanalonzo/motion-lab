@@ -42,10 +42,11 @@ animation should be.
 
 **Done 2026-10-29:** the list's slide-in now starts on the row you arrived on
 and spreads out from it, so a link straight to #005 lands that row first
-instead of last. And the keyboard hints: two keycaps in the bottom left, with a
-plain white pop-up of the site's commands that trails under the cursor —
-built and working, but it doesn't feel right and wants a rework before it
-stays. See "Bottom left — keyboard hints".
+instead of last. And the keyboard readout: two keycaps in the bottom left, with a
+keycaps in the bottom left that press themselves as you step through the list.
+That last one was built as a pop-up listing the commands first, didn't feel
+right, and was reworked the same day into a readout — the notes on why are
+under "Bottom left — keyboard readout".
 
 **Learned 2026-10-27:** the about panel is glass (`backdrop-filter`), so the
 glass-or-plain question for the keyboard hints now has a working example to
@@ -82,49 +83,48 @@ the same — plain is probably right for it.
   - Built: `site/toolbar.js` + `toolbar.css`. The toolbar row is there for the
     other buttons to join.
 
-## Bottom left — keyboard hints
+## Bottom left — keyboard readout
 
-- [x] **Keyboard commands.** Hovering shows a small Apple-style pop-up that follows the
-      cursor, with a short preview of each command: ↑ / ↓ or scroll to move through
-      the list.
-  - Built: `site/hints.js` + `site/hints.css`, with the caps and the pop-up's four
-    lines in `index.html`. Docs in README.md, "the keyboard hints".
-  - Decided: **plain, not glass** — the about panel had already shown that glass on
-    this flat page is nearly invisible, and this pop-up is smaller.
-  - Decided while building: the caps are a button, not just a hover target, so Tab
-    can reach them and a click pins the pop-up open. And the pop-up takes no mouse
-    events at all, or it slides under the cursor and flickers itself on and off.
+- [x] **Something in this corner that says what the keys do.** Built twice. The first
+      version was a hover pop-up listing the commands; it worked and it was dull, so
+      it was replaced the same day by the readout below. Kept here because the reason
+      it failed is worth remembering.
+  - What was wrong with the pop-up: reading was the whole interaction, on a site
+    whose point is that things move. The caps were drawn as keys and one dipped on
+    hover, but hovering was what did something and pressing did nothing — the
+    drawing promised the wrong action. Its first line repeated what 000 already
+    says. The trailing-after-the-cursor effect cost real code and barely showed,
+    because the caps are only 44px wide.
+  - What was right, and survived: plain, not glass. The about panel had already
+    shown that glass on this flat page is nearly invisible.
+  - Built: `site/hints.js` + `site/hints.css`, with the caps in `index.html`.
+    Docs in README.md, "the keyboard readout".
   - Hidden under 900px: that corner belongs to the list's strip there, and a phone
     has no keyboard and no wheel.
-  - Open: it only knows the site's own keys. If an experiment ever wants to add a
-    line of its own, that's a new rule for every experiment — the same shape of
-    decision as the reset button's.
 
-- [ ] **Rework it. It's not good enough.** It works, it's documented, and it's dull.
-      It reads as a help menu on a site whose whole point is that things move.
-      Hunches about what's actually wrong, to agree or disagree with:
-  - **The drawing promises the wrong action.** The caps look like keys, and the ↓
-    even dips like it's being pressed — but pressing them isn't what does anything.
-    Hovering is. The best-looking part of it is a lie about how it works.
-  - **It's four grey sentences in a box.** Reading is the whole interaction. Nothing
-    on this site should ask to be read when it could be felt instead.
-  - **The first line is already on the front page.** 000 says "scroll down or press
-    ↓ to browse". The headline hint is repeating what you just read.
-  - **The trailing barely shows.** The pop-up lags behind the cursor, but the caps
-    are only 44px wide, so the mouse can't travel far enough for the lag to read.
-    Real code for an effect nobody will see.
-  - **At rest it's grey on grey.** Light grey caps on a light page in the corner
-    furthest from where you're looking. Easy to never notice it exists.
-  - **It arrives as one block.** All four lines fade up together. The list staggers
-    its rows and that's what makes it feel alive; this doesn't.
-  - **One idea worth trying:** stop making it a menu and make it a readout. The two
-    caps live in the corner, and pressing ↑ or ↓ anywhere on the page lights up the
-    matching cap. Then the corner isn't something you go and read — it's something
-    that reacts while you're using the site, and it teaches the keys by showing
-    them being used. The pop-up could go entirely, or shrink to one line.
-  - If the rework can't be expressed in plain CSS (a cap that's already lit getting
-    hit again, say, needs the glow to restart mid-flight), that's a real reason to
-    reach for GSAP rather than a made-up one.
+- [x] **Reworked into a readout.** The pop-up is gone. The two caps now press
+      themselves as you step through the list — press ↓ and the ↓ cap goes down,
+      scroll down and it goes down too. It shows the keys being used instead of
+      listing them.
+  - Fixed the dishonest part: the caps aren't a button any more. Nothing invites a
+    click, because clicking was never what did anything.
+  - Decided: the wheel presses the ↓ cap as well. Strictly a lie — you didn't touch
+    a key — but it's the one line of the old pop-up worth keeping, and showing it
+    beats writing it.
+  - Decided: nav.js sends a `lab:step` event on every step and the readout listens.
+    One place decides when a key or a scroll counts, instead of two copies of the
+    same rules drifting apart. Anything else that wants to react to a step can
+    listen too.
+  - One demo press at 1400ms after load, so the corner isn't easy to miss. That
+    was the "easy to never notice" complaint.
+  - **GSAP wasn't needed after all.** A held key just stays down — each step pushes
+    the release further out — so nothing ever has to restart a half-finished
+    animation, which was the thing plain CSS would have been bad at. Worth knowing
+    the door was there and this wasn't the reason to open it.
+  - Open: it only reports the list. `tab` and `esc` were in the old pop-up and are
+    now written down nowhere a visitor can see. An experiment with keys of its own
+    still can't add a cap — a new rule for every experiment, so a decision before
+    it's a build.
 
 ## 000 — intro
 
