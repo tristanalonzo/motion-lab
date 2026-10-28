@@ -116,6 +116,27 @@ export function createNav(experiments, onSelect) {
   }
 
 
+  // ---------- stepping ----------
+
+  // Every step goes through here, whether it came from a key, the wheel or a
+  // finger. It shouts first, then moves.
+  //
+  // The shout is a "custom event": a message with a name of our own, sent on
+  // window, that anything else on the page can listen for without this file
+  // knowing it exists. The readout in the corner (site/hints.js) listens for
+  // it. Doing it that way means the rules about when a key or a scroll counts
+  // — not while you're typing, not when an experiment has claimed the event —
+  // stay here, in one place, instead of being copied into every file that
+  // wants to know a step happened.
+  //
+  // It shouts even when the list is already at the end and nothing moves:
+  // you pressed the key, so the key should react.
+  function step(direction, by) {
+    window.dispatchEvent(new CustomEvent("lab:step", { detail: { direction, by } }));
+    select(selected + direction);
+  }
+
+
   // ---------- scrolling ----------
 
   function listIsVisible() {
@@ -145,7 +166,7 @@ export function createNav(experiments, onSelect) {
     const threshold = readSetting("--nav-wheel-threshold");
     if (Math.abs(wheelTotal) < threshold) return;
 
-    select(selected + Math.sign(wheelTotal)); // down = next, up = previous
+    step(Math.sign(wheelTotal), "wheel"); // down = next, up = previous
     // Keep the leftover so steady scrolling steps evenly. But never more than one
     // step's worth, so a single huge flick still moves one item per event, not five.
     wheelTotal = Math.sign(wheelTotal) * Math.min(Math.abs(wheelTotal) - threshold, threshold - 1);
@@ -176,7 +197,7 @@ export function createNav(experiments, onSelect) {
     const step = readSetting("--nav-swipe-step");
     const travelled = touchY - e.touches[0].clientY; // positive = finger moved up
     if (Math.abs(travelled) < step) return;
-    select(selected + Math.sign(travelled));
+    step(Math.sign(travelled), "touch");
     // Keep the rest of the drag, so one long swipe steps evenly through several items.
     touchY -= Math.sign(travelled) * step;
   }, { passive: false });
@@ -188,8 +209,8 @@ export function createNav(experiments, onSelect) {
     if (!listIsVisible()) return;
     if (e.defaultPrevented) return; // an experiment already used this key
     if (isTypingIn(e)) return;      // in a text box or a slider, arrows belong to it
-    if (e.key === "ArrowDown") select(selected + 1);
-    if (e.key === "ArrowUp") select(selected - 1);
+    if (e.key === "ArrowDown") step(1, "key");
+    if (e.key === "ArrowUp") step(-1, "key");
   });
 
   // composedPath()[0] is the element that really has focus, even inside an
