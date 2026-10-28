@@ -53,7 +53,7 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
-| page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, top row first |
+| page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, starting at the row the page opened on and spreading out from it in both directions |
 | item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, 14px → 12px, regular → light (400 → 300), steps 18px back left; new one the reverse |
 | pointing | switching | 140ms | `cubic-bezier(0.4, 0, 0.2, 1)` | pointer sinks back flat: 22px sharp point → a shallow 4px arc along the edge |
 | switching | pointing | 200ms after the switch, then 380ms | `cubic-bezier(0.34, 1.3, 0.64, 1)` | tip grows back out, pokes ~0.5px past 22px, settles. Done by ~580ms, just after the list lands |
@@ -70,6 +70,7 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - **Size and weight animate instead of snapping.** Inter loads as one "variable" font covering weights 300 to 700, so the weight can pass through every step in between. San Francisco on a Mac does the same.
 - **Selected steps right 18px.** Moves the selected row away from the pointer, so the two read as pointer and target, not one shape.
 
+- **The wave starts on the row you arrived on.** Open `#005` from a link and the wave runs *up* the list from 005, not down from 000, so the row you came for is the first to land instead of the last. The rows either side of it follow together, then the ones beyond those, spreading out both ways. On the front page the row you arrived on is 000, so the wave runs straight down the list exactly as it always did — the common case is unchanged, which is why the timing didn't need retuning.
 - **Rows come in 60ms apart but take 800ms each.** Each row starts long before the one above it has landed, so they read as one wave rolling down, not a queue of separate moves.
 - **32px in from the right, not further.** Just enough to read as "arriving". Further and the faded rows at the bottom are still visibly sliding after the top has settled.
 - **A CSS keyframe animation, not a transition.** A transition needs something to change; a keyframe animation plays by itself the moment the row appears.
@@ -90,7 +91,6 @@ What goes in each file: CLAUDE.md, "The experiment contract".
 - The front page says "press ↓", which means nothing on a phone.
 - Only tested with simulated touch in Firefox, not yet on a real phone.
 - Back doesn't step through experiments; it leaves the site.
-- Opening a link straight to a later item (like `#005`) still staggers from row 000, so the selected row arrives last, after the experiment is already showing.
 - The pointer doesn't join the slide-in on load. It's just there from the start.
 - Safari can't set an SVG path's shape from CSS, so the pointer stays sharp there and never morphs.
 - The selected name is bigger and heavier, so it grows to the right as it's selected, and the name shifts right a little as its number widens.
@@ -295,6 +295,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--pointer-sharpen-duration: 120ms` and step through the list. The point stops growing and just appears, which is what the first version looked like. Then try `--pointer-blunt-hold: 600ms`: it waits so long that it feels like it's lagging behind the list instead of following it.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
+- Keep `--nav-in-stagger: 300ms`, then open `#005` and the front page one after the other. Slowed down you can see the wave run up the list from 005 and down it from 000: it always starts on the row you arrived on.
 - Set `--github-duration: 3000ms` and hover the GitHub cat. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.
 - Set `--github-squash: 1` and `--github-stretch: 1`. No gather, no push-off: the cat just floats up out of the circle. That's what the anticipation was doing.
 - Set `--github-overshoot: 0%`. It slides up and stops, like it's on a lift, instead of jumping.

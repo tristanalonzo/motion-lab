@@ -25,7 +25,7 @@
 
   /* --- coming in, when the site loads --- */
   --nav-in-delay: 200ms;           /* wait before the first row starts */
-  --nav-in-stagger: 60ms;          /* gap between one row starting and the next. Lower = more like one wave */
+  --nav-in-stagger: 60ms;          /* gap between one row starting and the next one out from it. Lower = more like one wave */
   --nav-in-duration: 800ms;        /* how long each row takes to land */
   --nav-in-distance: 32px;         /* how far right each row starts */
   --nav-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* same soft landing as the slide */
@@ -90,9 +90,12 @@
 }
 
 /* Coming in: every row slides in from the right and fades up, once, when the
-   page loads. --i (set by nav.js) is the row's number, so row 0 starts first,
-   row 1 one stagger later, and so on down. "both" keeps each row invisible
-   while it waits for its turn, and in place after it lands. */
+   page loads. --i (set by nav.js) is the row's place in the wave, counted out
+   from the row the page opened on: 0 for that row, 1 for the rows either side
+   of it, and so on. So the row you arrived on lands first and the rest of the
+   list unfolds away from it in both directions. On the front page that's row
+   000, and the wave runs straight down the list. "both" keeps each row
+   invisible while it waits for its turn, and in place after it lands. */
 .nav li {
   animation: nav-in var(--nav-in-duration) var(--nav-in-ease)
              calc(var(--nav-in-delay) + var(--i) * var(--nav-in-stagger)) both;

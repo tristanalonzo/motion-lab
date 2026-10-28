@@ -20,6 +20,8 @@ export function createNav(experiments, onSelect) {
   nav.setAttribute("aria-label", "Experiments");
   const list = document.createElement("ol");
 
+  const rows = [];
+
   const items = experiments.map((experiment, index) => {
     // Every row is a link to its own address, so right-click > "open in new
     // tab" works. A normal click is caught below and just selects the row.
@@ -36,9 +38,10 @@ export function createNav(experiments, onSelect) {
     });
 
     const row = document.createElement("li");
-    row.style.setProperty("--i", index); // its place in line for the slide-in (nav.css)
+    row.style.setProperty("--i", index); // its place in the slide-in wave; select() sets the real one
     row.append(item);
     list.append(row);
+    rows.push(row);
     return item;
   });
 
@@ -67,6 +70,16 @@ export function createNav(experiments, onSelect) {
     if (index === selected) return;
     const isFirst = selected === -1;
     selected = index;
+
+    // The slide-in wave starts at the row you arrived on and ripples out from
+    // there, both ways, instead of always starting at row 000. Open a link
+    // straight to #005 and the row you came for is the first to land, not the
+    // last. Opening the front page is unchanged: the distance from row 000 is
+    // the row's own number, which is what --i was before.
+    // Only on the first selection; stepping the list later mustn't replay it.
+    if (isFirst) {
+      rows.forEach((row, i) => row.style.setProperty("--i", Math.abs(i - index)));
+    }
 
     // The pointer goes blunt, then sharpens again (nav.css draws both).
     // Every step restarts the wait, so it stays blunt while you keep scrolling.
