@@ -1,0 +1,36 @@
+#!/bin/sh
+# Strips any Claude / Anthropic attribution out of a commit message before the
+# commit is made. Nothing from an assistant should ever show up on GitHub.
+#
+# Git runs this on every commit and hands it one argument: the path to a file
+# holding the message. Whatever this script leaves in that file is what gets
+# committed. So it rewrites the file in place and exits 0 — it never blocks a
+# commit, it just quietly takes the lines out.
+#
+# Turn it on in a fresh clone with:  git config core.hooksPath .githooks
+# (hooks aren't cloned with the repo, so each machine needs that line once.)
+
+msg="$1"
+
+# The I at the end of each pattern means "ignore case", so CO-AUTHORED-BY,
+# Co-Authored-By and co-authored-by are all caught. \? makes each hyphen
+# optional, for the odd tool that writes CoAuthoredBy. The two "generated
+# with" patterns are not anchored to the start of the line, because that line
+# often opens with an emoji, and an emoji is several bytes wide to sed.
+#
+# Each pattern needs a whole credit line to match, not just the word "Claude",
+# so an ordinary sentence that happens to mention Claude survives and only the
+# credit lines go. A co-author line for a real person stays too.
+sed -i \
+  -e '/^co-\?authored-\?by:.*claude/Id' \
+  -e '/^co-\?authored-\?by:.*anthropic/Id' \
+  -e '/^co-\?authored-\?by:.*\[bot\]/Id' \
+  -e '/generated with.*claude/Id' \
+  -e '/claude\.com\/claude-code/Id' \
+  -e '/^co-\?authored-\?by:.*noreply@/Id' \
+  "$msg"
+
+# Drop any blank lines left behind at the bottom.
+sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$msg"
+
+exit 0
