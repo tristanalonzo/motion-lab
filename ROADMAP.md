@@ -126,6 +126,23 @@ the same — plain is probably right for it.
     still can't add a cap — a new rule for every experiment, so a decision before
     it's a build.
 
+- [ ] **A word beside the key.** The caps say which key, never what it does. Add the
+      word — but keep it a readout: it should appear because you pressed something,
+      not sit there waiting to be read. The moment it's always on screen it's the
+      old pop-up again, just flatter.
+  - Suggested: on press, the word slides out from behind the caps to their right,
+    holds while the key is down, and goes back as the cap comes up. Same split as
+    the cap itself — out fast, back slow — so the word and the key read as one move.
+  - Open: what the words are. "next" / "previous" is short enough to sit beside a
+    20px cap. "move through the list" says more but is long enough to reach the
+    toolbar, and it's the same sentence 000 already shows.
+  - Open: whether the wheel gets a word too. It presses the ↓ cap today, so it
+    would say "next" — true, but it might be the chance to say "scroll" there
+    instead, which is the one thing about this corner nothing currently tells you.
+  - Watch out: a word appearing changes how wide the corner is. It needs its own
+    layer, or the caps will shift sideways every time you press a key — which is
+    the opposite of what a fixed readout should do.
+
 ## 000 — intro
 
 - [x] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
