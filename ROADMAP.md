@@ -10,22 +10,6 @@ Open questions are things to decide before (or while) building that item.
 **Start:** `git pull`, then `py -m http.server` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
 
-**On the other computer, once, before anything else.** On 2026-10-29 the five
-commits of that day were rewritten to take a Claude credit line out of them, so
-GitHub's history no longer matches whatever that machine last had. A plain
-`git pull` there will try to merge the old copy back in and make a mess. Instead,
-check `git status` has nothing uncommitted, then:
-
-```
-git fetch origin
-git reset --hard origin/main
-git config core.hooksPath .githooks
-```
-
-The last line turns on the hook that keeps the credit line from coming back;
-git doesn't install hooks on clone, so every machine needs it once. After that,
-`git pull` as normal forever. Delete this note once that machine is done.
-
 **Where it stands:** the site is one page. Experiments swap in without page
 loads, each sealed in its own box, with one cursor for the whole site. 000 (intro)
 and 001 (submit button, now a pill) are built. 002–005 are placeholder ideas,
