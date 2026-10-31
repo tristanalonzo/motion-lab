@@ -147,6 +147,13 @@ Rules that keep experiments from leaking into each other:
 7. Libraries that find elements by selector string (like `gsap.to(".btn")`)
    can't see inside the box. Hand them elements instead:
    `gsap.to(root.querySelector(".btn"))`.
+8. Put anything a visitor can change in `data-state`. The reset button lights
+   up when the experiment's `data-state` values stop matching how they were
+   right after `mount()`, and reset reloads the experiment fresh. So the
+   resting state is whatever markup.html and `mount()` leave behind, and a
+   change that never touches `data-state` won't light the button up.
+   Don't change `data-state` by yourself after `mount()` (an intro that
+   settles, say) or reset lights up before anyone has touched anything.
 
 ## Every component needs a README
 

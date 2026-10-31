@@ -98,18 +98,25 @@ What goes in each file: AGENTS.md, "The experiment contract".
 
 ## Shared: the toolbar
 
-`site/toolbar.js` + `site/toolbar.css` — a white pill at the bottom middle holding round buttons about the open experiment. Two so far: an **i**, which opens the about panel (its own section below), and `</>`, which links to the experiment's folder on GitHub in a new tab. The buttons are in `index.html`; toolbar.js re-points `</>` on every switch, about.js looks after the **i**. On phones it sits just above the list's strip.
+`site/toolbar.js` + `site/toolbar.css` — a white pill at the bottom middle holding round buttons about the open experiment. Three so far: an **i**, which opens the about panel (its own section below); a **reset** arrow, which reloads the experiment fresh; and `</>`, which links to the experiment's folder on GitHub in a new tab. The buttons are in `index.html`; toolbar.js re-points `</>` on every switch and runs reset, about.js looks after the **i**. On phones it sits just above the list's strip.
+
+**How reset knows there's something to reset.** stage.js takes a snapshot of every `data-state` in the experiment right after `mount()`, then watches them. The moment they stop matching the snapshot, it sends a `lab:resettable` event and the button lights up; when they match again (or you switch away), it greys out. Clicking it throws the experiment's box away and builds a fresh one from the same files, exactly like arriving. Experiments don't do anything for this: keeping their state in `data-state` is already the rule.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
 | resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | button grows 40 → 46px (a touch past, then settles); the pill and the buttons beside it make room; a light grey circle fades in behind it (plain `ease`) |
 | resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | `<` and `>` slide apart ~2px each; `/` stays put |
 | resting | hovered / focused | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the dot of the **i** hops up ~1.2px; the ring and the stem stay put |
-| resting | hovered / focused | 80ms wait + 200ms | `ease` | "view code" fades in and rises 4px, above the pill |
+| resting | hovered / focused | 500ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the reset arrow winds back 40° |
+| resting | hovered / focused | 80ms wait + 200ms | `ease` | the button's word ("view code", "reset") fades in and rises 4px, above the pill |
 | hovered | resting | same, with no wait | same | the reverse, from wherever it is |
 | any | pressed | 100ms | `ease` | button squashes to 0.92× |
 | real experiment | planned one | 250ms | `ease` | button fades to 35%. Stops reacting straight away |
 | planned one | real experiment | 250ms | `ease` | fades back to full, clickable straight away |
+| reset: nothing to reset | experiment changed | 400ms wait + 250ms | `ease` | reset fades up from 35% to full. Clickable straight away |
+| reset: changed | back as it started, or switched away | 250ms, no wait | `ease` | reset fades back to 35% |
+| reset: clicked | — | 500ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the arrow spins one full turn anticlockwise (a touch past, then settles) |
+| reset: clicked | fresh experiment | 250ms out, 250ms empty, 250ms in | `ease` | the old one fades out, the stage stays empty a beat, the fresh one fades in |
 
 **Decisions**
 - **Buttons grow by width, not by scale.** A scaled button just gets drawn bigger and covers its neighbours. A wider one takes up more room, so the buttons beside it slide over and the pill stretches to fit, which makes the row feel like one piece.
@@ -124,8 +131,18 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - **Planned experiments grey it out instead of hiding it.** The toolbar doesn't jump around as you scroll. A link with no `href` also can't be clicked, tabbed to, or make the hand.
 - **The grey-out fades in 250ms, same as the experiment.** The button changes at the same pace as the thing it belongs to, so the two read as one switch.
 - **New tab.** Clicking through to the code shouldn't lose your place in the lab.
+- **Reset watches `data-state` instead of asking experiments.** The other option was a new rule: every experiment tells the site "there's something to reset now". That's code in every experiment, forever, and easy to forget. `data-state` is already where every experiment keeps its state, so the site can just look.
+- **"Changed" means "different from how it started", not "something happened".** 001 goes idle → pressed → idle. After you let go it looks exactly as it started, so there's nothing to reset, and the button says so.
+- **Lighting up waits 400ms; greying out doesn't.** Without the wait, every quick press on 001 would flash the reset button on and off. 400ms is longer than a tap and shorter than you'd notice on something that really changed.
+- **Reset reloads, it doesn't rewind.** Building a fresh box is the same path as arriving, so it can't half-work. Asking each experiment to undo itself would be a reset function per experiment, each with its own bugs.
+- **An empty beat between old and fresh (250ms).** A crossfade from "changed" to "fresh" looks like the experiment morphing. A gap reads as "gone, and back from the start". Set `--reset-gap` to 0 to see the crossfade.
+- **The arrow counts its turns.** Each click adds one to `--turns` and CSS rotates by it, so every click is one more turn the same way. Flipping between two angles would spin it backwards every other click.
 
 **Rough edges**
+- Neither built experiment really has anything to reset yet. 001 is back at rest the moment you let go, so reset only lights up if you hold the button down past 400ms. It's built for experiments that stay changed, like 003's button that runs away.
+- An experiment whose `data-state` changes on its own after `mount()` (an intro animation, say) will light up reset as soon as that happens, even though you didn't touch anything. The snapshot is taken too early for those.
+- State that isn't in `data-state` (a value only in JavaScript, a position set straight on `style`) is invisible to reset. It still gets wiped by a reset, but it won't light the button up.
+- Clicking reset with the keyboard greys the button out, and a greyed-out button can't hold focus, so focus drops back to the page. The about button does the same when you land on a planned experiment.
 - Growing by width makes the browser lay the row out again every frame. Fine for a few buttons; it wouldn't be for hundreds.
 - On phones it overlaps the bottom of the experiment's area. Fine for centered experiments; one that uses its bottom edge would sit under it.
 - The link points at `main`. Code you haven't pushed yet gives GitHub's 404.

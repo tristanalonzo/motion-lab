@@ -33,9 +33,13 @@ white window with notes on the open experiment, dragged by its title bar. The
 text lives in an `about.html` in each experiment's folder, so every experiment
 now has five files, not four (AGENTS.md's contract says what goes in it).
 
-**Next:** the reset icon. Decide first how an experiment says "there's something
-to reset now" — that's a new rule for every experiment, so it's a decision
-before it's a build.
+**Done 2026-11-01:** the reset button. It lights up once the experiment looks
+different from how it started, and reloads it fresh. Experiments don't do
+anything for it: the site watches their `data-state`. Details under "Bottom
+middle — toolbar".
+
+**Next:** not picked yet. Hover focus on the list is ready to build with no
+decisions; "a word beside the key" needs its words chosen first.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -71,10 +75,18 @@ the same — plain is probably right for it.
     it — it's a window, not a pop-up. Switching experiments does close it.
   - Mobile is out of scope for now. It fits and scrolls, but it isn't really a window
     on a phone.
-- [ ] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
+- [x] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
-  - Needs: a way for experiments to tell the site "there's something to reset now".
-    That's a new rule for every experiment, so decide it before building.
+  - Decided: experiments don't tell the site anything. stage.js snapshots every
+    `data-state` right after `mount()` and watches them; different from the
+    snapshot = something to reset. Rule 8 in AGENTS.md's contract.
+  - Decided: reset reloads the experiment (a fresh box from the same files),
+    it doesn't ask the experiment to undo itself.
+  - Built: the button in `index.html`, the wiring in `site/toolbar.js`, the
+    watching and reloading in `site/stage.js`. Docs in README.md, "the toolbar".
+  - Known: neither 000 nor 001 stays changed, so today it only lights up while
+    001 is held down. It earns its place with the first experiment that stays
+    changed.
   - Later idea: **auto-reset.** Hovering reset slides an on/off switch up out of it.
     On = the experiment resets itself after a fixed wait once it's done.
     Open: how long the wait is, and whether "done" is decided by each experiment.

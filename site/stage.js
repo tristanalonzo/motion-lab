@@ -12,6 +12,9 @@
 //   5. unmounted  something else was selected: its cleanup runs, it fades
 //                 out, and its box is deleted along with everything inside
 //
+// Reset is 5 then 4 again for the same experiment: the old box goes and a
+// fresh one is built from the same files, exactly as if you'd just arrived.
+//
 // data-state on each box is the one source of truth; site.css reacts to it:
 //   loading  built but hidden, waiting for its CSS to arrive
 //   shown    on screen
@@ -30,7 +33,7 @@ function readSetting(name) {
   return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
 }
 
-let current = null;      // the experiment on screen: { box, controller, cleanup }
+let current = null;      // the experiment on screen: { experiment, box, controller, cleanup, watcher }
 let ticket = 0;          // goes up by one on every selection; see enter()
 let settleTimer = null;
 let loadingTimer = null;
@@ -56,6 +59,22 @@ export function showExperiment(experiment, neighbours) {
   settleTimer = setTimeout(() => enter(experiment, neighbours, myTicket), readSetting("--stage-settle"));
 }
 
+// The reset button (toolbar.js). Throw the open experiment away and bring in
+// a fresh copy. Its files are already loaded, so the only wait is --reset-gap,
+// the empty beat between the old one fading out and the new one fading in.
+export function resetExperiment() {
+  if (!current) return;
+  const experiment = current.experiment;
+
+  ticket += 1;
+  clearTimeout(settleTimer);
+  clearTimeout(loadingTimer);
+  leave();
+
+  const myTicket = ticket;
+  settleTimer = setTimeout(() => enter(experiment, [], myTicket), readSetting("--reset-gap"));
+}
+
 
 // ---------- coming in ----------
 
@@ -78,7 +97,7 @@ async function enter(experiment, neighbours, myTicket) {
 
     clearTimeout(loadingTimer);
     say("");
-    mount(box, files.module);
+    mount(box, files.module, experiment);
   } catch (error) {
     if (myTicket !== ticket) return;
     clearTimeout(loadingTimer);
@@ -166,7 +185,7 @@ function stylesheet(href) {
   return { link, loaded };
 }
 
-function mount(box, module) {
+function mount(box, module, experiment) {
   if (typeof module.mount !== "function") {
     box.remove();
     throw new Error("its script.js doesn't export a mount() function");
@@ -196,8 +215,48 @@ function mount(box, module) {
     throw error;
   }
 
-  current = { box, controller, cleanup };
+  current = { experiment, box, controller, cleanup, watcher: watchForChanges(box.shadowRoot) };
   refreshCursor(); // the thing under a still mouse just appeared
+}
+
+
+// ---------- "is there something to reset?" ----------
+// Yes, when the experiment no longer looks the way it started. Every
+// experiment keeps its state in data-state (AGENTS.md), so that's all this
+// reads: it takes a snapshot right after mount() and compares against it
+// every time a data-state changes. The experiment itself does nothing.
+
+// Every data-state in the box, in page order, as one string. For 001 at rest
+// that's just "idle". Two snapshots that match = it looks as it started.
+function snapshot(root) {
+  return [...root.querySelectorAll("[data-state]")].map((el) => el.dataset.state).join(" ");
+}
+
+function watchForChanges(root) {
+  const start = snapshot(root);
+
+  // A MutationObserver is the browser telling you "something in here changed".
+  // This one only listens for data-state changes, and for elements coming and
+  // going (which can add or remove a data-state).
+  const watcher = new MutationObserver(() => {
+    announceResettable(snapshot(root) !== start);
+  });
+  watcher.observe(root, {
+    subtree: true,                  // anywhere inside, not just the top level
+    childList: true,                // elements added or removed
+    attributes: true,
+    attributeFilter: ["data-state"],
+  });
+  return watcher;
+}
+
+// Tells toolbar.js, only when the answer actually changes.
+let resettable = false;
+
+function announceResettable(now) {
+  if (now === resettable) return;
+  resettable = now;
+  window.dispatchEvent(new CustomEvent("lab:resettable", { detail: { resettable } }));
 }
 
 
@@ -205,8 +264,11 @@ function mount(box, module) {
 
 function leave() {
   if (!current) return;
-  const { box, controller, cleanup } = current;
+  const { box, controller, cleanup, watcher } = current;
   current = null;
+
+  watcher.disconnect();      // stop watching for changes...
+  announceResettable(false); // ...and with nothing on screen, nothing to reset
 
   // Stop everything it started. A broken cleanup is logged, not allowed to
   // block switching.

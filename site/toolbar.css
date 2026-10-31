@@ -33,6 +33,13 @@
   /* --- the about button --- */
   --about-dot-hop: 1.5px;          /* how far the dot of the i hops up on hover. Icon units again, so 1.5 ≈ 1.2px on screen */
 
+  /* --- the reset button --- */
+  --reset-nudge: 40deg;            /* on hover the arrow winds back this far, like a dial you've just touched */
+  --reset-spin-duration: 500ms;    /* the full turn on click (the hover nudge uses it too) */
+  --reset-spin-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* same pop-past-and-settle as the grow */
+  --reset-wake-delay: 400ms;       /* the experiment has to stay changed this long before reset lights up. Stops it flickering on every quick press. 0 = lights up instantly */
+  --reset-gap: 250ms;              /* the stage stays empty this long between the old one fading out and the fresh one fading in. 250 = old one fully gone first; 0 = crossfade (use ms: stage.js reads this) */
+
   /* --- phones and narrow windows (under 900px) --- */
   --toolbar-phone-gap: 16px;       /* space between the toolbar and the list's strip under it */
 }
@@ -179,6 +186,29 @@
   transform: translateY(calc(-1 * var(--about-dot-hop)));
 }
 
+/* ---------- the reset button ---------- */
+
+/* The whole icon turns, round its middle. --turns is a count toolbar.js adds
+   one to on every click, so the arrow spins one more full turn anticlockwise
+   (that's the minus) each time. Hover adds the small wind-back on top. */
+.tool-reset svg {
+  transform: rotate(calc(var(--turns, 0) * -360deg));
+  transition: transform var(--reset-spin-duration) var(--reset-spin-ease);
+}
+
+.tool-reset:hover svg,
+.tool-reset:focus-visible svg {
+  transform: rotate(calc(var(--turns, 0) * -360deg - var(--reset-nudge)));
+}
+
+/* Lighting up waits; greying out doesn't. The five delays line up with the
+   five transitions in .tool (width, height, background, transform, opacity),
+   so only the opacity waits. A transition uses the settings of the state it's
+   going TO, so this wait only happens on the way to "ready". */
+.tool-reset[data-state="ready"] {
+  transition-delay: 0s, 0s, 0s, 0s, var(--reset-wake-delay);
+}
+
 /* Phones: the list's strip takes the bottom (nav.css), so sit just above it. */
 @media (max-width: 900px) {
   .toolbar {
@@ -187,11 +217,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --reset-gap: 0ms;              /* no empty beat between old and fresh */
+  }
+
   .tool,
   .tool-label,
   .code-left,
   .code-right,
-  .about-dot {
+  .about-dot,
+  .tool-reset svg {
     transition: none;
   }
 

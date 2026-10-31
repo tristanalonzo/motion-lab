@@ -66,6 +66,19 @@
       <span class="tool-label">about</span>
     </button>
 
+    <!-- Reloads the open experiment fresh. Starts disabled: there's nothing
+         to reset until the experiment changes (site/toolbar.js). -->
+    <button class="tool tool-reset" type="button" data-state="disabled" disabled>
+      <!-- An arrow going round anticlockwise, the way a dial winds back.
+           The arc is most of a circle around the middle (12, 12), open at the
+           top right; the two short strokes at its end are the arrowhead. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4A8 8 0 1 0 17.66 6.34" />
+        <path d="M21.66 6.34H17.66V10.34" />
+      </svg>
+      <span class="tool-label">reset</span>
+    </button>
+
     <a class="tool tool-code" target="_blank" rel="noopener">
       <!-- </>: three strokes, so < and > can slide apart on their own. -->
       <svg viewBox="0 0 24 24" aria-hidden="true">
