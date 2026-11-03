@@ -75,6 +75,25 @@ the same — plain is probably right for it.
     it — it's a window, not a pop-up. Switching experiments does close it.
   - Mobile is out of scope for now. It fits and scrolls, but it isn't really a window
     on a phone.
+- [ ] **Drag the about panel on the cursor's spring.** Today the panel is glued to
+      the mouse while you drag it. Instead it should trail behind and swing past when
+      you stop — with exactly the same delay and overshoot as the site cursor, so the
+      hand and the window move as one thing.
+  - Plan: same numbers, not copies. The panel reads `--cursor-stiffness` and
+    `--cursor-damping` from cursor.css, so tuning the cursor tunes the drag too and
+    the two can never drift apart. No new tunables.
+  - Plan: one spring, not two. The spring maths lives inside cursor.js today. Move it
+    into a small `site/spring.js` that both cursor.js and about.js use, rather than
+    pasting a second copy into about.js.
+  - Plan: the spring chases where the panel *would* be (mouse minus where you grabbed
+    it). Since the cursor circle chases the mouse on the same spring, the spot you
+    grabbed stays under the circle the whole way.
+  - Plan: letting go doesn't stop it. The panel finishes its swing and settles.
+  - Watch out: the screen-edge clamp. Clamp where the spring is heading, not where the
+    panel is, or it'll hit the edge and stop dead instead of easing in.
+  - Reduced motion: no spring, the panel sticks to the mouse like it does now.
+  - Pairs with the cursor feel sliders below: once the spring is shared, those
+    sliders change the drag as well.
 - [x] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
   - Decided: experiments don't tell the site anything. stage.js snapshots every
