@@ -10,11 +10,11 @@
 //   hidden  an experiment asked for no cursor
 //   native  an experiment asked for the system cursor instead (e.g. a text box)
 // cursor.css does the drawing, the inverting and the circle-to-hand morph.
-// This file moves it: a spring pulls it toward the mouse every frame.
-//
-// Why a spring and not a CSS transition? A transition restarts from zero
-// speed every time the mouse moves, so it can only lag, never overshoot.
-// A spring remembers how fast it's going, and that leftover speed is the overshoot.
+// This file moves it: a spring pulls it toward the mouse every frame. The
+// spring itself is in spring.js, shared with anything else that should move
+// exactly like the cursor (the about panel, while you drag it).
+
+import { makeSpring } from "./spring.js";
 
 const cursor = document.querySelector(".cursor");
 const title = document.querySelector(".site-title");
@@ -22,17 +22,11 @@ const title = document.querySelector(".site-title");
 // Things that get the hand. :not(:disabled) so a greyed-out button doesn't.
 const CLICKABLE = "a[href], button:not(:disabled), [role='button'], label, select, summary";
 
-const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
-
 const mouse = { x: 0, y: 0 };    // where the real mouse is
-const circle = { x: 0, y: 0 };   // where the cursor is drawn
-const speed = { x: 0, y: 0 };    // how fast the cursor is moving, in px per second
-let animating = false;
-let lastTime = 0;
 let override = null;             // a shape an experiment asked for with lab.setCursor(), or null
 
-// The spring settings live in cursor.css's :root, like every other tunable.
-// Read every frame, so editing them in DevTools changes the feel live.
+// Settings live in cursor.css's :root, like every other tunable.
+// (The spring reads its own two from there too, in spring.js.)
 function readSetting(name) {
   return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
 }
@@ -42,7 +36,7 @@ function readSetting(name) {
 
 export function startCursor() {
   // Start parked beside the title: the mouse hasn't been seen yet.
-  jumpTo(parkingSpot());
+  spring.jumpTo(parkingSpot());
 
   window.addEventListener("pointermove", onPointerMove);
 
@@ -51,7 +45,7 @@ export function startCursor() {
   // under the mouse was swapped out. The spring flies the circle home.
   document.documentElement.addEventListener("mouseleave", () => {
     cursor.dataset.state = "away";
-    startSpring();
+    spring.start();
   });
 }
 
@@ -72,7 +66,7 @@ function onPointerMove(e) {
 
   // Coming back into the window, this flies the circle from beside the title
   // to the mouse. Otherwise it just follows.
-  startSpring();
+  spring.start();
 }
 
 
@@ -137,10 +131,15 @@ function elementUnder(x, y) {
 
 // ---------- the spring ----------
 
-function draw() {
-  cursor.style.setProperty("--x", circle.x + "px");
-  cursor.style.setProperty("--y", circle.y + "px");
-}
+// The circle on the site's spring (spring.js). It's pulled toward target()
+// every frame, and draws itself wherever the spring has got to.
+const spring = makeSpring({
+  goal: target,
+  draw: (point) => {
+    cursor.style.setProperty("--x", point.x + "px");
+    cursor.style.setProperty("--y", point.y + "px");
+  },
+});
 
 // Where the circle waits while the mouse is away: just left of the title,
 // level with its middle. offsetLeft/offsetTop ignore the title's own slide,
@@ -156,61 +155,4 @@ function parkingSpot() {
 // What the spring pulls toward: the mouse, or the parking spot while away.
 function target() {
   return cursor.dataset.state === "away" ? parkingSpot() : mouse;
-}
-
-function jumpTo(point) {
-  circle.x = point.x;
-  circle.y = point.y;
-  speed.x = 0;
-  speed.y = 0;
-  draw();
-}
-
-// Start the frame loop if it isn't already running. Reduced motion: no
-// flying, just be there.
-function startSpring() {
-  if (reduceMotion.matches) {
-    jumpTo(target());
-    return;
-  }
-  if (animating) return;
-  animating = true;
-  lastTime = performance.now();
-  requestAnimationFrame(frame);
-}
-
-function frame(time) {
-  const stiffness = readSetting("--cursor-stiffness");
-  const damping = readSetting("--cursor-damping");
-
-  // Seconds since last frame. Capped, so switching tabs and coming back
-  // doesn't make the circle fly off from one giant step.
-  let seconds = Math.min(Math.max((time - lastTime) / 1000, 0), 1 / 30);
-  lastTime = time;
-  const goal = target();
-
-  // Do the math in tiny slices (1/240s). Big slices with extreme settings
-  // can make the spring blow up and fly off screen.
-  while (seconds > 0) {
-    const slice = Math.min(seconds, 1 / 240);
-    for (const axis of ["x", "y"]) {
-      const pull = stiffness * (goal[axis] - circle[axis]);  // farther away = stronger pull
-      const brake = damping * speed[axis];                   // faster = stronger brake
-      speed[axis] += (pull - brake) * slice;
-      circle[axis] += speed[axis] * slice;
-    }
-    seconds -= slice;
-  }
-  draw();
-
-  // Close enough and barely moving: snap the last fraction of a pixel and stop
-  // the loop, so nothing runs while the mouse is still.
-  const distance = Math.hypot(goal.x - circle.x, goal.y - circle.y);
-  const moving = Math.hypot(speed.x, speed.y);
-  if (distance < 0.1 && moving < 1) {
-    jumpTo(goal);
-    animating = false;
-    return;
-  }
-  requestAnimationFrame(frame);
 }

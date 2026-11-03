@@ -11,6 +11,7 @@
 // data-dragging is on it only while you're holding the title bar.
 
 import { setCursorOverride } from "./cursor.js";
+import { makeSpring } from "./spring.js";
 
 const button = document.querySelector(".tool-about");
 const panel = document.querySelector(".about-panel");
@@ -156,14 +157,28 @@ function say(words) {
 
 // ---------- where the window sits ----------
 
-const position = { x: 0, y: 0 };
+// The window is on the site's spring (spring.js), the same one the cursor is
+// on, with the same two numbers. So while you drag it, it trails behind the
+// hand and swings past when you stop, exactly as far and as long as the
+// cursor does, and the spot you grabbed stays under the hand the whole way.
+//
+// `resting` is where the spring is pulling it: where it ends up once it settles.
+const resting = { x: 0, y: 0 };
 let positioned = false;    // has it been put in place with its real text in?
+
+const spring = makeSpring({
+  goal: () => resting,
+  draw: (point) => {
+    panel.style.left = point.x + "px";
+    panel.style.top = point.y + "px";
+  },
+});
 
 // Where it opens: over on the right, level with the middle. Not in the middle
 // of the screen — that's where the experiment is, and the point of the panel
 // is to read about the thing while you're watching it.
 function home() {
-  moveTo(innerWidth - panel.offsetWidth - readSetting("--about-home-inset"),
+  jumpTo(innerWidth - panel.offsetWidth - readSetting("--about-home-inset"),
          (innerHeight - panel.offsetHeight) / 2);
 }
 
@@ -173,33 +188,49 @@ function home() {
 // window you dragged somewhere stays where you put it, like a real one.
 function fit(isFinalText) {
   if (positioned) {
-    moveTo(position.x, position.y);
+    jumpTo(resting.x, resting.y);
     return;
   }
   home();
   positioned = isFinalText;
 }
 
+// Be there right now, no swing: opening, the text changing height, the
+// browser window changing size. None of those are you moving it.
+function jumpTo(x, y) {
+  setResting(x, y);
+  spring.jumpTo(resting);
+}
+
+// Head there on the spring: dragging.
+function pullTo(x, y) {
+  setResting(x, y);
+  spring.start();
+}
+
+// Where it's allowed to end up: inside the screen, --about-margin from every
+// edge. This keeps where the spring is HEADING inside, not the window itself,
+// so a fast drag into an edge eases in and swings a touch past instead of
+// hitting a wall and stopping dead.
+//
 // offsetWidth/offsetHeight, not getBoundingClientRect(): those two ignore the
 // scale the window is in the middle of animating, so the maths doesn't wobble
 // while it opens.
-function moveTo(x, y) {
+function setResting(x, y) {
   const margin = readSetting("--about-margin");
   // Math.max(..., margin) for a window taller or wider than the screen:
   // then there's nowhere to put it but the top left corner.
   const maxX = Math.max(innerWidth - panel.offsetWidth - margin, margin);
   const maxY = Math.max(innerHeight - panel.offsetHeight - margin, margin);
 
-  position.x = Math.min(Math.max(x, margin), maxX);
-  position.y = Math.min(Math.max(y, margin), maxY);
-  panel.style.left = position.x + "px";
-  panel.style.top = position.y + "px";
+  resting.x = Math.min(Math.max(x, margin), maxX);
+  resting.y = Math.min(Math.max(y, margin), maxY);
 }
 
 // Made the browser window smaller? Pull the panel back inside. It never
 // re-centers: the spot you dragged it to is yours.
 window.addEventListener("resize", () => {
-  if (positioned) moveTo(position.x, position.y);
+  if (positioned) jumpTo(resting.x, resting.y);
 });
 
 
@@ -211,7 +242,10 @@ bar.addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;                     // left button only
   if (e.target.closest(".about-close")) return;   // the X is a button, not a handle
 
-  grab = { x: e.clientX - position.x, y: e.clientY - position.y };
+  // Measured from where the window is drawn, not where it's headed: grab it
+  // mid-swing and it doesn't jump. It keeps its speed, too, and just starts
+  // following you instead.
+  grab = { x: e.clientX - spring.position.x, y: e.clientY - spring.position.y };
   // Pointer capture: every move now comes to the bar, even once the pointer
   // has run off it, so a fast drag doesn't drop the window halfway.
   bar.setPointerCapture(e.pointerId);
@@ -222,12 +256,13 @@ bar.addEventListener("pointerdown", (e) => {
 
 bar.addEventListener("pointermove", (e) => {
   if (!grab) return;
-  moveTo(e.clientX - grab.x, e.clientY - grab.y);
+  pullTo(e.clientX - grab.x, e.clientY - grab.y);
 });
 
 bar.addEventListener("pointerup", endDrag);
 bar.addEventListener("pointercancel", endDrag);
 
+// Letting go doesn't stop the spring: the window finishes its swing and settles.
 function endDrag() {
   if (!grab) return;
   grab = null;

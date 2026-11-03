@@ -38,6 +38,10 @@ different from how it started, and reloads it fresh. Experiments don't do
 anything for it: the site watches their `data-state`. Details under "Bottom
 middle — toolbar".
 
+**Done 2026-11-04:** the about panel drags on the cursor's spring: it trails and
+swings past exactly like the cursor, so the hand and the window move as one. The
+spring is its own file now, `site/spring.js`.
+
 **Next:** not picked yet. Hover focus on the list is ready to build with no
 decisions; "a word beside the key" needs its words chosen first.
 
@@ -75,7 +79,7 @@ the same — plain is probably right for it.
     it — it's a window, not a pop-up. Switching experiments does close it.
   - Mobile is out of scope for now. It fits and scrolls, but it isn't really a window
     on a phone.
-- [ ] **Drag the about panel on the cursor's spring.** Today the panel is glued to
+- [x] **Drag the about panel on the cursor's spring.** Today the panel is glued to
       the mouse while you drag it. Instead it should trail behind and swing past when
       you stop — with exactly the same delay and overshoot as the site cursor, so the
       hand and the window move as one thing.
@@ -94,6 +98,9 @@ the same — plain is probably right for it.
   - Reduced motion: no spring, the panel sticks to the mouse like it does now.
   - Pairs with the cursor feel sliders below: once the spring is shared, those
     sliders change the drag as well.
+  - Built 2026-11-04: `site/spring.js`, used by cursor.js and about.js. Measured in
+    Firefox: both swing exactly 15px past and the grabbed spot stays under the hand.
+    Docs in README.md, "the about panel".
 - [x] **Reset / replay.** Circular-arrow icon. Greyed out when there's nothing to reset.
   - Decided: icon only. The word "reset" shows on hover.
   - Decided: experiments don't tell the site anything. stage.js snapshots every

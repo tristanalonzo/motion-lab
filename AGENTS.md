@@ -78,6 +78,7 @@ motion-lab/
     about.js about.css   ← the about panel the i button opens
     socials.js socials.css ← the links in the bottom right corner
     cursor.js cursor.css ← the site-wide cursor
+    spring.js            ← the cursor's spring, for anything that moves like it
     experiment-base.css  ← defaults put inside every experiment's box
   000-intro/             ← the front page is an experiment like any other
   001-submit-button/

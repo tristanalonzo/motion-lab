@@ -156,7 +156,7 @@ What goes in each file: AGENTS.md, "The experiment contract".
 | closed | open | 260ms | `cubic-bezier(0.2, 1.1, 0.4, 1)` | fades in, rises 10px, scales 0.96 → 1 (a touch past, then settles) |
 | open | closed | 160ms | `ease` | the reverse; it's then hidden outright, so nothing in it can be clicked or tabbed to |
 | resting | picked up | 200ms | `ease` | the shadow grows: the window lifts off the page |
-| any | dragged | — | none | left/top follow the pointer exactly. A window shouldn't lag behind your hand |
+| any | dragged | ~53ms behind | the cursor's spring (stiffness 600, damping 32) | trails the pointer and swings ~15px past when you stop, exactly like the cursor; keeps settling after you let go |
 | text arrives | — | — | none | the window is sized by its text, so it settles into place the moment the text is in |
 | close X resting | hovered / focused | 250ms | `cubic-bezier(0.2, 1.1, 0.4, 1)` | the X turns a quarter turn; a grey circle fades in behind it |
 
@@ -166,6 +166,11 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - **It's sized by its text, and placed once the text is in.** Placing it first and filling it after put it half off the bottom of the screen, because it was centred while it was still 84px tall.
 - **Dragged position wins from then on.** Once you've moved it, reopening puts it back where you left it. It only ever gets pulled back inside if you shrink the browser window.
 - **It can't be dragged off the edge.** A window you can lose behind the edge of the screen is a window you have to reload the page to get back.
+- **It drags on the cursor's spring, not its own.** Same file (`site/spring.js`), same two numbers (`--cursor-stiffness`, `--cursor-damping`). The cursor already trails the mouse; if the window followed the mouse exactly, the hand would drift across the title bar while you dragged. On the same spring, the spot you grabbed stays under the hand the whole way, and the two read as one thing being carried. No settings of its own, so the two can never drift apart: tune the cursor and the drag changes with it.
+- **The edge stops where it's heading, not the window.** Fling it at an edge and it eases in and swings a touch past, instead of hitting a wall and stopping dead.
+- **Grab it mid-swing and it doesn't jump.** Where you took hold is measured from where the window is drawn, and it keeps its speed and just starts following you.
+- **Opening, resizing and new text don't swing it.** Those jump straight to place. Only you moving it is motion.
+- **Reduced motion: no spring.** The window sticks to the pointer exactly, like it used to.
 - **Switching experiments closes it.** The notes are about one experiment. Leaving it open would either show the wrong notes under a new name, or flash through five sets of notes as you scroll past five.
 - **The text is fetched, not built into the page.** `index.html` would otherwise grow by a few hundred words per experiment, for text almost nobody opens.
 - **Plain HTML, not Markdown.** Markdown would need a library to turn it into HTML, and this repo doesn't install anything.
@@ -189,6 +194,8 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - Park the window on the list and the rows read through the prose. Raising `--about-tint` towards 1 fixes that and kills the effect everywhere else at the same time.
 - Text sitting over the black Submit button is dark-on-dark and genuinely hard to read. Apple gets away with clear glass because iOS re-colours its text against what's behind it; this doesn't, and doing it properly needs JS sampling the backdrop every frame. Raising `--about-glass-lift` past `1.08` lightens what's behind and buys some of it back; `rgba(255,255,255,0.6)` on `--about-tint` buys all of it back and gives up the look.
 - No edge refraction. Real Liquid Glass bends what's behind it at the rim, like a lens. That's a displacement map, not a blur, and it isn't something plain CSS does.
+- Fling it hard at an edge and the swing carries it a few pixels off the screen for a split second before it pulls back (measured: 21px past the 16px margin). Same thing the cursor does at its parking spot.
+- The window and the hand run on two separate frame loops. They start a fraction of a frame apart, so the very first frame of a drag can be up to ~4px out of step. Not visible at normal speed.
 - The blur repaints while you drag the window. Fine for one 420px window; it's the first thing to drop if dragging ever feels heavy.
 - Mobile is out of scope. It fits the screen and scrolls, but a window you drag with a finger on a 375px phone isn't really a window.
 - Dragging it over the list blocks the list underneath. Normal for a window, but there's nothing to bring the list back except moving the window.
@@ -291,7 +298,7 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 
 ## Shared: the cursor
 
-`site/cursor.js` + `site/cursor.css` — one cursor for the whole site: a circle that inverts whatever it's over, follows the mouse on a spring, and morphs into a pointing hand over anything clickable. When the mouse is off the page, it waits beside the title. Started life in 001.
+`site/cursor.js` + `site/cursor.css` + `site/spring.js` — one cursor for the whole site: a circle that inverts whatever it's over, follows the mouse on a spring, and morphs into a pointing hand over anything clickable. When the mouse is off the page, it waits beside the title. Started life in 001.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
@@ -316,6 +323,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **It follows on a spring, in JS, not a CSS transition.** A transition starts over from zero speed every time the mouse moves, so it can only lag, never overshoot. A spring keeps its speed between frames, and that leftover speed is the overshoot.
 - **Stiffness 600, damping 32.** Started at 1000/45 (45ms delay, 6px overshoot), which felt too tight. Then tried 300/20 (67ms, 32px), which went too far. This lands about a third of the way between them: 53ms delay (damping ÷ stiffness), 15px overshoot, one clear swing past the mouse.
 - **The spring settings live in CSS but are read by JS, every frame.** Drag the numbers in DevTools and feel the change live.
+- **The spring is its own file, `site/spring.js`.** Anything that should move exactly like the cursor uses it instead of copying the maths. The about panel's drag is the first. It always reads the cursor's two numbers, so everything on it moves as one family.
 - **28px circle.** Big enough to read as a shape, small enough that you can still aim with it.
 - **The morph works because both shapes are built from the same 13 curves.** The circle's 13 points are spaced in proportion to how far apart they are on the hand, so each point slides straight to its partner with no twisting.
 - **The hand has no corners at all.** Every point where two curves meet shares one direction, so the outline never kinks. It's 28px tall, the same as the circle.
@@ -340,6 +348,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 ## Break it on purpose
 
 - Set `--cursor-damping: 10`. The circle turns to jelly. Then try `90`: no overshoot at all, just a sluggish drag.
+- Keep `--cursor-damping: 10`, open the about panel and fling it by its title bar. The window wobbles like jelly too, in step with the hand. That's the point of sharing one spring.
 - Set `--cursor-morph-duration: 1200ms` and slowly hover on and off a button. You'll see the circle stretch into the palm and the thumb grow out of its side.
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
 - Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.
