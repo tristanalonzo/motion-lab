@@ -10,6 +10,10 @@ Open questions are things to decide before (or while) building that item.
 **Start:** `git pull`, then `py -m http.server` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
 
+**Other computer, once (2026-11-05):** GitHub's history was rewritten. Anything
+there that isn't on GitHub yet gets wiped by this, so push it first. Then run
+`git fetch origin`, `git reset --hard origin/main` and `sh .githooks/setup`.
+
 **Where it stands:** the site is one page. Experiments swap in without page
 loads, each sealed in its own box, with one cursor for the whole site. 000 (intro)
 and 001 (submit button, now a pill) are built. 002–005 are placeholder ideas,

@@ -216,10 +216,12 @@ every computer only has a copy.
   hooks on clone, so each machine needs this once:
 
   ```
-  git config core.hooksPath .githooks
+  sh .githooks/setup
   ```
 
-  A fresh clone without that line has no safety net, so run it first.
+  A fresh clone without that line has no safety net and the assistant won't
+  find this file on its own, so run it first. It also makes a one-line local
+  pointer to this file, which stays on that computer and never gets committed.
 
 One commit per component. The message says what it is, never "update".
 

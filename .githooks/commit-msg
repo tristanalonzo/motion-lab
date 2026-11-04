@@ -8,8 +8,8 @@
 # just quietly takes the lines out. pre-push runs this same file as its check,
 # so this is the only list of credit lines there is.
 #
-# Turn it on in a fresh clone with:  git config core.hooksPath .githooks
-# (hooks aren't cloned with the repo, so each machine needs that line once.)
+# Turn it on in a fresh clone with:  sh .githooks/setup
+# (hooks aren't cloned with the repo, so each machine needs that once.)
 
 msg="$1"
 

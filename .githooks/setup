@@ -1,0 +1,20 @@
+#!/bin/sh
+# Run this once on each computer, right after cloning:  sh .githooks/setup
+# Git doesn't copy any of this when it clones, so a fresh copy has none of it.
+
+# 1. Turn on the hooks in this folder.
+git config core.hooksPath .githooks
+
+# 2. The assistant only reads its rules on its own from a file called CLAUDE.md.
+#    On GitHub they live in AGENTS.md, so this makes a one-line pointer to them.
+#    The @ means "read that file too".
+echo '@AGENTS.md' > CLAUDE.md
+
+# 3. Keep the pointer and the tool's folder out of git. This list is git's own
+#    private ignore file: it stays on this computer and never reaches GitHub.
+exclude=$(git rev-parse --git-path info/exclude)
+for name in CLAUDE.md .claude/; do
+  grep -qxF "$name" "$exclude" 2>/dev/null || echo "$name" >> "$exclude"
+done
+
+echo "Set up: hooks on, rules will load."

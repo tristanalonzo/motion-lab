@@ -5,7 +5,7 @@
 # to go up, and refuses the whole push if Claude or Anthropic is on any of it.
 #
 # Git runs this on every push. Exit 1 stops the push; nothing gets sent.
-# Turned on by the same line as commit-msg: git config core.hooksPath .githooks
+# Turned on along with commit-msg by: sh .githooks/setup
 
 here=$(dirname "$0")
 file=$(mktemp)
@@ -23,6 +23,12 @@ while read -r local_ref local_commit remote_ref remote_commit; do
     # Who it says wrote and committed it.
     if git log -1 --format='%an %ae %cn %ce' "$commit" | grep -qiE 'claude|anthropic'; then
       echo "pre-push: $(git log -1 --format='%h %s' "$commit") has the wrong author" >&2
+      found=1
+    fi
+
+    # The local pointer and the tool's folder stay on this computer (see setup).
+    if git log -1 --name-only --format= "$commit" | grep -qiE '(^|/)(claude\.md$|\.claude/)'; then
+      echo "pre-push: $(git log -1 --format='%h %s' "$commit") adds a local-only file" >&2
       found=1
     fi
 
