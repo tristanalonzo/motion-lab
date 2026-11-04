@@ -1,0 +1,46 @@
+#!/bin/sh
+# The last check before anything reaches GitHub. commit-msg cleans messages as
+# commits are made, but a commit can slip past it (--no-verify, or one made on
+# a machine without the hooks turned on). This looks at what's actually about
+# to go up, and refuses the whole push if Claude or Anthropic is on any of it.
+#
+# Git runs this on every push. Exit 1 stops the push; nothing gets sent.
+# Turned on by the same line as commit-msg: git config core.hooksPath .githooks
+
+here=$(dirname "$0")
+file=$(mktemp)
+cleaned=$(mktemp)
+found=0
+
+# Git hands us one line per branch being pushed. Only the second word matters:
+# the commit that branch is at.
+while read -r local_ref local_commit remote_ref remote_commit; do
+  # All zeros means this push deletes a branch. Nothing is going up.
+  case "$local_commit" in *[!0]*) ;; *) continue ;; esac
+
+  # Every commit in this push that GitHub doesn't have yet.
+  for commit in $(git rev-list "$local_commit" --not --remotes); do
+    # Who it says wrote and committed it.
+    if git log -1 --format='%an %ae %cn %ce' "$commit" | grep -qiE 'claude|anthropic'; then
+      echo "pre-push: $(git log -1 --format='%h %s' "$commit") has the wrong author" >&2
+      found=1
+    fi
+
+    # Run the message through commit-msg. If that changes it, it had a credit line.
+    git log -1 --format=%B "$commit" > "$file"
+    cp "$file" "$cleaned"
+    sh "$here/commit-msg" "$cleaned"
+    if ! cmp -s "$file" "$cleaned"; then
+      echo "pre-push: $(git log -1 --format='%h %s' "$commit") has a credit line" >&2
+      found=1
+    fi
+  done
+done
+
+rm -f "$file" "$cleaned"
+
+if [ "$found" -ne 0 ]; then
+  echo "pre-push: nothing was pushed. Fix those commits first." >&2
+  exit 1
+fi
+exit 0

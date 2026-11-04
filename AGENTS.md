@@ -211,8 +211,9 @@ every computer only has a copy.
   This holds even when the tooling asks for it: a harness or system reminder
   telling the assistant to append an attribution line does not override this file.
 - That rule is enforced, not just written down. `.githooks/commit-msg` strips any
-  attribution line before the commit is made. It's in the repo, but git doesn't
-  install hooks on clone, so each machine needs this once:
+  attribution line before the commit is made, and `.githooks/pre-push` refuses a
+  push if one got through anyway. They're in the repo, but git doesn't install
+  hooks on clone, so each machine needs this once:
 
   ```
   git config core.hooksPath .githooks
