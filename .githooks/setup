@@ -5,9 +5,9 @@
 # 1. Turn on the hooks in this folder.
 git config core.hooksPath .githooks
 
-# 2. The assistant only reads its rules on its own from a file called CLAUDE.md.
-#    On GitHub they live in AGENTS.md, so this makes a one-line pointer to them.
-#    The @ means "read that file too".
+# 2. The rules live in AGENTS.md, and the assistant found them there on its own
+#    when tested. In case a version of it only looks for a file called CLAUDE.md,
+#    this makes a one-line pointer as a backup. The @ means "read that file too".
 echo '@AGENTS.md' > CLAUDE.md
 
 # 3. Keep the pointer and the tool's folder out of git. This list is git's own

@@ -219,9 +219,9 @@ every computer only has a copy.
   sh .githooks/setup
   ```
 
-  A fresh clone without that line has no safety net and the assistant won't
-  find this file on its own, so run it first. It also makes a one-line local
-  pointer to this file, which stays on that computer and never gets committed.
+  A fresh clone without that line has no safety net, so run it first. It also
+  makes a one-line local pointer to this file, as a backup in case the assistant
+  doesn't look for this name. The pointer stays on that computer, never committed.
 
 One commit per component. The message says what it is, never "update".
 
