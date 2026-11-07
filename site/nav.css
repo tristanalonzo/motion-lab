@@ -24,11 +24,19 @@
   --nav-focus-weight: 600;         /* the selected row gets this heavy. 700 is the most the font has */
   --nav-focus-in: 220ms;           /* how fast it happens. Leaving the list takes --nav-step-duration, so it lets go slower than it grabs */
 
-  /* --- the counter: only the selected row shows a number, and it rolls --- */
+  /* --- the counter: only the selected row shows a number, in a slot machine window --- */
   --nav-number-opacity: 0;         /* the numbers on every other row. 0 = only the counter has one. Try 0.3 to see what it replaced */
-  --nav-counter-duration: 450ms;   /* how long a digit takes to roll. Same as --nav-step-duration, so the last digit rides along with the list. Try 900ms: it lags behind and reads as its own thing */
-  --nav-counter-ease: cubic-bezier(0.22, 1, 0.36, 1); /* same soft landing as the list */
-  --nav-counter-fade: 12px;        /* a rolling digit fades out over this much travel, top and bottom. 0 = it gets cut off by a hard edge */
+  --nav-reel-height: 22px;         /* how tall the window is. Also how far apart the digits on a reel are, so the next one waits just past the edge */
+  --nav-reel-pad: 6px;             /* space left and right of the digits, inside the window */
+  --nav-reel-fill: #EBEBEF;        /* the window: light grey. Same as a pressed keycap */
+  --nav-reel-radius: 6px;          /* its corners. Not a button, so it doesn't have to be a pill */
+  --nav-reel-shade: 6px;           /* digits disappear into the grey over this much at the top and bottom, like a drum curving away. 0 = sliced by a hard edge */
+  --nav-reel-spin: 650ms;          /* how long the first reel spins. Longer than the list's 450ms: the list lands, then the number does */
+  --nav-reel-stagger: 140ms;       /* each reel to the right stops this much later, left to right like a real machine. Only shows when two digits change (009 → 010) */
+  --nav-reel-laps: 1;              /* extra full turns (ten digits each) a reel spins before landing. 0 = it just rolls to the next digit */
+  --nav-reel-ease: cubic-bezier(0.2, 0.75, 0.3, 1.1); /* fast, slows, clunks a little past the stop and back. The last number is the clunk: 1 = none, 1.25 = a bounce */
+  --nav-reel-blur: 5px;            /* while it spins fast, each digit smears this far up and down. 0 = no smear */
+  --nav-reel-blur-fade: 380ms;     /* how long the smear takes to clear. Shorter than the spin, so it's gone before the reel slows */
 
   /* --- feel --- */
   --nav-step-duration: 450ms;      /* how long the list takes to slide one item */
@@ -204,30 +212,27 @@
 
 /* ---------- the counter ---------- */
 
-/* One number, parked on the middle row exactly where the selected row's own
-   number would be, in the same size, weight and color. It never moves; its
-   digits roll. nav.js builds it and explains the strips.
+/* One number in a light grey window, parked on the middle row exactly where
+   the selected row's own number would be, in the same size, weight and color.
+   The window never moves; the digits inside it spin like a slot machine's
+   reels. nav.js builds it and explains the reels.
 
    left, not transform: the slide-in animation above uses transform, and
-   would wipe out a transform set here. pointer-events: none lets clicks and
-   hovers fall through to the row underneath. */
+   would wipe out a transform set here. It starts one --nav-reel-pad early,
+   so the digits themselves still land where the row's number would be.
+   pointer-events: none lets clicks and hovers fall through to the row. */
 .nav-counter {
   --i: 0;                          /* lands first in the slide-in, with the selected row */
   position: absolute;
   top: 50%;
-  left: var(--nav-selected-indent);
-  height: var(--nav-row-height);
-  margin-top: calc(var(--nav-row-height) / -2);
+  left: calc(var(--nav-selected-indent) - var(--nav-reel-pad));
+  height: var(--nav-reel-height);
+  margin-top: calc(var(--nav-reel-height) / -2);
+  padding: 0 var(--nav-reel-pad);
   display: flex;
-  overflow: hidden;                /* only one digit per strip shows... */
-  /* ...and the ones rolling in or out fade at the edges instead of being sliced. */
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    #000 var(--nav-counter-fade),
-    #000 calc(100% - var(--nav-counter-fade)),
-    transparent
-  );
+  overflow: hidden;                /* only one digit per reel shows */
+  background: var(--nav-reel-fill);
+  border-radius: var(--nav-reel-radius);
   pointer-events: none;
   font-size: var(--nav-selected-size);
   font-weight: var(--nav-selected-weight);
@@ -237,19 +242,50 @@
   transition: font-weight var(--nav-step-duration) var(--nav-step-ease);
 }
 
-/* One strip per digit, stacked top to bottom. --at (set by nav.js) is which
-   one shows; the strip slides up by that many rows. A row is the same height
-   as a list row, so a digit rolls exactly as far as the list slides. */
+/* The drum: the grey fades over the digits at the top and bottom edges, so a
+   digit spinning in or out sinks into the window instead of being cut off. */
+.nav-counter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--nav-reel-fill),
+    transparent var(--nav-reel-shade),
+    transparent calc(100% - var(--nav-reel-shade)),
+    var(--nav-reel-fill)
+  );
+}
+
+/* One reel per digit: a strip of digits stacked top to bottom. --at (set by
+   nav.js) is which one shows; the strip slides up by that many digits.
+   --reel is its place, 0 on the left, so reels further right spin longer
+   and stop later. */
 .nav-counter-digit {
   display: flex;
   flex-direction: column;
-  transform: translateY(calc(var(--at, 0) * var(--nav-row-height) * -1));
-  transition: transform var(--nav-counter-duration) var(--nav-counter-ease);
+  transform: translateY(calc(var(--at, 0) * var(--nav-reel-height) * -1));
+  transition:
+    transform calc(var(--nav-reel-spin) + var(--reel) * var(--nav-reel-stagger)) var(--nav-reel-ease),
+    text-shadow var(--nav-reel-blur-fade) ease-out;
+}
+
+/* Spinning: every digit gets a faint copy above and below it, the smear a
+   fast-moving drum leaves. nav.js turns this on for one instant at the start
+   of a spin, so the smear appears at once and then fades out by itself.
+   (Only transform is listed here, so turning the smear ON doesn't fade in;
+   turning it off uses the list above, so it does fade out.) */
+.nav-counter-digit[data-state="spinning"] {
+  --smear: color-mix(in srgb, var(--nav-color-selected) 35%, transparent);
+  text-shadow:
+    0 calc(var(--nav-reel-blur) * -1) 2px var(--smear),
+    0 var(--nav-reel-blur) 2px var(--smear);
+  transition-property: transform;
 }
 
 .nav-counter-digit span {
-  height: var(--nav-row-height);
-  line-height: var(--nav-row-height);
+  height: var(--nav-reel-height);
+  line-height: var(--nav-reel-height);
 }
 
 /* Hover focus makes the selected row heavier; the counter is part of it. */

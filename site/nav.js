@@ -50,17 +50,25 @@ export function createNav(experiments, onSelect) {
   // ---------- the counter ----------
 
   // Only the selected row shows a number, and it isn't the row's own: it's
-  // this one counter, parked on the middle row, rolling like an odometer as
-  // you step. Each digit is a strip of digits stacked top to bottom, with
-  // only one showing (nav.css slides the strip). A digit that doesn't change
-  // doesn't move, so 004 → 005 only rolls the last one.
+  // this one counter, a slot machine window parked on the middle row. Each
+  // digit is a reel: a strip of digits stacked top to bottom, with only one
+  // showing (nav.css slides the strip). When the number changes, the reels
+  // whose digit changes spin a full turn or so and clunk to a stop; the rest
+  // hold still. So 004 → 005 spins only the last reel.
   //
-  // The weird bit: the ones strip isn't 0–9 once. It holds one digit for
-  // every number in the list: 0 1 2 … 9 0 1 2 … The tens strip holds one
-  // for every ten, and so on. Where a strip sits is "how many ones (or tens,
-  // or hundreds) are in this number", which only ever goes up as the number
-  // does. So 009 → 010 rolls the ones forward onto the next 0, instead of
-  // rewinding all the way back down from 9.
+  // The weird bit, part 1: the ones reel isn't 0–9 once. It holds one digit
+  // for every number in the list: 0 1 2 … 9 0 1 2 … The tens reel holds one
+  // for every ten, and so on. Where a reel sits is "how many ones (or tens)
+  // are in this number", which only ever goes up as the number does. So
+  // 009 → 010 spins the ones forward onto the next 0, instead of rewinding
+  // all the way back down from 9.
+  //
+  // Part 2: the spin. Ten digits further along a reel is the same digit
+  // again. So every reel has spare turns at both ends, and a reel at rest
+  // sits on the middle copy. To spin, it heads for the copy one turn further
+  // on, in the direction it's going: same digit, but it has to pass all ten
+  // others to get there. Once it stops, it's quietly moved back to the
+  // middle copy, which looks identical, ready to spin again.
   const counter = document.createElement("div");
   counter.className = "nav-counter";
   counter.setAttribute("aria-hidden", "true"); // the rows' own numbers are still there for screen readers
@@ -69,16 +77,68 @@ export function createNav(experiments, onSelect) {
   const highest = Math.max(...values);
   const length = experiments[0].number.length;                      // 3, for "000"
   const places = Array.from({ length }, (_, d) => 10 ** (length - 1 - d)); // [100, 10, 1]
+  const laps = Math.round(readSetting("--nav-reel-laps"));          // spare turns each side
 
-  const strips = places.map((place) => {
+  const reels = places.map((place, i) => {
     const strip = document.createElement("span");
     strip.className = "nav-counter-digit";
-    for (let k = 0; k <= Math.floor(highest / place); k++) {
+    strip.dataset.state = "idle";
+    strip.style.setProperty("--reel", i); // reels further right stop later (nav.css)
+    // Every value this reel can show, plus the spare turns before and after.
+    const count = Math.floor(highest / place) + 1 + 2 * 10 * laps;
+    for (let k = 0; k < count; k++) {
       strip.insertAdjacentHTML("beforeend", `<span>${k % 10}</span>`);
     }
     counter.append(strip);
-    return { strip, place };
+
+    // turn: 0 at rest (the middle copy), +1 spinning forward, -1 back.
+    const reel = { strip, place, value: null, turn: 0 };
+    strip.addEventListener("transitionend", (e) => {
+      if (e.propertyName === "transform") settle(reel);
+    });
+    return reel;
   });
+
+  // Where on its strip a reel should be: its digit, on the copy it's using.
+  function placeReel(reel) {
+    const position = Math.floor(reel.value / reel.place) + 10 * (laps + reel.turn);
+    reel.strip.style.setProperty("--at", position);
+  }
+
+  function spin(reel, value) {
+    const from = reel.value;
+    reel.value = value;
+    if (from === null) return placeReel(reel);                       // the first number: just show it
+    const change = Math.floor(value / reel.place) - Math.floor(from / reel.place);
+    if (change === 0) return;                                        // this digit didn't change: hold still
+
+    // Only a reel at rest starts a new turn. One already spinning just
+    // heads for the new digit from wherever it is (the browser picks up a
+    // transition mid-way on its own), so mashing a key keeps it spinning
+    // instead of winding it further and further.
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reel.turn === 0 && laps > 0 && !reduced) reel.turn = Math.sign(change);
+    placeReel(reel);
+
+    // The smear: on for an instant, then off, and nav.css fades it out.
+    // Reading offsetHeight in between forces the browser to apply the "on"
+    // before it sees the "off"; without it, it would skip straight to off.
+    reel.strip.dataset.state = "spinning";
+    reel.strip.offsetHeight;
+    reel.strip.dataset.state = "idle";
+  }
+
+  // Stopped: hop back to the middle copy of the same digit, with no
+  // transition, so it can't be seen. Same offsetHeight trick as above: apply
+  // the hop, then give the transition back.
+  function settle(reel) {
+    if (reel.turn === 0) return;
+    reel.turn = 0;
+    reel.strip.style.transition = "none";
+    placeReel(reel);
+    reel.strip.offsetHeight;
+    reel.strip.style.transition = "";
+  }
 
   nav.append(counter); // after the list: nav.css's hover focus finds it with "ol:hover +"
   document.body.append(nav);
@@ -130,10 +190,8 @@ export function createNav(experiments, onSelect) {
     // The list slides so this row is in the middle (CSS does the sliding).
     nav.style.setProperty("--selected", index);
 
-    // The counter rolls to this row's number (CSS does the rolling).
-    strips.forEach(({ strip, place }) => {
-      strip.style.setProperty("--at", Math.floor(values[index] / place));
-    });
+    // The counter's reels spin to this row's number (CSS does the spinning).
+    reels.forEach((reel) => spin(reel, values[index]));
 
     items.forEach((item, i) => {
       const isSelected = i === index;

@@ -66,7 +66,8 @@ sliders were redrawn in Apple's style: thin track, white handle that swells
 when held.
 
 **Done 2026-11-08:** counter-style numbering. Only the selected row shows a
-number, and it's one counter whose digits roll like an odometer as you step.
+number, in a light grey slot machine window whose reels spin a full turn and
+clunk to a stop as you step.
 
 **Fixed 2026-11-08:** push past either end of the list and the word beside the
 keys says "first one" or "last one" instead of "next" or "previous".
@@ -259,8 +260,10 @@ the same — plain is probably right for it.
   - Built: `site/nav.js` + `nav.css`. Docs in README.md, "the list".
   - Decided: one counter on the middle row, not a number per row fading in and
     out. Its digits roll like an odometer, and only the ones that change move.
-  - Decided: a digit rolls the same 36px and 450ms as the list, so the last digit
-    rides along with the list.
+  - First version rolled one digit per step, in step with the list, like an
+    odometer. Reworked the same day into a slot machine: a light grey window, and
+    each changing reel spins a full turn, smears, and clunks past its stop. It lands
+    after the list, at 650ms, so it reads as its own event.
 - [x] **Hover focus.** Hovering the list shrinks the other items and the selected one
       smoothly gets heavier. That needs a font whose weight can animate. Inter now
       loads as a variable font (300–700), so this is ready.
