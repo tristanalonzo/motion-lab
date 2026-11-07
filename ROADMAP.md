@@ -7,7 +7,7 @@ Open questions are things to decide before (or while) building that item.
 
 ## Pick up here (left off 2026-10-27)
 
-**Start:** `git pull`, then `py -m http.server` in this folder, then open
+**Start:** `git pull`, then `py serve.py` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
 
 **Other computer, once (2026-11-05):** GitHub's history was rewritten. Anything

@@ -6,10 +6,10 @@ A growing collection of micro-interactions and UI motion studies, built one expe
 The site loads each experiment's files when you reach it, and browsers block that for files opened by double-clicking. So run a tiny server in this folder:
 
 ```
-py -m http.server
+py serve.py
 ```
 
-Then open http://localhost:8000. GitHub Pages serves it the same way, so what you see locally is what goes live. Links like `localhost:8000/#001` open straight to an experiment.
+Then open http://localhost:8000. `serve.py` is `py -m http.server` plus one header that stops the browser keeping old copies of files, so a change to a CSS or JS file always shows on a normal reload. (`py -m http.server` still works; Firefox just sometimes shows a stale file until Ctrl+Shift+R.) GitHub Pages serves it the same way, so what you see locally is what goes live. Links like `localhost:8000/#001` open straight to an experiment.
 
 ## Experiments
 

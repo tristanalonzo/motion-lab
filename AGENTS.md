@@ -7,8 +7,9 @@ Read this before doing anything in this repo.
 A shelf for small interactive things where the movement is the point.
 
 Each thing lives in its own numbered folder. Plain HTML, CSS and JavaScript.
-No frameworks, no npm, no build step. Run `py -m http.server` in the repo
-folder, open http://localhost:8000, and it works. (Double-clicking index.html
+No frameworks, no npm, no build step. Run `py serve.py` in the repo
+folder, open http://localhost:8000, and it works. (`serve.py` is
+`py -m http.server` that tells the browser not to cache, so edits always show.) (Double-clicking index.html
 does not: browsers block loading files on demand from a `file:///` address.)
 
 Anything goes as long as it passes all three:
@@ -66,6 +67,7 @@ page loads.
 ```
 motion-lab/
   index.html             ← the one page: title, stage, cursor. Loads site/main.js
+  serve.py               ← runs it locally, with caching off. Not used by GitHub Pages
   README.md              ← index + docs for the shared parts
   AGENTS.md              ← this file
   site/                  ← the site's own code. Experiments never go here
