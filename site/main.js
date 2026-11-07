@@ -37,14 +37,60 @@ function addressFor(experiment) {
 }
 
 
+// ---------- Back and Forward ----------
+// Back takes you to the experiment you were on before, not off the site.
+//
+// Two ways to change the address without reloading the page:
+//   pushState     adds a new Back step
+//   replaceState  rewrites the current one
+//
+// A click on a row or the title is always its own step. Scrolling is not one
+// step per row: scrolling past five rows on the way to the sixth shouldn't
+// take five Backs to undo. So a burst of steps (wheel, keys or swipes, each
+// less than --history-pause after the last) adds one Back step when it
+// starts, and then just keeps that step's address up to date.
+
+let isStep = false;               // set by nav.js's "lab:step" just before it selects
+let lastStepTime = -Infinity;
+
+window.addEventListener("lab:step", (e) => {
+  if (!e.detail.atEnd) isStep = true; // at an end nothing gets selected, so nothing to mark
+});
+
+function rememberAddress(index) {
+  const address = addressFor(EXPERIMENTS[index]);
+  const wasStep = isStep;
+  isStep = false;
+
+  // The address already says this experiment. That's the page opening,
+  // Back/Forward, or a #link typed or clicked: the browser has already done
+  // its history part. Only tidy the spelling (#001 → #001-submit-button).
+  if (indexFromAddress() === index) {
+    history.replaceState(null, "", address);
+    return;
+  }
+
+  let newStep = true;
+  if (wasStep) {
+    const now = performance.now();
+    const pause = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--history-pause"));
+    newStep = now - lastStepTime > pause;
+    lastStepTime = now;
+  } else {
+    lastStepTime = -Infinity; // a click ends any burst; the next scroll starts a new step
+  }
+
+  if (newStep) history.pushState(null, "", address);
+  else history.replaceState(null, "", address);
+}
+
+
 // ---------- the list drives everything ----------
 
 const nav = createNav(EXPERIMENTS, (index) => {
   const experiment = EXPERIMENTS[index];
 
-  // replaceState changes the address without reloading and without adding a
-  // Back-button step. Scrolling past 30 experiments shouldn't take 30 Backs to undo.
-  history.replaceState(null, "", addressFor(experiment));
+  rememberAddress(index);
   document.title = index === 0
     ? "tristan’s motion lab"
     : `${experiment.number} — ${experiment.name} · tristan’s motion lab`;
@@ -59,8 +105,12 @@ const nav = createNav(EXPERIMENTS, (index) => {
 // Open on whatever the address says.
 nav.select(indexFromAddress());
 
-// The address changed some other way: typed by hand, or a link like
-// <a href="#003"> clicked inside an experiment.
+// The address changed some other way: Back or Forward, typed by hand, or a
+// link like <a href="#003"> clicked inside an experiment. Browsers don't
+// agree on which of these two events each of those sends, so listen for
+// both. Selecting the row that's already selected does nothing, so getting
+// both is harmless.
+window.addEventListener("popstate", () => nav.select(indexFromAddress()));
 window.addEventListener("hashchange", () => nav.select(indexFromAddress()));
 
 // The title goes home without a page load.

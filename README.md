@@ -103,6 +103,8 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - **Phones get the same list, moved to the bottom.** Not a different menu: same rows, same pointer, same slide, so the site feels like one thing at any size. The bottom is where thumbs are, and it leaves the experiment the top of the screen.
 - **Swipe anywhere, not just on the list.** "Scroll down" on the front page should work wherever your thumb lands. Every 40px of drag is one row, the same "add it up, step at a threshold" idea as the wheel, so a long swipe steps through several rows evenly.
 - **Finger up = next.** The same direction as scrolling a normal page down.
+- **Back goes to where you were, not off the site.** `site/main.js` keeps the address bar in step with the list. A click on a row or the title is one Back step. Scrolling isn't one step per row: a burst of scrolling, keys or swipes (each step under 1000ms after the last) is one step, so you can scroll past five rows and still get back in one press. Stop for a second and the next scroll starts a new step.
+- **The address bar is the judge.** If the address already names the experiment being selected, the browser has done its part (opening the page, Back, Forward, a typed or clicked `#link`), so nothing is added. That one check covers all of them.
 - **Taps go through.** Only a drag steps the list, so tapping a button in an experiment still works, and tapping a row selects it.
 
 **Rough edges**
@@ -110,7 +112,8 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - A swipe steps rows but doesn't fling: the list doesn't keep coasting after your finger lifts, like a real page would.
 - The front page says "press ↓", which means nothing on a phone.
 - Only tested with simulated touch in Firefox, not yet on a real phone.
-- Back doesn't step through experiments; it leaves the site.
+- Back steps through experiments now, but the list slides there like any other step, so a jump back from 005 to 001 slides four rows at once.
+- The 1000ms pause is a guess. Scroll slowly enough and every row becomes its own Back step.
 - The pointer doesn't join the slide-in on load. It's just there from the start.
 - Hover focus also fires on rows faded out to invisible, because they can still be hovered.
 - Hover focus is mouse only. Tabbing to the list with the keyboard doesn't trigger it.
@@ -444,6 +447,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--nav-reel-ease: cubic-bezier(0.2, 0.75, 0.3, 1.4)` and step. The clunk turns into a bounce, and the next digit flashes in before it settles. Then make the last number `1`: it glides to a stop and loses the machine feel.
 - Set `--nav-reel-blur: 12px`. The smear turns into ghost digits stacked above and below. Then `0`: it spins clean, and looks slower than it is.
 - Set `--nav-reel-shade: 0px`. Digits get sliced by the window's edge as they spin past, like a cheap clock.
+- Set `--history-pause: 50ms` in site.css and scroll slowly through the list, then press Back. Every row you passed is a step, and getting back to the front takes a press per row. Then set it to `60000ms`: one Back undoes a whole minute of scrolling.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Keep `--nav-in-stagger: 300ms`, then open `#005` and the front page one after the other. Slowed down you can see the wave run up the list from 005 and down it from 000: it always starts on the row you arrived on.
 - Set `--github-duration: 3000ms` and hover the GitHub cat. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.

@@ -72,7 +72,12 @@ clunk to a stop as you step.
 **Fixed 2026-11-08:** push past either end of the list and the word beside the
 keys says "first one" or "last one" instead of "next" or "previous".
 
-**Next:** not picked yet.
+**Fixed 2026-11-08:** Back. It used to leave the site; now it goes to the
+experiment you were on before. A click is one step; a burst of scrolling is one
+step too, not one per row.
+
+**Next:** not picked yet. Candidates: rewrite 000's intro text (yours), decide
+where tab and esc get shown, simpler corner icons.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.

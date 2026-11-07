@@ -17,6 +17,9 @@
   --stage-fade: 250ms;             /* experiment fading in / out (use ms: JS reads this too) */
   --stage-settle: 150ms;           /* how long the list must rest on an item before it loads. Lower = appears sooner, but fast scrolling loads everything you pass */
   --stage-loading-delay: 400ms;    /* "loading" only shows if it takes longer than this, so fast loads never flicker */
+
+  /* --- the Back button --- */
+  --history-pause: 1000ms;         /* stop scrolling this long and the next scroll starts a new Back step. Lower = more, smaller steps; very high = one Back undoes all your scrolling */
 }
 
 /* ============================================================
