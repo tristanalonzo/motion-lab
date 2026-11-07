@@ -7,6 +7,7 @@
   --nav-width: 240px;              /* how wide the panel is */
   --nav-row-height: 36px;          /* space per item, and how far the list slides per step */
   --nav-gap: 16px;                 /* space between the number and the name */
+  --nav-number-width: 23px;        /* space saved for the number: as wide as three digits at --nav-font-size. Too small and names jiggle sideways on hover */
   --nav-font-size: 12px;           /* every item that isn't selected */
   --nav-selected-size: 14px;       /* the selected item grows to this */
   --nav-weight: 300;               /* light, for everything that isn't selected. 300 = light, 400 = regular, 700 = bold */
@@ -17,6 +18,11 @@
   --nav-selected-indent: 18px;     /* the selected item steps right, away from the pointer */
   --nav-fade-solid: 18px;          /* only the middle row is fully visible... */
   --nav-fade-end: 180px;           /* ...everything fades out completely by this far from the middle */
+
+  /* --- hover focus: the mouse is on the list --- */
+  --nav-focus-size: 10.5px;        /* the other rows shrink to this. The row under the mouse stays at --nav-font-size */
+  --nav-focus-weight: 600;         /* the selected row gets this heavy. 700 is the most the font has */
+  --nav-focus-in: 220ms;           /* how fast it happens. Leaving the list takes --nav-step-duration, so it lets go slower than it grabs */
 
   /* --- feel --- */
   --nav-step-duration: 450ms;      /* how long the list takes to slide one item */
@@ -129,6 +135,7 @@
 
 .nav-number {
   font-variant-numeric: tabular-nums; /* every digit the same width, so the names line up */
+  min-width: var(--nav-number-width); /* the box doesn't narrow when the number shrinks, so the name beside it stays put */
 }
 
 .nav-item:hover {
@@ -142,6 +149,40 @@
   font-size: var(--nav-selected-size);
   font-weight: var(--nav-selected-weight);
   transform: translateX(var(--nav-selected-indent));
+}
+
+/* Hover focus: with the mouse on the list, the other rows shrink and the
+   selected one gets heavier. All CSS, no JavaScript.
+
+   The ol is the trigger, not the nav. The nav is a full-height column, so it
+   would also fire on the empty space above and below the rows.
+
+   (hover: hover) means "this device has a real mouse". A phone keeps a row
+   "hovered" after it's tapped, which would leave the list stuck shrunken. */
+@media (hover: hover) {
+  .nav ol:hover .nav-item {
+    font-size: var(--nav-focus-size);
+    /* One time per property, in the same order as .nav-item's transition:
+       color, font-weight, font-size, transform. Only the two that hover focus
+       moves get the quicker time. A transition's time comes from the state
+       it's heading to, so this one covers going in, and leaving goes back to
+       .nav-item's slower one. */
+    transition-duration:
+      var(--nav-step-duration),
+      var(--nav-focus-in),
+      var(--nav-focus-in),
+      var(--nav-step-duration);
+  }
+
+  /* What you're aiming at doesn't shrink away from the mouse. */
+  .nav ol:hover .nav-item:hover {
+    font-size: var(--nav-font-size);
+  }
+
+  .nav ol:hover .nav-item[data-state="selected"] {
+    font-size: var(--nav-selected-size);
+    font-weight: var(--nav-focus-weight);
+  }
 }
 
 .nav-item:focus-visible {

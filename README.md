@@ -57,8 +57,16 @@ What goes in each file: AGENTS.md, "The experiment contract".
 | item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, 14px → 12px, regular → light (400 → 300), steps 18px back left; new one the reverse |
 | pointing | switching | 140ms | `cubic-bezier(0.4, 0, 0.2, 1)` | pointer sinks back flat: 22px sharp point → a shallow 4px arc along the edge |
 | switching | pointing | 200ms after the switch, then 380ms | `cubic-bezier(0.34, 1.3, 0.64, 1)` | tip grows back out, pokes ~0.5px past 22px, settles. Done by ~580ms, just after the list lands |
+| mouse off the rows | mouse on the rows | 220ms | `cubic-bezier(0.22, 1, 0.36, 1)` | hover focus: other rows shrink 12px → 10.5px; the selected row goes regular → semibold (400 → 600) |
+| mouse on the rows | mouse off the rows | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | the same, in reverse |
 
 **Decisions**
+- **Hover focus only moves type, not rows.** Every row keeps its 36px, so nothing slides out from under the mouse while you aim at it.
+- **The row under the mouse doesn't shrink.** It stays at 12px while the rest drop to 10.5px, so what you're aiming at holds still. The selected row still gets the weight, so you always see both where you are and where you're pointing.
+- **It grabs fast and lets go slow.** 220ms in, 450ms out: the same split as the keycaps, out fast and back slow.
+- **The rows are the trigger, not the column.** The list's column runs the full height of the screen, and focus firing on empty space looks like a bug.
+- **Numbers keep a fixed 23px box.** Without it, a shrinking number pulls its name left, and sweeping the mouse down the list makes every name wiggle by 3px.
+- **Mouse only.** A phone counts a tapped row as hovered until the next tap, which would leave the list stuck shrunken. `@media (hover: hover)` keeps phones out.
 - **The pointer never moves; the list comes to it.** The selected row always lands on the middle, so the pointer can stay pinned there.
 - **The pointer reacts first, then lands last.** It starts sinking the instant you switch, ahead of the text, but grows back slowly enough to finish ~130ms after the list. The first version finished before the text (70ms flat, 200ms back), but it was so fast the morph read as the point just appearing.
 - **Slow, steady growth instead of a stab.** 380ms with a gentle curve, so you watch the point grow out of the arc. The old 1.5 overshoot curve did most of its travel in the first few frames, which is why it looked like a pop.
@@ -93,6 +101,11 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - Only tested with simulated touch in Firefox, not yet on a real phone.
 - Back doesn't step through experiments; it leaves the site.
 - The pointer doesn't join the slide-in on load. It's just there from the start.
+- Hover focus also fires on rows faded out to invisible, because they can still be hovered.
+- Hover focus is mouse only. Tabbing to the list with the keyboard doesn't trigger it.
+- Under reduced motion, hover focus snaps instead of easing. It still happens, because it's a size change, not a movement.
+- `--nav-number-width` is measured for Inter. On a Mac the numbers use San Francisco, which hasn't been checked; a number wider than 23px would still jiggle a little.
+- **Swiping on phones is broken.** In `nav.js`, the `touchmove` handler has a variable called `step` that hides the `step()` function, so the first swipe throws `TypeError: step is not a function` and the list doesn't move. Found 2026-11-07 with a simulated drag in Firefox.
 - Safari can't set an SVG path's shape from CSS, so the pointer stays sharp there and never morphs.
 - The selected name is bigger and heavier, so it grows to the right as it's selected, and the name shifts right a little as its number widens.
 
@@ -354,6 +367,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--pointer-sharpen-duration: 120ms` and step through the list. The point stops growing and just appears, which is what the first version looked like. Then try `--pointer-blunt-hold: 600ms`: it waits so long that it feels like it's lagging behind the list instead of following it.
+- Set `--nav-focus-size: 7px` and hover the list. The rows turn to crumbs and the shrink stops being a nudge and becomes the whole event. Then set it to `12px`: only the weight is left, and you'll see how much of the effect was the shrink. Keep `7px` and set `--nav-number-width: 0px`, then sweep the mouse down the rows: every name wiggles sideways, which is why that box is there.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Keep `--nav-in-stagger: 300ms`, then open `#005` and the front page one after the other. Slowed down you can see the wave run up the list from 005 and down it from 000: it always starts on the row you arrived on.
 - Set `--github-duration: 3000ms` and hover the GitHub cat. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.

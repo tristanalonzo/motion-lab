@@ -46,8 +46,12 @@ middle — toolbar".
 swings past exactly like the cursor, so the hand and the window move as one. The
 spring is its own file now, `site/spring.js`.
 
-**Next:** not picked yet. Hover focus on the list is ready to build with no
-decisions; "a word beside the key" needs its words chosen first.
+**Done 2026-11-07:** hover focus. With the mouse on the list's rows, the others
+shrink and the selected one gets heavier. All in nav.css.
+
+**Next:** not picked yet. Swiping on phones is broken (README.md, the list's
+rough edges) and is a one-line fix. "A word beside the key" needs its words
+chosen first.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -222,9 +226,12 @@ the same — plain is probably right for it.
 
 - [ ] **Counter-style numbering.** Only the selected item shows its number, like a
       counter, instead of every row having one.
-- [ ] **Hover focus.** Hovering the list shrinks the other items and the selected one
+- [x] **Hover focus.** Hovering the list shrinks the other items and the selected one
       smoothly gets heavier. That needs a font whose weight can animate. Inter now
       loads as a variable font (300–700), so this is ready.
+  - Built: `site/nav.css` only, no JavaScript. Docs in README.md, "the list".
+  - Decided while building: the row under the mouse doesn't shrink, and only the
+    rows set it off, not the empty column around them.
 
 ## Cursor — ideas
 
