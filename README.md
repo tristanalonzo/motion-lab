@@ -277,20 +277,29 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 
 ## Shared: the keyboard readout
 
-`site/hints.js` + `site/hints.css` — two keycaps in the bottom left corner that press themselves as you step through the list. Press ↓ and the ↓ cap goes down. Scroll down and it goes down too, which is how the corner says the wheel and the arrow key do the same thing, without a line of text saying so. It doesn't list the keys; it shows them being used.
+`site/hints.js` + `site/hints.css` — two keycaps in the bottom left corner that press themselves as you step through the list. Press ↓ and the ↓ cap goes down. Scroll down and it goes down too, which is how the corner says the wheel and the arrow key do the same thing. A word slides out from behind the caps to say what just happened: "next", "previous" or "scroll". It doesn't list the keys; it shows them being used.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
 | cap resting | held down | 70ms | `ease-out` | sinks 2px, its bottom edge collapses to nothing under it, outline and arrow go from light grey to near-black, a light fill comes in |
 | held down | resting | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | back up, popping a touch past before it settles; edge, colour and fill come back with it |
 | held or mashed | stays down | — | — | every step pushes the release 110ms further out, so a key you're holding stays down the whole time |
-| page loaded | one demo press | once, at 1400ms | as above | the ↓ cap presses itself, so the corner isn't easy to miss |
+| page loaded | one demo press | once, at 1400ms | as above | the ↓ cap presses itself and "next" slides out, so the corner isn't easy to miss |
+| word hidden | word shown | 160ms | `cubic-bezier(0.22, 1, 0.36, 1)` | slides right from behind the ↓ cap, as far as its own width plus 8px |
+| word shown | word hidden | 320ms, after 600ms with no step | `cubic-bezier(0.4, 0, 1, 1)` | slides back behind the cap, speeding up as it goes |
+| one word shown | a different word shown | instant, then 160ms | as above | the old word is cut with no slide, and the new one slides out |
 
 **Decisions**
 - **A readout, not a menu.** The first version was a pop-up listing four commands in grey sentences, and reading was the whole interaction — on a site whose point is that things move. This shows the keys being used instead, so it teaches by reacting rather than by being read.
 - **Not a control, so not a button.** The old version drew the caps as keys and even dipped one on hover, but hovering was what did something and pressing did nothing. The drawing promised the wrong action. Now there's nothing to operate: no Tab stop, no hover, no mouse events at all, `aria-hidden`, and a line kept off screen for screen readers instead.
 - **nav.js shouts, this listens.** nav.js sends a `lab:step` event every time it steps, and this file just reflects it. The rules about when a key or a scroll counts — not while you're typing, not when an experiment has claimed the event — stay in nav.js, in one place, rather than being copied here and drifting out of step later.
-- **The wheel presses the ↓ cap too.** Strictly it's a lie — you didn't touch a key. But it's the one line of the old pop-up worth keeping ("scroll: the same, with the wheel"), and showing it beats writing it.
+- **The wheel presses the ↓ cap too.** Strictly it's a lie — you didn't touch a key. But it's the one line of the old pop-up worth keeping ("scroll: the same, with the wheel"), and showing it beats writing it. The word now tells the truth beside it: it says "scroll", not "next".
+- **The word appears because you did something.** It's never on screen at rest. If it were, this would be the old pop-up again, just flatter.
+- **The word outlasts the cap.** The cap is back up after 110ms, which is far too short to read anything. So the word has its own 600ms hold, and the two aren't tied together.
+- **It slides from behind the caps without really being behind them.** The caps have no fill, so a word behind them would show through. Instead the word moves inside a window whose left edge touches the ↓ cap, and the window hides whatever is past that edge.
+- **The caps never shift.** All three words are always there, stacked in one grid cell, so the window is always as wide as "previous". Nothing changes size when a word comes out.
+- **A replaced word is cut, not slid away.** Press ↓ then ↑ quickly and "next" vanishes as "previous" comes out. If "next" slid back at its own speed, the two words would sit on top of each other for a moment.
+- **Out in 160ms, not the cap's 70ms.** Same fast-out, slow-back split, but at 70ms a word pops instead of sliding.
 - **It reacts even at the end of the list.** Press ↓ on the last experiment and the cap still goes down, because you still pressed the key. A readout that reports your hand is more useful than one that reports the list.
 - **Fast down, slow up.** 70ms down, 260ms back. The same split as the Submit button in 001, for the same reason: going down should feel like it's under your finger; coming up is the part you actually watch.
 - **The cap and its bottom edge move together.** The cap sinks by exactly the height of its own edge, and the edge collapses as it goes. If only the cap moved it would read as the whole thing sliding down the page rather than a key being pushed in.
@@ -307,6 +316,9 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - Under reduced motion the cap changes colour but doesn't move, so the "key" idea mostly goes.
 - An experiment with keys of its own (001 answers to Space and Enter) still has no way to add a cap. That's a new rule for every experiment, so it's a decision before it's a build.
 - Two caps is the whole vocabulary. A third key would need a reason to be there, not just room.
+- Press ↓ on the last row and the word still says "next", though nothing is next. Same for "previous" on the first row, and "scroll" at either end.
+- You're usually looking at the list or the experiment while you step, not this corner, so the word can come and go unread.
+- Under reduced motion the word appears and disappears with no slide, and there's no demo press to introduce it.
 
 ## Shared: the cursor
 
@@ -378,4 +390,5 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--stage-fade: 1200ms` and switch back and forth quickly. You'll see the old one fading under the new one.
 - Set `--hints-press-hold: 900ms` and tap ↓ once. The key sticks down like it's jammed. Then `0ms`: it never visibly goes down at all, because it's released in the same breath it was pressed.
 - Set `--hints-edge-height: 8px` and press ↓. The cap drops off a cliff. It's the one number that has to match in two places at once — the shelf under the key and how far the key travels — so it's the quickest way to see why those two are the same variable.
+- Set `--hints-word-hold: 110ms`, the same as the cap, and tap ↓. The word flicks out and back before you can read it, which is why it has its own hold. Then set `--hints-word-out: 1500ms`: you can watch it come out from behind the cap, one letter at a time.
 - Set `--hints-press-in: 600ms` and hold ↓ down. The key is still on its way down while the list has already moved on. Pressing has to beat what it causes, or it reads as a reaction to the list instead of the cause of it.

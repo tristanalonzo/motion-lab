@@ -53,7 +53,11 @@ shrink and the selected one gets heavier. All in nav.css.
 the list didn't move, because a variable in nav.js had the same name as the
 `step()` function it needed to call.
 
-**Next:** not picked yet. "A word beside the key" needs its words chosen first.
+**Done 2026-11-07:** a word beside the key. Step through the list and "next",
+"previous" or "scroll" slides out from behind the caps, then goes back.
+
+**Next:** not picked yet. Cursor feel sliders still need deciding where they
+live; a hidden panel just for tuning is the suggestion.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -174,7 +178,7 @@ the same — plain is probably right for it.
     still can't add a cap — a new rule for every experiment, so a decision before
     it's a build.
 
-- [ ] **A word beside the key.** The caps say which key, never what it does. Add the
+- [x] **A word beside the key.** The caps say which key, never what it does. Add the
       word — but keep it a readout: it should appear because you pressed something,
       not sit there waiting to be read. The moment it's always on screen it's the
       old pop-up again, just flatter.
@@ -190,6 +194,15 @@ the same — plain is probably right for it.
   - Watch out: a word appearing changes how wide the corner is. It needs its own
     layer, or the caps will shift sideways every time you press a key — which is
     the opposite of what a fixed readout should do.
+  - Built: `site/hints.js` + `site/hints.css`, with the words in `index.html`. Docs
+    in README.md, "the keyboard readout".
+  - Decided: the words are "next" and "previous" for the keys, and "scroll" for the
+    wheel in both directions.
+  - Decided while building: the word doesn't hold only while the key is down. The
+    cap is up after 110ms, too short to read, so the word has its own 600ms hold.
+  - Decided while building: the demo press shows "next" too, since it's the only
+    thing someone who never presses a key will ever see.
+  - Open: at the end of the list the word still says "next", though nothing is next.
 
 ## 000 — intro
 
