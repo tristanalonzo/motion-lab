@@ -24,6 +24,12 @@
   --nav-focus-weight: 600;         /* the selected row gets this heavy. 700 is the most the font has */
   --nav-focus-in: 220ms;           /* how fast it happens. Leaving the list takes --nav-step-duration, so it lets go slower than it grabs */
 
+  /* --- the counter: only the selected row shows a number, and it rolls --- */
+  --nav-number-opacity: 0;         /* the numbers on every other row. 0 = only the counter has one. Try 0.3 to see what it replaced */
+  --nav-counter-duration: 450ms;   /* how long a digit takes to roll. Same as --nav-step-duration, so the last digit rides along with the list. Try 900ms: it lags behind and reads as its own thing */
+  --nav-counter-ease: cubic-bezier(0.22, 1, 0.36, 1); /* same soft landing as the list */
+  --nav-counter-fade: 12px;        /* a rolling digit fades out over this much travel, top and bottom. 0 = it gets cut off by a hard edge */
+
   /* --- feel --- */
   --nav-step-duration: 450ms;      /* how long the list takes to slide one item */
   --nav-step-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, long soft landing */
@@ -102,7 +108,8 @@
    list unfolds away from it in both directions. On the front page that's row
    000, and the wave runs straight down the list. "both" keeps each row
    invisible while it waits for its turn, and in place after it lands. */
-.nav li {
+.nav li,
+.nav-counter {
   animation: nav-in var(--nav-in-duration) var(--nav-in-ease)
              calc(var(--nav-in-delay) + var(--i) * var(--nav-in-stagger)) both;
 }
@@ -136,6 +143,16 @@
 .nav-number {
   font-variant-numeric: tabular-nums; /* every digit the same width, so the names line up */
   min-width: var(--nav-number-width); /* the box doesn't narrow when the number shrinks, so the name beside it stays put */
+  /* Hidden, not removed: it still holds the box that keeps the names lined
+     up, and screen readers still read it. The counter below draws the one
+     number you see. */
+  opacity: var(--nav-number-opacity);
+  transition: opacity var(--nav-step-duration) var(--nav-step-ease);
+}
+
+/* The selected row's own number always steps aside: the counter sits on it. */
+.nav-item[data-state="selected"] .nav-number {
+  opacity: 0;
 }
 
 .nav-item:hover {
@@ -182,6 +199,64 @@
   .nav ol:hover .nav-item[data-state="selected"] {
     font-size: var(--nav-selected-size);
     font-weight: var(--nav-focus-weight);
+  }
+}
+
+/* ---------- the counter ---------- */
+
+/* One number, parked on the middle row exactly where the selected row's own
+   number would be, in the same size, weight and color. It never moves; its
+   digits roll. nav.js builds it and explains the strips.
+
+   left, not transform: the slide-in animation above uses transform, and
+   would wipe out a transform set here. pointer-events: none lets clicks and
+   hovers fall through to the row underneath. */
+.nav-counter {
+  --i: 0;                          /* lands first in the slide-in, with the selected row */
+  position: absolute;
+  top: 50%;
+  left: var(--nav-selected-indent);
+  height: var(--nav-row-height);
+  margin-top: calc(var(--nav-row-height) / -2);
+  display: flex;
+  overflow: hidden;                /* only one digit per strip shows... */
+  /* ...and the ones rolling in or out fade at the edges instead of being sliced. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--nav-counter-fade),
+    #000 calc(100% - var(--nav-counter-fade)),
+    transparent
+  );
+  pointer-events: none;
+  font-size: var(--nav-selected-size);
+  font-weight: var(--nav-selected-weight);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--nav-color-selected);
+  transition: font-weight var(--nav-step-duration) var(--nav-step-ease);
+}
+
+/* One strip per digit, stacked top to bottom. --at (set by nav.js) is which
+   one shows; the strip slides up by that many rows. A row is the same height
+   as a list row, so a digit rolls exactly as far as the list slides. */
+.nav-counter-digit {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(var(--at, 0) * var(--nav-row-height) * -1));
+  transition: transform var(--nav-counter-duration) var(--nav-counter-ease);
+}
+
+.nav-counter-digit span {
+  height: var(--nav-row-height);
+  line-height: var(--nav-row-height);
+}
+
+/* Hover focus makes the selected row heavier; the counter is part of it. */
+@media (hover: hover) {
+  .nav ol:hover + .nav-counter {
+    font-weight: var(--nav-focus-weight);
+    transition-duration: var(--nav-focus-in);
   }
 }
 
@@ -247,11 +322,15 @@
 @media (prefers-reduced-motion: reduce) {
   .nav ol,
   .nav-item,
+  .nav-number,
+  .nav-counter,
+  .nav-counter-digit,
   .nav-pointer-shape {
     transition: none;
   }
 
-  .nav li {
+  .nav li,
+  .nav-counter {
     animation: none;
   }
 }

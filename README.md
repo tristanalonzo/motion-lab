@@ -49,18 +49,23 @@ What goes in each file: AGENTS.md, "The experiment contract".
 
 ## Shared: the list
 
-`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black, grows from 12px light to 14px regular, and steps right. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
+`site/nav.js` + `site/nav.css` — scroll (or press ↑/↓, or swipe on a phone) to step through experiments one at a time. The selected one slides to the middle, turns black, grows from 12px light to 14px regular, and steps right. Only it shows a number: one counter on the middle row whose digits roll like an odometer as you step. A black pointer on the screen's left edge aims at it. Under 900px wide, the list and pointer move to a 180px strip along the bottom and the experiment centers above it.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
 | page loading | rows in place | 800ms each, 200ms wait, 60ms apart | `cubic-bezier(0.22, 1, 0.36, 1)` | each row slides 32px in from the right and fades up, starting at the row the page opened on and spreading out from it in both directions |
 | item selected | next/previous selected | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | list slides one row (36px); old item fades to grey, 14px → 12px, regular → light (400 → 300), steps 18px back left; new one the reverse |
+| counter on one number | counter on the next | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | only the digits that change roll, 36px per step, fading out over 12px at the counter's top and bottom edges. 004 → 005 rolls the last digit; 009 → 010 rolls the last two, both forward |
 | pointing | switching | 140ms | `cubic-bezier(0.4, 0, 0.2, 1)` | pointer sinks back flat: 22px sharp point → a shallow 4px arc along the edge |
 | switching | pointing | 200ms after the switch, then 380ms | `cubic-bezier(0.34, 1.3, 0.64, 1)` | tip grows back out, pokes ~0.5px past 22px, settles. Done by ~580ms, just after the list lands |
 | mouse off the rows | mouse on the rows | 220ms | `cubic-bezier(0.22, 1, 0.36, 1)` | hover focus: other rows shrink 12px → 10.5px; the selected row goes regular → semibold (400 → 600) |
 | mouse on the rows | mouse off the rows | 450ms | `cubic-bezier(0.22, 1, 0.36, 1)` | the same, in reverse |
 
 **Decisions**
+- **One counter, not a number per row.** Every row's own number is hidden; a single counter sits on the middle row where the selected number would be. The rows can only fade their numbers in and out, which reads as a swap. A counter that rolls reads as counting, and the digits that don't change sit still, so you can see which part of the number moved.
+- **A digit rolls exactly as far as the list slides.** Each digit is 36px tall, the same as a row, with the same 450ms and easing. So the last digit moves up in step with the list, like it's riding on it, while the first two hold still.
+- **009 → 010 rolls forward, not back.** A plain 0–9 strip would rewind 9 → 0 all the way back down. The ones strip holds a digit for every number in the list instead, so it always moves the same way the list does.
+- **The rows' numbers are hidden, not gone.** They still hold the 23px box that keeps the names lined up, and screen readers still read them. The counter is marked as decoration.
 - **Hover focus only moves type, not rows.** Every row keeps its 36px, so nothing slides out from under the mouse while you aim at it.
 - **The row under the mouse doesn't shrink.** It stays at 12px while the rest drop to 10.5px, so what you're aiming at holds still. The selected row still gets the weight, so you always see both where you are and where you're pointing.
 - **It grabs fast and lets go slow.** 220ms in, 450ms out: the same split as the keycaps, out fast and back slow.
@@ -106,7 +111,10 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - Under reduced motion, hover focus snaps instead of easing. It still happens, because it's a size change, not a movement.
 - `--nav-number-width` is measured for Inter. On a Mac the numbers use San Francisco, which hasn't been checked; a number wider than 23px would still jiggle a little.
 - Safari can't set an SVG path's shape from CSS, so the pointer stays sharp there and never morphs.
-- The selected name is bigger and heavier, so it grows to the right as it's selected, and the name shifts right a little as its number widens.
+- The selected name is bigger and heavier, so it grows to the right as it's selected.
+- The counter assumes every number has the same number of digits as `000`. A four-digit number would lose its first digit.
+- Clicking a row three away rolls the last digit through three numbers in the same 450ms, so it blurs past them. That's the same as the list, which also slides three rows, but nothing has been tuned for it.
+- The counter doesn't shrink with the other rows on hover; it only gets heavier, like the selected name.
 
 ## Shared: the toolbar
 
@@ -422,6 +430,8 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--title-slide-duration: 1500ms`, then move the mouse out of the window and straight back in. The circle is back at the mouse long before the title has finished making room. That's why the slide is about as long as the spring's trip.
 - Set `--pointer-sharpen-duration: 120ms` and step through the list. The point stops growing and just appears, which is what the first version looked like. Then try `--pointer-blunt-hold: 600ms`: it waits so long that it feels like it's lagging behind the list instead of following it.
 - Set `--nav-focus-size: 7px` and hover the list. The rows turn to crumbs and the shrink stops being a nudge and becomes the whole event. Then set it to `12px`: only the weight is left, and you'll see how much of the effect was the shrink. Keep `7px` and set `--nav-number-width: 0px`, then sweep the mouse down the rows: every name wiggles sideways, which is why that box is there.
+- Set `--nav-number-opacity: 0.3` and step through the list. Every row has its number back, faintly, and the counter becomes one number among many. Then put it back to `0` and set `--nav-counter-duration: 1200ms`: the list lands and the last digit is still rolling, so it stops looking like it rides on the list and reads as its own thing.
+- Set `--nav-counter-fade: 0px` and step. The digits get sliced by a hard edge as they roll, like a cheap clock. Then `18px`: half the row is fading and the number never looks fully solid.
 - Set `--nav-in-stagger: 300ms` and reload. Each row waits for the last one to land, and it turns into a slow queue. Then try `0ms`: the whole list moves as one block.
 - Keep `--nav-in-stagger: 300ms`, then open `#005` and the front page one after the other. Slowed down you can see the wave run up the list from 005 and down it from 000: it always starts on the row you arrived on.
 - Set `--github-duration: 3000ms` and hover the GitHub cat. You can watch every beat of the jump: the squash, the stretch, the push-off, the head poking out. Then leave halfway and watch it turn around.

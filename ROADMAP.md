@@ -65,8 +65,11 @@ left peeks it open on hover and keeps it open on click; C still works. The
 sliders were redrawn in Apple's style: thin track, white handle that swells
 when held.
 
-**Next:** not picked yet. Counter-style numbering is the suggestion, now that
-hover focus is in.
+**Done 2026-11-08:** counter-style numbering. Only the selected row shows a
+number, and it's one counter whose digits roll like an odometer as you step.
+
+**Next:** not picked yet. The quickest one is the readout saying "next" at the
+end of the list, where nothing is next.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -248,8 +251,13 @@ the same — plain is probably right for it.
 
 ## Left list — ideas
 
-- [ ] **Counter-style numbering.** Only the selected item shows its number, like a
+- [x] **Counter-style numbering.** Only the selected item shows its number, like a
       counter, instead of every row having one.
+  - Built: `site/nav.js` + `nav.css`. Docs in README.md, "the list".
+  - Decided: one counter on the middle row, not a number per row fading in and
+    out. Its digits roll like an odometer, and only the ones that change move.
+  - Decided: a digit rolls the same 36px and 450ms as the list, so the last digit
+    rides along with the list.
 - [x] **Hover focus.** Hovering the list shrinks the other items and the selected one
       smoothly gets heavier. That needs a font whose weight can animate. Inter now
       loads as a variable font (300–700), so this is ready.

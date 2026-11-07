@@ -46,6 +46,41 @@ export function createNav(experiments, onSelect) {
   });
 
   nav.append(list);
+
+  // ---------- the counter ----------
+
+  // Only the selected row shows a number, and it isn't the row's own: it's
+  // this one counter, parked on the middle row, rolling like an odometer as
+  // you step. Each digit is a strip of digits stacked top to bottom, with
+  // only one showing (nav.css slides the strip). A digit that doesn't change
+  // doesn't move, so 004 → 005 only rolls the last one.
+  //
+  // The weird bit: the ones strip isn't 0–9 once. It holds one digit for
+  // every number in the list: 0 1 2 … 9 0 1 2 … The tens strip holds one
+  // for every ten, and so on. Where a strip sits is "how many ones (or tens,
+  // or hundreds) are in this number", which only ever goes up as the number
+  // does. So 009 → 010 rolls the ones forward onto the next 0, instead of
+  // rewinding all the way back down from 9.
+  const counter = document.createElement("div");
+  counter.className = "nav-counter";
+  counter.setAttribute("aria-hidden", "true"); // the rows' own numbers are still there for screen readers
+
+  const values = experiments.map((experiment) => parseInt(experiment.number, 10));
+  const highest = Math.max(...values);
+  const length = experiments[0].number.length;                      // 3, for "000"
+  const places = Array.from({ length }, (_, d) => 10 ** (length - 1 - d)); // [100, 10, 1]
+
+  const strips = places.map((place) => {
+    const strip = document.createElement("span");
+    strip.className = "nav-counter-digit";
+    for (let k = 0; k <= Math.floor(highest / place); k++) {
+      strip.insertAdjacentHTML("beforeend", `<span>${k % 10}</span>`);
+    }
+    counter.append(strip);
+    return { strip, place };
+  });
+
+  nav.append(counter); // after the list: nav.css's hover focus finds it with "ol:hover +"
   document.body.append(nav);
 
   // The pointer on the screen's left edge, aimed at the middle row. Outside
@@ -94,6 +129,11 @@ export function createNav(experiments, onSelect) {
 
     // The list slides so this row is in the middle (CSS does the sliding).
     nav.style.setProperty("--selected", index);
+
+    // The counter rolls to this row's number (CSS does the rolling).
+    strips.forEach(({ strip, place }) => {
+      strip.style.setProperty("--at", Math.floor(values[index] / place));
+    });
 
     items.forEach((item, i) => {
       const isSelected = i === index;
