@@ -4,7 +4,7 @@
    ============================================================ */
 :root {
   /* --- where they sit, and how big --- */
-  --hints-left: 24px;              /* distance from the left edge. Same as the title's from the top left */
+  --hints-left: 56px;              /* distance from the left edge. The cursor tuning circle has the corner, so the caps sit right of it: its 16 + 28 + a 12px gap */
   --hints-bottom: 24px;            /* distance from the bottom edge. Same as the corner links on the other side */
   --hints-key-size: 20px;          /* each cap: a rounded square this wide and tall */
   --hints-key-gap: 4px;            /* space between the two caps */

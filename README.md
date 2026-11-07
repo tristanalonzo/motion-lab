@@ -369,7 +369,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 
 ## Shared: the cursor tuning panel
 
-`site/tuning.js` + `site/tuning.css` — a panel for tuning the cursor by feel, behind a little circle in the bottom left, just above the keycaps. Hover the circle and the panel peeks open; it closes a moment after the mouse leaves both. Click the circle and it stays open until you click again. **C** works like a click, and Escape closes it. Two sliders, follow delay and overshoot, change the cursor's spring live, and the about panel's drag with it. Under them are the two lines to copy into `cursor.css` once it feels right.
+`site/tuning.js` + `site/tuning.css` — a panel for tuning the cursor by feel, behind a little circle in the bottom left corner, with the keycaps beside it. Hover the circle and the panel peeks open; it closes a moment after the mouse leaves both. Click the circle and it stays open until you click again. **C** works like a click, and Escape closes it. Two sliders, follow delay and overshoot, change the cursor's spring live, and the about panel's drag with it. Under them are the two lines to copy into `cursor.css` once it feels right.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
@@ -388,7 +388,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **Nothing is saved.** A slider only changes the page you're on, and a reload puts `cursor.css` back in charge. The CSS stays the one place that decides the feel.
 - **Hover to peek, click to keep.** A peek is for a quick try. Pinning is for the real test: open the about panel and fling it while you tune, with the mouse nowhere near the panel.
 - **The 300ms wait before a peek closes.** There's an 8px gap between the circle and the panel, and the wait is what lets the mouse cross it. It also forgives a slip off the edge. Dragging a slider holds the panel open even if the mouse wanders off mid-drag; letting go outside starts the wait.
-- **Bottom left, over the ↑ key.** The keycaps already make that corner the "how the site works" corner. The circle is the same light grey, so it sits back until you go looking.
+- **The very corner, with the keycaps beside it.** The keycaps already make the bottom left the "how the site works" corner, so the circle joins their row instead of floating above it. The caps moved right to make room. The circle is the same light grey, so it sits back until you go looking.
 - **It grows out of the circle.** The panel scales from its bottom left corner, the one nearest the circle, so it reads as coming from there. Apple's popovers do the same.
 - **Apple-style sliders.** A thin 4px track and a white circle handle with a hairline edge and a soft shadow, so it sits on the track instead of in it. The browser's own slider was thrown away (`appearance: none`) and redrawn, so Firefox and Chrome now look the same.
 - **Near-black fill, not iOS blue.** Nothing else on the site is blue. `--tuning-fill: #007AFF` gives the iOS look if you want to compare.

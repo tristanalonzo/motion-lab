@@ -11,8 +11,8 @@
 
   /* --- the circle in the bottom left --- */
   --tuning-trigger-size: 28px;     /* icon-only, so a circle (AGENTS.md) */
-  --tuning-trigger-left: 20px;     /* distance from the left edge. 20 puts its middle right over the ↑ keycap */
-  --tuning-trigger-bottom: 58px;   /* distance from the bottom edge: just clear of the keycaps */
+  --tuning-trigger-left: 16px;     /* distance from the left edge. 16 lines the icon's lines up with the title (24px in), since the icon sits inside the circle */
+  --tuning-trigger-bottom: 21px;   /* distance from the bottom edge. 21 puts its middle level with the keycaps' middle, so they read as one row */
   --tuning-trigger-color: #A1A1A6; /* light grey, like the keycaps and the corner links: it sits back until you want it */
   --tuning-trigger-color-on: #1D1D1F; /* hovered or open: near-black */
   --tuning-trigger-bg-on: #F0F0F2; /* the grey circle behind it while hovered or open. Same as the toolbar's */
