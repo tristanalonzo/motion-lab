@@ -49,9 +49,11 @@ spring is its own file now, `site/spring.js`.
 **Done 2026-11-07:** hover focus. With the mouse on the list's rows, the others
 shrink and the selected one gets heavier. All in nav.css.
 
-**Next:** not picked yet. Swiping on phones is broken (README.md, the list's
-rough edges) and is a one-line fix. "A word beside the key" needs its words
-chosen first.
+**Fixed 2026-11-07:** swiping on phones. Every swipe was throwing an error and
+the list didn't move, because a variable in nav.js had the same name as the
+`step()` function it needed to call.
+
+**Next:** not picked yet. "A word beside the key" needs its words chosen first.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.

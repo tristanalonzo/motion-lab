@@ -105,7 +105,6 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - Hover focus is mouse only. Tabbing to the list with the keyboard doesn't trigger it.
 - Under reduced motion, hover focus snaps instead of easing. It still happens, because it's a size change, not a movement.
 - `--nav-number-width` is measured for Inter. On a Mac the numbers use San Francisco, which hasn't been checked; a number wider than 23px would still jiggle a little.
-- **Swiping on phones is broken.** In `nav.js`, the `touchmove` handler has a variable called `step` that hides the `step()` function, so the first swipe throws `TypeError: step is not a function` and the list doesn't move. Found 2026-11-07 with a simulated drag in Firefox.
 - Safari can't set an SVG path's shape from CSS, so the pointer stays sharp there and never morphs.
 - The selected name is bigger and heavier, so it grows to the right as it's selected, and the name shifts right a little as its number widens.
 

@@ -194,12 +194,12 @@ export function createNav(experiments, onSelect) {
     }
     e.preventDefault();            // the page doesn't scroll or bounce; the list steps instead
 
-    const step = readSetting("--nav-swipe-step");
+    const swipeStep = readSetting("--nav-swipe-step");
     const travelled = touchY - e.touches[0].clientY; // positive = finger moved up
-    if (Math.abs(travelled) < step) return;
+    if (Math.abs(travelled) < swipeStep) return;
     step(Math.sign(travelled), "touch");
     // Keep the rest of the drag, so one long swipe steps evenly through several items.
-    touchY -= Math.sign(travelled) * step;
+    touchY -= Math.sign(travelled) * swipeStep;
   }, { passive: false });
 
 
