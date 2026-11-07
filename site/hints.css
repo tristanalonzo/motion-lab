@@ -4,12 +4,12 @@
    ============================================================ */
 :root {
   /* --- where they sit, and how big --- */
-  --hints-left: 56px;              /* distance from the left edge. The cursor tuning circle has the corner, so the caps sit right of it: its 16 + 28 + a 12px gap */
+  --hints-left: 62px;              /* distance from the left edge. The cursor tuning circle has the corner, so the caps sit right of it: its 14 + 36 + a 12px gap */
   --hints-bottom: 24px;            /* distance from the bottom edge. Same as the corner links on the other side */
-  --hints-key-size: 20px;          /* each cap: a rounded square this wide and tall */
+  --hints-key-size: 24px;          /* each cap: a rounded square this wide and tall. 24 matches the corner links in the bottom right */
   --hints-key-gap: 4px;            /* space between the two caps */
-  --hints-key-radius: 6px;         /* their corners. A key, not a button, so not a circle or a pill (AGENTS.md) */
-  --hints-key-arrow: 11px;         /* the ↑ and ↓ drawn inside them */
+  --hints-key-radius: 7px;         /* their corners. A key, not a button, so not a circle or a pill (AGENTS.md) */
+  --hints-key-arrow: 13px;         /* the ↑ and ↓ drawn inside them */
 
   /* --- resting --- */
   --hints-color: #A1A1A6;          /* the arrows: the same light grey as the corner links, so the corner sits back */
@@ -31,7 +31,7 @@
   --hints-press-out-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* the 1.3 lets it pop a touch past, then settle */
 
   /* --- the word that slides out beside the caps --- */
-  --hints-word-size: 11px;         /* same as the arrows inside the caps */
+  --hints-word-size: 13px;         /* same as the arrows inside the caps */
   --hints-word-color: #6E6E73;     /* Apple's darker secondary grey. Lighter than this gets hard to read this small */
   --hints-word-gap: 8px;           /* space between the ↓ cap and the word */
   --hints-word-hold: 600ms;        /* how long it stays after the last step. Much longer than the cap's 110ms, because a word has to be read */

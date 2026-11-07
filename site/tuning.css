@@ -10,14 +10,15 @@
   --tuning-overshoot-max: 40;      /* overshoot, in %. Past this it's jelly */
 
   /* --- the circle in the bottom left --- */
-  --tuning-trigger-size: 28px;     /* icon-only, so a circle (AGENTS.md) */
-  --tuning-trigger-left: 16px;     /* distance from the left edge. 16 lines the icon's lines up with the title (24px in), since the icon sits inside the circle */
-  --tuning-trigger-bottom: 21px;   /* distance from the bottom edge. 21 puts its middle level with the keycaps' middle, so they read as one row */
+  --tuning-trigger-size: 36px;     /* icon-only, so a circle (AGENTS.md). Only shows as a grey circle while hovered or open */
+  --tuning-trigger-icon: 24px;     /* the icon inside. 24 matches the corner links in the bottom right */
+  --tuning-trigger-left: 14px;     /* distance from the left edge. 14 lines the icon's lines up with the title (24px in), since the icon sits inside the circle */
+  --tuning-trigger-bottom: 18px;   /* distance from the bottom edge. 18 puts its middle level with the keycaps' and the corner links' (36px up), so the whole bottom edge reads as one line */
   --tuning-trigger-color: #A1A1A6; /* light grey, like the keycaps and the corner links: it sits back until you want it */
   --tuning-trigger-color-on: #1D1D1F; /* hovered or open: near-black */
   --tuning-trigger-bg-on: #F0F0F2; /* the grey circle behind it while hovered or open. Same as the toolbar's */
   --tuning-trigger-bg-pinned: #E3E3E8; /* a step darker while it's been clicked to stay open */
-  --tuning-knob-slide: 4px;        /* how far the two little knobs slide on hover, in the icon's units (24 across = 16px, so 4 ≈ 2.7px) */
+  --tuning-knob-slide: 4px;        /* how far the two little knobs slide on hover, in the icon's units (24 across = 24px, so 4 = 4px) */
   --tuning-knob-slide-duration: 300ms;
   --tuning-knob-slide-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* pops a touch past, settles. Same curve as the toolbar's buttons */
   --tuning-press-scale: 0.9;       /* squashes while clicked */
@@ -108,11 +109,11 @@
 }
 
 .tuning-trigger svg {
-  width: 16px;
-  height: 16px;
+  width: var(--tuning-trigger-icon);
+  height: var(--tuning-trigger-icon);
   overflow: visible;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 2.25;              /* the same line thickness as the corner links */
   stroke-linecap: round;
 }
 
