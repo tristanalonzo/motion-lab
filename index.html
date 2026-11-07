@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="site/about.css">
   <link rel="stylesheet" href="site/socials.css">
   <link rel="stylesheet" href="site/hints.css">
+  <link rel="stylesheet" href="site/tuning.css">
   <link rel="stylesheet" href="site/cursor.css">
 </head>
 <body>
@@ -208,6 +209,27 @@
     </div>
   </div>
   <p class="hints-sr">Press the up and down arrow keys, or scroll, to move through the experiments.</p>
+
+  <!-- Hidden: press C to open it, and nothing on the page says so. Tunes the
+       cursor's spring by feel (site/tuning.js). step="any" lets a slider land
+       anywhere, so it can sit exactly where cursor.css's numbers put it. -->
+  <section class="tuning" data-state="closed" aria-label="cursor tuning">
+    <label class="tuning-row">
+      <span>follow delay</span>
+      <output class="tuning-value tuning-delay-value"></output>
+      <input class="tuning-slider tuning-delay" type="range" step="any">
+    </label>
+    <label class="tuning-row">
+      <span>overshoot</span>
+      <output class="tuning-value tuning-overshoot-value"></output>
+      <input class="tuning-slider tuning-overshoot" type="range" step="any">
+    </label>
+    <div class="tuning-foot">
+      <!-- The two lines to copy into cursor.css once it feels right. -->
+      <pre class="tuning-numbers"></pre>
+      <button class="tuning-reset" type="button" disabled>reset</button>
+    </div>
+  </section>
 
   <!-- The site-wide cursor. aria-hidden: screen readers skip it, it's decoration.
        The shape is set in site/cursor.css. The d="" here is a plain circle,

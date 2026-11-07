@@ -1,0 +1,148 @@
+/* ============================================================
+   TUNE HERE. The hidden cursor tuning panel. Press C to open it.
+   ============================================================ */
+:root {
+  /* --- how far the sliders reach --- */
+  --tuning-delay-min: 20;          /* follow delay, in ms. Much lower and the circle is simply stuck to the mouse */
+  --tuning-delay-max: 150;         /* follow delay, in ms. Past this it stops following and starts arriving late */
+  --tuning-overshoot-min: 0;       /* overshoot, in %. 0 = never swings past */
+  --tuning-overshoot-max: 40;      /* overshoot, in %. Past this it's jelly */
+
+  /* --- the window --- */
+  --tuning-width: 300px;           /* never wider than the screen, see .tuning */
+  --tuning-top: 24px;              /* distance from the top. Top middle is the one spot the about panel doesn't open over */
+  --tuning-radius: 14px;           /* a window, not a button: the pill rule doesn't apply */
+  --tuning-padding: 16px;          /* space between the window's edge and what's inside */
+  --tuning-gap: 14px;              /* space between the rows */
+  --tuning-bg: #FFFFFF;            /* plain, not glass: glass barely shows on this flat page */
+  --tuning-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.14); /* same as the about panel */
+  --tuning-text-size: 12px;        /* the labels and the values */
+  --tuning-numbers-size: 11px;     /* the two lines to copy into cursor.css */
+  --tuning-color: #1D1D1F;         /* Apple's near-black: labels, and the sliders' filled part */
+  --tuning-color-quiet: #6E6E73;   /* the values and the two lines */
+  --tuning-reset-bg: #EBEBEF;      /* the reset button, resting */
+  --tuning-reset-bg-hover: #DCDCE1; /* the reset button, hovered */
+
+  /* --- opening and closing --- */
+  --tuning-rise: 8px;              /* it drops this far into place as it opens */
+  --tuning-in: 180ms;              /* opening */
+  --tuning-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, soft landing, like the list */
+  --tuning-out: 120ms;             /* closing: quicker, it's just getting out of the way */
+}
+
+/* ============================================================
+   Wiring.
+   ============================================================ */
+
+/* left: 50% puts its left edge on the middle of the screen, and the -50% in
+   the transform pulls it back by half its own width, which centers it.
+   z-index 11 is one above the about panel, so both can be open at once while
+   you drag that panel around to feel the spring. */
+.tuning {
+  position: fixed;
+  top: var(--tuning-top);
+  left: 50%;
+  z-index: 11;
+  display: grid;
+  gap: var(--tuning-gap);
+  box-sizing: border-box;
+  width: min(var(--tuning-width), calc(100vw - 32px));
+  padding: var(--tuning-padding);
+  border-radius: var(--tuning-radius);
+  background: var(--tuning-bg);
+  box-shadow: var(--tuning-shadow);
+  font-size: var(--tuning-text-size);
+  color: var(--tuning-color);
+  transform: translate(-50%, 0);
+  transition:
+    opacity var(--tuning-in) var(--tuning-in-ease),
+    transform var(--tuning-in) var(--tuning-in-ease);
+}
+
+/* Shut. visibility: hidden puts it out of reach of the mouse and the Tab key,
+   but only once the fade is over, which is what the delay at the end is for. */
+.tuning[data-state="closed"] {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, calc(var(--tuning-rise) * -1));
+  transition:
+    opacity var(--tuning-out) ease,
+    transform var(--tuning-out) ease,
+    visibility 0s var(--tuning-out);
+}
+
+/* One slider: the name on the left and its value on the right, then the
+   slider across the whole row underneath. */
+.tuning-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 6px;
+}
+
+.tuning-value {
+  color: var(--tuning-color-quiet);
+  font-variant-numeric: tabular-nums; /* every digit the same width, so it doesn't jitter as you drag */
+}
+
+.tuning-slider {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 0;
+  accent-color: var(--tuning-color);
+}
+
+.tuning-slider:focus-visible,
+.tuning-reset:focus-visible {
+  outline: 2px solid var(--tuning-color);
+  outline-offset: 3px;
+}
+
+.tuning-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tuning-numbers {
+  margin: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: var(--tuning-numbers-size);
+  line-height: 1.5;
+  color: var(--tuning-color-quiet);
+}
+
+.tuning-reset {
+  flex: none;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tuning-reset-bg);
+  color: var(--tuning-color);
+  font: inherit;
+  transition:
+    background-color var(--tuning-in) ease,
+    opacity var(--tuning-in) ease;
+}
+
+.tuning-reset:hover {
+  background: var(--tuning-reset-bg-hover);
+}
+
+/* Greyed out: the numbers are still the ones in cursor.css. */
+.tuning-reset:disabled {
+  background: var(--tuning-reset-bg);
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuning,
+  .tuning[data-state="closed"],
+  .tuning-reset {
+    transition: none;
+  }
+
+  .tuning[data-state="closed"] {
+    transform: translate(-50%, 0);
+  }
+}

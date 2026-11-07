@@ -13,10 +13,12 @@ import { updateToolbar } from "./toolbar.js";
 import { updateAbout } from "./about.js";
 import { startSocials } from "./socials.js";
 import { startHints } from "./hints.js";
+import { startTuning } from "./tuning.js";
 
 startCursor();
 startSocials();
 startHints();
+startTuning();
 
 
 // ---------- the address bar ----------

@@ -56,8 +56,12 @@ the list didn't move, because a variable in nav.js had the same name as the
 **Done 2026-11-07:** a word beside the key. Step through the list and "next",
 "previous" or "scroll" slides out from behind the caps, then goes back.
 
-**Next:** not picked yet. Cursor feel sliders still need deciding where they
-live; a hidden panel just for tuning is the suggestion.
+**Done 2026-11-07:** cursor feel sliders. Press C for a hidden panel that tunes
+the spring by follow delay and overshoot, and shows the two lines to copy into
+cursor.css.
+
+**Next:** not picked yet. Counter-style numbering is the suggestion, now that
+hover focus is in.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -250,7 +254,7 @@ the same — plain is probably right for it.
 
 ## Cursor — ideas
 
-- [ ] **Cursor feel sliders.** Two sliders that change the site cursor live:
+- [x] **Cursor feel sliders.** Two sliders that change the site cursor live:
       **follow delay** (how far behind the mouse it trails) and **overshoot** (how
       far it swings past when you stop).
   - Note: the spring doesn't have those two knobs directly. It has stiffness and
@@ -258,8 +262,11 @@ the same — plain is probably right for it.
     roughly damping ÷ stiffness, and overshoot comes from how low damping is for
     that stiffness. The sliders would speak delay and overshoot and work out the
     two spring numbers behind the scenes.
-  - Open: where the sliders live. A hidden tuning panel only you open, or a
-    visible spot visitors can play with.
+  - Decided: a hidden panel, opened with the C key. Visitors aren't told about it.
+    If it turns out to be fun, it can become public later.
+  - Decided: nothing saves. Copy the two lines it shows into cursor.css to keep them.
+  - Built: `site/tuning.js` + `tuning.css`, with the panel in `index.html`. Docs in
+    README.md, "the cursor tuning panel".
 
 ## Everywhere — later
 

@@ -1,0 +1,158 @@
+// A hidden panel for tuning the cursor by feel. Press C to open or close it;
+// Escape closes it too. Nothing on the page points to it.
+//
+// The spring has two numbers, stiffness and damping, and neither says what you
+// actually feel. These sliders speak in follow delay and overshoot instead, and
+// work out the two spring numbers behind the scenes.
+//
+// Nothing is saved. A slider only changes the page you're on, and a reload puts
+// cursor.css back in charge. When something feels right, copy the two lines the
+// panel shows into cursor.css. spring.js reads its numbers every frame, so a
+// change here is felt at once, on the cursor and on the about panel's drag.
+//
+// data-state on the panel is the one source of truth: "open" or "closed".
+
+const panel = document.querySelector(".tuning");
+const delaySlider = panel.querySelector(".tuning-delay");
+const overshootSlider = panel.querySelector(".tuning-overshoot");
+const delayValue = panel.querySelector(".tuning-delay-value");
+const overshootValue = panel.querySelector(".tuning-overshoot-value");
+const numbers = panel.querySelector(".tuning-numbers");
+const resetButton = panel.querySelector(".tuning-reset");
+
+const page = document.documentElement;
+
+function readSetting(name) {
+  return parseFloat(getComputedStyle(page).getPropertyValue(name));
+}
+
+
+// ---------- the maths: feelings <-> spring numbers ----------
+
+// Both directions go through one in-between number, the "damping ratio". It
+// says how much the spring is held back: 1 means it arrives without ever
+// swinging past, and the lower it goes, the more it swings. Spring maths
+// usually calls it zeta. These are the standard formulas for a spring.
+
+// From the spring numbers to what you feel.
+//   delay:     how far behind the mouse it trails while the mouse moves steadily
+//   overshoot: how far past it swings after the mouse jumps, as a share of the jump
+function feelFromSpring(stiffness, damping) {
+  const ratio = damping / (2 * Math.sqrt(stiffness));
+  return {
+    delay: (damping / stiffness) * 1000, // seconds to ms
+    overshoot: ratio >= 1 ? 0 : Math.exp((-Math.PI * ratio) / Math.sqrt(1 - ratio * ratio)) * 100,
+  };
+}
+
+// The same two formulas, solved the other way round.
+function springFromFeel(delay, overshoot) {
+  const seconds = delay / 1000;
+  const swing = Math.log(overshoot / 100);
+  const ratio = overshoot <= 0 ? 1 : -swing / Math.sqrt(Math.PI * Math.PI + swing * swing);
+  const stiffness = ((2 * ratio) / seconds) ** 2;
+  return { stiffness, damping: seconds * stiffness };
+}
+
+
+// ---------- the sliders ----------
+
+// Write the sliders' feeling into the two numbers spring.js reads. Rounded here,
+// so the numbers the panel shows are exactly the ones in use.
+function applySliders() {
+  const spring = springFromFeel(Number(delaySlider.value), Number(overshootSlider.value));
+  page.style.setProperty("--cursor-stiffness", Math.round(spring.stiffness));
+  page.style.setProperty("--cursor-damping", Math.round(spring.damping * 10) / 10);
+  showNumbers();
+}
+
+// Show whichever numbers are in use right now.
+function showNumbers() {
+  const stiffness = readSetting("--cursor-stiffness");
+  const damping = readSetting("--cursor-damping");
+  const feel = feelFromSpring(stiffness, damping);
+
+  delayValue.textContent = `${Math.round(feel.delay)} ms`;
+  overshootValue.textContent = `${Math.round(feel.overshoot)}%`;
+  numbers.textContent = `--cursor-stiffness: ${stiffness};\n--cursor-damping: ${damping};`;
+
+  // A value set on the page itself means a slider has been moved.
+  resetButton.disabled = page.style.getPropertyValue("--cursor-stiffness") === "";
+}
+
+// Put the slider handles where the numbers in use say they should be.
+function placeSliders() {
+  const feel = feelFromSpring(readSetting("--cursor-stiffness"), readSetting("--cursor-damping"));
+  delaySlider.value = feel.delay;
+  overshootSlider.value = feel.overshoot;
+}
+
+// Taking the page's own values away leaves cursor.css in charge again.
+function reset() {
+  page.style.removeProperty("--cursor-stiffness");
+  page.style.removeProperty("--cursor-damping");
+  placeSliders();
+  showNumbers();
+
+  // The button just turned itself off, and a disabled button can't hold the
+  // keyboard, so hand it to a slider instead of losing it.
+  delaySlider.focus();
+}
+
+
+// ---------- opening and closing ----------
+
+function open() {
+  panel.dataset.state = "open";
+  delaySlider.focus(); // the arrow keys move the slider straight away
+}
+
+function close() {
+  panel.dataset.state = "closed";
+  // Let go of the keyboard, so the arrow keys go back to the list.
+  if (panel.contains(document.activeElement)) document.activeElement.blur();
+}
+
+// composedPath()[0] is the element that really has focus, even inside an
+// experiment's sealed box. A slider doesn't count as typing, or C couldn't
+// close the panel while one of its own sliders has the keyboard.
+function isTypingIn(e) {
+  const target = e.composedPath()[0];
+  return target instanceof Element &&
+    target.closest("input:not([type='range']), textarea, select, [contenteditable]") !== null;
+}
+
+function onKey(e) {
+  if (e.defaultPrevented || e.repeat) return; // an experiment used it, or the key is being held
+
+  if (e.key === "Escape") {
+    close();
+    return;
+  }
+
+  // The modifier check matters: Ctrl+C is copy, not "open the panel".
+  if (e.key.toLowerCase() !== "c" || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isTypingIn(e)) return;
+
+  if (panel.dataset.state === "open") close();
+  else open();
+}
+
+
+// ---------- starting ----------
+
+export function startTuning() {
+  // The sliders' reach comes from tuning.css, like every other tunable.
+  delaySlider.min = readSetting("--tuning-delay-min");
+  delaySlider.max = readSetting("--tuning-delay-max");
+  overshootSlider.min = readSetting("--tuning-overshoot-min");
+  overshootSlider.max = readSetting("--tuning-overshoot-max");
+
+  delaySlider.addEventListener("input", applySliders);
+  overshootSlider.addEventListener("input", applySliders);
+  resetButton.addEventListener("click", reset);
+  window.addEventListener("keydown", onKey);
+
+  placeSliders();
+  showNumbers();
+}
