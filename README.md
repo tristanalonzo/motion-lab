@@ -369,12 +369,16 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 
 ## Shared: the cursor tuning panel
 
-`site/tuning.js` + `site/tuning.css` — a hidden panel for tuning the cursor by feel. Press **C** to open or close it; Escape closes it too. Two sliders, follow delay and overshoot, change the cursor's spring live, and the about panel's drag with it. Under them are the two lines to copy into `cursor.css` once it feels right. Nothing on the page points to it.
+`site/tuning.js` + `site/tuning.css` — a panel for tuning the cursor by feel, behind a little circle in the bottom left, just above the keycaps. Hover the circle and the panel peeks open; it closes a moment after the mouse leaves both. Click the circle and it stays open until you click again. **C** works like a click, and Escape closes it. Two sliders, follow delay and overshoot, change the cursor's spring live, and the about panel's drag with it. Under them are the two lines to copy into `cursor.css` once it feels right.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
-| closed | open | 180ms | `cubic-bezier(0.22, 1, 0.36, 1)` | fades in and drops 8px into place at the top middle |
-| open | closed | 120ms | `ease` | fades out and rises 8px |
+| closed | peek (hover the circle) | 220ms | `cubic-bezier(0.3, 1.2, 0.5, 1)` | grows out of the circle from 94% size and fades in, a hint past full size |
+| closed / peek | pinned (click or C) | same | same | the circle's grey gets a step darker |
+| peek | closed (mouse left) | waits 300ms, then 140ms | `ease` | shrinks back toward the circle and fades out |
+| pinned | closed (click, C or Escape) | 140ms | `ease` | the same, with no wait |
+| circle resting | hovered or open | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the two little knobs in the icon slide toward each other's ends, and it darkens on a grey circle |
+| slider handle resting | held | 250ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the white handle swells to 1.2×, a touch past, then settles |
 | slider moved | new spring numbers | instant | — | the spring reads them on its next frame, so the very next mouse move feels different |
 
 **Decisions**
@@ -382,27 +386,33 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **Moving one slider leaves the other feeling alone.** Moving delay changes both spring numbers, but overshoot stays where it is. Measured: overshoot read 31% and swung 30.6%, then stayed at 31.5% after delay moved from 53ms to 126ms.
 - **Overshoot is a percentage of the jump, not pixels.** How many pixels it swings depends on how far and fast the mouse went, so no single pixel number would be true.
 - **Nothing is saved.** A slider only changes the page you're on, and a reload puts `cursor.css` back in charge. The CSS stays the one place that decides the feel.
-- **Hidden behind a key.** It's a tool for tuning, not part of the site. If it turns out to be fun, it can become public later.
+- **Hover to peek, click to keep.** A peek is for a quick try. Pinning is for the real test: open the about panel and fling it while you tune, with the mouse nowhere near the panel.
+- **The 300ms wait before a peek closes.** There's an 8px gap between the circle and the panel, and the wait is what lets the mouse cross it. It also forgives a slip off the edge. Dragging a slider holds the panel open even if the mouse wanders off mid-drag; letting go outside starts the wait.
+- **Bottom left, over the ↑ key.** The keycaps already make that corner the "how the site works" corner. The circle is the same light grey, so it sits back until you go looking.
+- **It grows out of the circle.** The panel scales from its bottom left corner, the one nearest the circle, so it reads as coming from there. Apple's popovers do the same.
+- **Apple-style sliders.** A thin 4px track and a white circle handle with a hairline edge and a soft shadow, so it sits on the track instead of in it. The browser's own slider was thrown away (`appearance: none`) and redrawn, so Firefox and Chrome now look the same.
+- **Near-black fill, not iOS blue.** Nothing else on the site is blue. `--tuning-fill: #007AFF` gives the iOS look if you want to compare.
 - **C, and not Ctrl+C.** The modifier check keeps copy working. It also leaves C alone while you're typing in a text box, or if an experiment claims the key.
-- **Top middle.** It's the one spot the about panel doesn't open over, so you can have both open and drag the window while you tune.
-- **It takes the keyboard when it opens.** The arrow keys move the slider instead of stepping the list. Closing it hands them back.
+- **Opened from the keyboard, it takes the keyboard.** C, or Enter on the circle, puts the arrow keys on the first slider instead of the list. A mouse click leaves the keyboard where it was. Closing hands it back.
+- **Under 900px wide the circle goes.** The list's strip takes the bottom of the screen there, and a phone has no cursor to tune. C still opens the panel, at the top middle.
 - **Plain, not glass.** Glass barely shows on this flat page, and the numbers have to be easy to read.
 
 **Rough edges**
 - The readouts are close, not exact. Measured against the real cursor: 33ms for a 30ms slider, 57ms for 53ms, 105ms for 100ms, and 91ms for 100ms at 20% overshoot. Overshoot came in up to about 1 point lower than it says at low values: 5.6% for 7%.
 - The sliders only reach 20–150ms and 0–40%. If `cursor.css` holds numbers outside that, the readout is right but the handle sits at the end of its track, and touching it jumps to what the handle shows.
 - At 0% it can't reach "slower than necessary": a damping so high it's sluggish with no swing, which `cursor.css` can still be set to by hand.
-- The sliders are the browser's own. The handle is a greyish colour in Firefox, not the near-black the rest of the panel uses.
+- Open, the panel covers the faded bottom rows of the list. The row in the middle stays clear.
 - Under reduced motion the sliders appear to do nothing, because the spring is off and the cursor sticks to the mouse.
 - A wheel scroll over the panel still steps the list.
-- At 600px wide it sits right up against the site title. In a narrower window it would cover the end of it.
-- A phone has no C key, so there's no way to open it there. Nothing on a phone would respond anyway: no cursor.
+- Enter and Space on the circle weren't tested with real key presses: the headless Firefox used for testing doesn't turn them into clicks on any button, the toolbar's included. The code path they take was tested directly.
+- Only Firefox was tested. The Chrome half of the slider styling (`-webkit-`) is written but unchecked.
 - `lab.setCursor("native")` doesn't work: the system cursor can only be brought back with the `data-cursor="native"` attribute.
 - The hand outline was generated by a script. Changing it by hand means keeping all 13 curves in the same order.
 
 ## Break it on purpose
 
-- Press C and drag overshoot to the top while delay sits around 100ms. Then flick the mouse and fling the about panel by its title bar. Both wobble together. Then drag overshoot to 0 and delay to the bottom: the circle is nearly stuck to the mouse and stops feeling like it has any weight.
+- Click the circle in the bottom left so the panel stays open, and drag overshoot to the top while delay sits around 100ms. Then flick the mouse and fling the about panel by its title bar. Both wobble together. Then drag overshoot to 0 and delay to the bottom: the circle is nearly stuck to the mouse and stops feeling like it has any weight.
+- Set `--tuning-hover-grace: 0` and try to get from the circle up into the panel. It snaps shut in the gap every time. That's what the wait is for.
 - Set `--cursor-damping: 10`. The circle turns to jelly. Then try `90`: no overshoot at all, just a sluggish drag.
 - Keep `--cursor-damping: 10`, open the about panel and fling it by its title bar. The window wobbles like jelly too, in step with the hand. That's the point of sharing one spring.
 - Set `--cursor-morph-duration: 1200ms` and slowly hover on and off a button. You'll see the circle stretch into the palm and the thumb grow out of its side.

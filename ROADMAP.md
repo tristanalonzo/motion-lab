@@ -60,6 +60,11 @@ the list didn't move, because a variable in nav.js had the same name as the
 the spring by follow delay and overshoot, and shows the two lines to copy into
 cursor.css.
 
+**Done 2026-11-07:** the panel came out of hiding. A little circle in the bottom
+left peeks it open on hover and keeps it open on click; C still works. The
+sliders were redrawn in Apple's style: thin track, white handle that swells
+when held.
+
 **Next:** not picked yet. Counter-style numbering is the suggestion, now that
 hover focus is in.
 
@@ -264,6 +269,8 @@ the same — plain is probably right for it.
     two spring numbers behind the scenes.
   - Decided: a hidden panel, opened with the C key. Visitors aren't told about it.
     If it turns out to be fun, it can become public later.
+  - Changed 2026-11-07: a key alone was too hidden. A circle in the bottom left
+    now opens it (hover to peek, click to keep), and C still works.
   - Decided: nothing saves. Copy the two lines it shows into cursor.css to keep them.
   - Built: `site/tuning.js` + `tuning.css`, with the panel in `index.html`. Docs in
     README.md, "the cursor tuning panel".

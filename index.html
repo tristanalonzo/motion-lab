@@ -210,10 +210,21 @@
   </div>
   <p class="hints-sr">Press the up and down arrow keys, or scroll, to move through the experiments.</p>
 
-  <!-- Hidden: press C to open it, and nothing on the page says so. Tunes the
-       cursor's spring by feel (site/tuning.js). step="any" lets a slider land
+  <!-- The cursor tuning panel (site/tuning.js) tunes the cursor's spring by feel.
+       The little circle in the bottom left opens it: hover to peek, click to
+       keep it open. C does the same as a click. step="any" lets a slider land
        anywhere, so it can sit exactly where cursor.css's numbers put it. -->
-  <section class="tuning" data-state="closed" aria-label="cursor tuning">
+  <button class="tuning-trigger" type="button" data-state="closed"
+          aria-label="cursor tuning" aria-expanded="false" aria-controls="tuning">
+    <!-- Two slider tracks, each with a knob. On hover the knobs slide. -->
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 8h16M4 16h16" />
+      <circle class="tuning-trigger-knob tuning-trigger-knob-top" cx="9" cy="8" r="2.5" />
+      <circle class="tuning-trigger-knob tuning-trigger-knob-bottom" cx="15" cy="16" r="2.5" />
+    </svg>
+  </button>
+  <section class="tuning" id="tuning" data-state="closed" aria-label="cursor tuning">
+    <p class="tuning-title">cursor</p>
     <label class="tuning-row">
       <span>follow delay</span>
       <output class="tuning-value tuning-delay-value"></output>

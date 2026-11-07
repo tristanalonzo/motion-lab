@@ -1,5 +1,6 @@
 /* ============================================================
-   TUNE HERE. The hidden cursor tuning panel. Press C to open it.
+   TUNE HERE. The cursor tuning panel, and the little circle in
+   the bottom left that opens it.
    ============================================================ */
 :root {
   /* --- how far the sliders reach --- */
@@ -8,40 +9,142 @@
   --tuning-overshoot-min: 0;       /* overshoot, in %. 0 = never swings past */
   --tuning-overshoot-max: 40;      /* overshoot, in %. Past this it's jelly */
 
+  /* --- the circle in the bottom left --- */
+  --tuning-trigger-size: 28px;     /* icon-only, so a circle (AGENTS.md) */
+  --tuning-trigger-left: 20px;     /* distance from the left edge. 20 puts its middle right over the ↑ keycap */
+  --tuning-trigger-bottom: 58px;   /* distance from the bottom edge: just clear of the keycaps */
+  --tuning-trigger-color: #A1A1A6; /* light grey, like the keycaps and the corner links: it sits back until you want it */
+  --tuning-trigger-color-on: #1D1D1F; /* hovered or open: near-black */
+  --tuning-trigger-bg-on: #F0F0F2; /* the grey circle behind it while hovered or open. Same as the toolbar's */
+  --tuning-trigger-bg-pinned: #E3E3E8; /* a step darker while it's been clicked to stay open */
+  --tuning-knob-slide: 4px;        /* how far the two little knobs slide on hover, in the icon's units (24 across = 16px, so 4 ≈ 2.7px) */
+  --tuning-knob-slide-duration: 300ms;
+  --tuning-knob-slide-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* pops a touch past, settles. Same curve as the toolbar's buttons */
+  --tuning-press-scale: 0.9;       /* squashes while clicked */
+
+  /* --- peeking open on hover --- */
+  --tuning-hover-grace: 300;       /* ms the panel waits after the mouse leaves before it closes (a plain number: tuning.js reads it). 0 = the gap between circle and panel snaps it shut */
+
   /* --- the window --- */
-  --tuning-width: 300px;           /* never wider than the screen, see .tuning */
-  --tuning-top: 24px;              /* distance from the top. Top middle is the one spot the about panel doesn't open over */
-  --tuning-radius: 14px;           /* a window, not a button: the pill rule doesn't apply */
+  --tuning-width: 280px;           /* never wider than the screen, see .tuning */
+  --tuning-gap-above: 8px;         /* space between the circle and the panel above it */
+  --tuning-radius: 18px;           /* a window, not a button: the pill rule doesn't apply */
   --tuning-padding: 16px;          /* space between the window's edge and what's inside */
-  --tuning-gap: 14px;              /* space between the rows */
+  --tuning-gap: 16px;              /* space between the rows */
   --tuning-bg: #FFFFFF;            /* plain, not glass: glass barely shows on this flat page */
   --tuning-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.14); /* same as the about panel */
+  --tuning-title-size: 13px;       /* "cursor" at the top */
   --tuning-text-size: 12px;        /* the labels and the values */
   --tuning-numbers-size: 11px;     /* the two lines to copy into cursor.css */
-  --tuning-color: #1D1D1F;         /* Apple's near-black: labels, and the sliders' filled part */
+  --tuning-color: #1D1D1F;         /* Apple's near-black */
   --tuning-color-quiet: #6E6E73;   /* the values and the two lines */
   --tuning-reset-bg: #EBEBEF;      /* the reset button, resting */
   --tuning-reset-bg-hover: #DCDCE1; /* the reset button, hovered */
 
+  /* --- the sliders --- */
+  --tuning-track-height: 4px;      /* the thin line. Apple's are 4 to 6 */
+  --tuning-track: #E5E5EA;         /* the part right of the handle */
+  --tuning-fill: #1D1D1F;          /* the part left of the handle. Try #007AFF for iOS blue */
+  --tuning-handle: 20px;           /* the white circle you drag */
+  --tuning-handle-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.12); /* a hairline edge, a tight shadow and a soft one, so it sits ON the track */
+  --tuning-handle-grab: 1.2;       /* how much it swells while held. 1 = doesn't move */
+  --tuning-handle-grab-duration: 250ms;
+  --tuning-handle-grab-ease: cubic-bezier(0.3, 1.3, 0.5, 1); /* swells a touch past, settles */
+
   /* --- opening and closing --- */
-  --tuning-rise: 8px;              /* it drops this far into place as it opens */
-  --tuning-in: 180ms;              /* opening */
-  --tuning-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, soft landing, like the list */
-  --tuning-out: 120ms;             /* closing: quicker, it's just getting out of the way */
+  --tuning-from-scale: 0.94;       /* it grows out of the circle from this size. 1 = only fades */
+  --tuning-in: 220ms;              /* opening */
+  --tuning-in-ease: cubic-bezier(0.3, 1.2, 0.5, 1); /* a hint of pop past full size, like an Apple popover */
+  --tuning-out: 140ms;             /* closing: quicker, it's just getting out of the way */
 }
 
 /* ============================================================
    Wiring.
    ============================================================ */
 
-/* left: 50% puts its left edge on the middle of the screen, and the -50% in
-   the transform pulls it back by half its own width, which centers it.
+/* ---------- the circle ---------- */
+
+/* z-index 2 puts it with the keycaps, the toolbar and the corner links. */
+.tuning-trigger {
+  position: fixed;
+  left: var(--tuning-trigger-left);
+  bottom: var(--tuning-trigger-bottom);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--tuning-trigger-size);
+  height: var(--tuning-trigger-size);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: var(--tuning-trigger-color);
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--tuning-knob-slide-duration) ease,
+    background-color var(--tuning-knob-slide-duration) ease,
+    transform 100ms ease;
+}
+
+.tuning-trigger:hover,
+.tuning-trigger:focus-visible,
+.tuning-trigger[data-state="peek"] {
+  color: var(--tuning-trigger-color-on);
+  background: var(--tuning-trigger-bg-on);
+}
+
+.tuning-trigger[data-state="pinned"] {
+  color: var(--tuning-trigger-color-on);
+  background: var(--tuning-trigger-bg-pinned);
+}
+
+.tuning-trigger:active {
+  transform: scale(var(--tuning-press-scale));
+}
+
+.tuning-trigger:focus-visible {
+  outline: 2px solid var(--tuning-trigger-color-on);
+  outline-offset: 2px;
+}
+
+.tuning-trigger svg {
+  width: 16px;
+  height: 16px;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.tuning-trigger-knob {
+  fill: currentColor;
+  stroke: none;
+  transition: transform var(--tuning-knob-slide-duration) var(--tuning-knob-slide-ease);
+}
+
+/* Hovered or open: the two knobs swap ends a little, like someone just
+   nudged the sliders. */
+.tuning-trigger:hover .tuning-trigger-knob-top,
+.tuning-trigger:not([data-state="closed"]) .tuning-trigger-knob-top {
+  transform: translateX(var(--tuning-knob-slide));
+}
+
+.tuning-trigger:hover .tuning-trigger-knob-bottom,
+.tuning-trigger:not([data-state="closed"]) .tuning-trigger-knob-bottom {
+  transform: translateX(calc(var(--tuning-knob-slide) * -1));
+}
+
+
+/* ---------- the panel ---------- */
+
+/* Sits right above the circle, left edges lined up, and grows out of it:
+   transform-origin is the bottom left corner, the one nearest the circle.
    z-index 11 is one above the about panel, so both can be open at once while
    you drag that panel around to feel the spring. */
 .tuning {
   position: fixed;
-  top: var(--tuning-top);
-  left: 50%;
+  left: var(--tuning-trigger-left);
+  bottom: calc(var(--tuning-trigger-bottom) + var(--tuning-trigger-size) + var(--tuning-gap-above));
   z-index: 11;
   display: grid;
   gap: var(--tuning-gap);
@@ -53,9 +156,9 @@
   box-shadow: var(--tuning-shadow);
   font-size: var(--tuning-text-size);
   color: var(--tuning-color);
-  transform: translate(-50%, 0);
+  transform-origin: bottom left;
   transition:
-    opacity var(--tuning-in) var(--tuning-in-ease),
+    opacity var(--tuning-in) ease,
     transform var(--tuning-in) var(--tuning-in-ease);
 }
 
@@ -64,11 +167,17 @@
 .tuning[data-state="closed"] {
   opacity: 0;
   visibility: hidden;
-  transform: translate(-50%, calc(var(--tuning-rise) * -1));
+  transform: scale(var(--tuning-from-scale));
   transition:
     opacity var(--tuning-out) ease,
     transform var(--tuning-out) ease,
     visibility 0s var(--tuning-out);
+}
+
+.tuning-title {
+  margin: 0;
+  font-size: var(--tuning-title-size);
+  font-weight: 600;
 }
 
 /* One slider: the name on the left and its value on the right, then the
@@ -76,7 +185,7 @@
 .tuning-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .tuning-value {
@@ -84,11 +193,78 @@
   font-variant-numeric: tabular-nums; /* every digit the same width, so it doesn't jitter as you drag */
 }
 
+
+/* ---------- the sliders ----------
+   appearance: none throws away the browser's own slider, so it can be drawn
+   from scratch: a thin track and a white circle. Firefox and Chrome name the
+   parts differently (-moz- and -webkit-), and a rule that names a part the
+   browser doesn't know is thrown away whole, so every part is written twice. */
+
+/* --fill (0 to 1) comes from tuning.js. The dark part of the track ends under
+   the middle of the handle: half a handle in from the left, plus that share
+   of the distance the handle can travel. */
 .tuning-slider {
+  --fill: 0;
+  --track-paint: linear-gradient(
+    to right,
+    var(--tuning-fill) calc(var(--tuning-handle) / 2 + var(--fill) * (100% - var(--tuning-handle))),
+    var(--tuning-track) 0
+  );
   grid-column: 1 / -1;
   width: 100%;
+  height: var(--tuning-handle);    /* as tall as the handle, so the whole row is easy to grab, not just the thin line */
   margin: 0;
-  accent-color: var(--tuning-color);
+  border-radius: 999px;            /* rounds the keyboard focus ring too */
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.tuning-slider::-moz-range-track {
+  height: var(--tuning-track-height);
+  border-radius: 999px;
+  background: var(--track-paint);
+}
+
+.tuning-slider::-webkit-slider-runnable-track {
+  height: var(--tuning-track-height);
+  border-radius: 999px;
+  background: var(--track-paint);
+}
+
+.tuning-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--tuning-handle);
+  height: var(--tuning-handle);
+  border: 0;
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: var(--tuning-handle-shadow);
+  transition: transform var(--tuning-handle-grab-duration) var(--tuning-handle-grab-ease);
+}
+
+/* Chrome puts the handle at the top of the track, so the margin pulls it up
+   until their middles line up. Firefox does this by itself. */
+.tuning-slider::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: var(--tuning-handle);
+  height: var(--tuning-handle);
+  margin-top: calc((var(--tuning-track-height) - var(--tuning-handle)) / 2);
+  border: 0;
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: var(--tuning-handle-shadow);
+  transition: transform var(--tuning-handle-grab-duration) var(--tuning-handle-grab-ease);
+  -webkit-appearance: none;
+}
+
+/* Held: the handle swells under your finger. */
+.tuning-slider:active::-moz-range-thumb {
+  transform: scale(var(--tuning-handle-grab));
+}
+
+.tuning-slider:active::-webkit-slider-thumb {
+  transform: scale(var(--tuning-handle-grab));
 }
 
 .tuning-slider:focus-visible,
@@ -96,6 +272,9 @@
   outline: 2px solid var(--tuning-color);
   outline-offset: 3px;
 }
+
+
+/* ---------- the bottom row ---------- */
 
 .tuning-foot {
   display: flex;
@@ -135,14 +314,39 @@
   opacity: 0.45;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tuning,
-  .tuning[data-state="closed"],
-  .tuning-reset {
-    transition: none;
+
+/* Phones and narrow windows: the list becomes a strip along the bottom and
+   takes this corner, and a phone has no cursor to tune anyway. The circle
+   goes; C still opens the panel, which moves up to the top middle. */
+@media (max-width: 900px) {
+  .tuning-trigger {
+    display: none;
+  }
+
+  .tuning {
+    top: 24px;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: top center;
   }
 
   .tuning[data-state="closed"] {
-    transform: translate(-50%, 0);
+    transform: translateX(-50%) scale(var(--tuning-from-scale));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuning,
+  .tuning[data-state="closed"],
+  .tuning-reset,
+  .tuning-trigger,
+  .tuning-trigger-knob,
+  .tuning-slider::-moz-range-thumb {
+    transition: none;
+  }
+
+  .tuning-slider::-webkit-slider-thumb {
+    transition: none;
   }
 }

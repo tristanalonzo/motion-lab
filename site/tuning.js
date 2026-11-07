@@ -1,5 +1,10 @@
-// A hidden panel for tuning the cursor by feel. Press C to open or close it;
-// Escape closes it too. Nothing on the page points to it.
+// A panel for tuning the cursor by feel. It lives behind the little circle in
+// the bottom left:
+//   hover the circle   it peeks open, and closes again a moment after the
+//                      mouse leaves both the circle and the panel
+//   click the circle   it stays open until you click again (or press C or
+//                      Escape), so you can go and fling the about panel around
+//   C                  the same as a click
 //
 // The spring has two numbers, stiffness and damping, and neither says what you
 // actually feel. These sliders speak in follow delay and overshoot instead, and
@@ -10,9 +15,12 @@
 // panel shows into cursor.css. spring.js reads its numbers every frame, so a
 // change here is felt at once, on the cursor and on the about panel's drag.
 //
-// data-state on the panel is the one source of truth: "open" or "closed".
+// data-state on the panel is the one source of truth: "closed", "peek" (open
+// while hovered) or "pinned" (open until closed). show() copies it onto the
+// circle, so the circle's CSS can react too.
 
 const panel = document.querySelector(".tuning");
+const trigger = document.querySelector(".tuning-trigger");
 const delaySlider = panel.querySelector(".tuning-delay");
 const overshootSlider = panel.querySelector(".tuning-overshoot");
 const delayValue = panel.querySelector(".tuning-delay-value");
@@ -60,6 +68,8 @@ function springFromFeel(delay, overshoot) {
 // Write the sliders' feeling into the two numbers spring.js reads. Rounded here,
 // so the numbers the panel shows are exactly the ones in use.
 function applySliders() {
+  paintFill(delaySlider);
+  paintFill(overshootSlider);
   const spring = springFromFeel(Number(delaySlider.value), Number(overshootSlider.value));
   page.style.setProperty("--cursor-stiffness", Math.round(spring.stiffness));
   page.style.setProperty("--cursor-damping", Math.round(spring.damping * 10) / 10);
@@ -85,6 +95,16 @@ function placeSliders() {
   const feel = feelFromSpring(readSetting("--cursor-stiffness"), readSetting("--cursor-damping"));
   delaySlider.value = feel.delay;
   overshootSlider.value = feel.overshoot;
+  paintFill(delaySlider);
+  paintFill(overshootSlider);
+}
+
+// The dark part of the track, left of the handle. CSS draws it, but CSS can't
+// read where the handle is, so this hands it over as --fill: 0 at the left
+// end, 1 at the right.
+function paintFill(slider) {
+  const share = (slider.value - slider.min) / (slider.max - slider.min);
+  slider.style.setProperty("--fill", share);
 }
 
 // Taking the page's own values away leaves cursor.css in charge again.
@@ -102,15 +122,60 @@ function reset() {
 
 // ---------- opening and closing ----------
 
-function open() {
-  panel.dataset.state = "open";
-  delaySlider.focus(); // the arrow keys move the slider straight away
+let closeTimer = 0;
+let holding = false; // a slider is being dragged, and the mouse may wander off the panel mid-drag
+
+function show(state) {
+  clearTimeout(closeTimer);
+  panel.dataset.state = state;
+  trigger.dataset.state = state;
+  trigger.setAttribute("aria-expanded", state !== "closed");
 }
 
 function close() {
-  panel.dataset.state = "closed";
+  show("closed");
   // Let go of the keyboard, so the arrow keys go back to the list.
   if (panel.contains(document.activeElement)) document.activeElement.blur();
+}
+
+// Hover. Only for a mouse: a finger has no hover, it just clicks.
+function onEnter(e) {
+  if (e.pointerType !== "mouse") return;
+  clearTimeout(closeTimer); // came back in time: stay open
+  if (panel.dataset.state === "closed") show("peek");
+}
+
+function onLeave(e) {
+  if (e.pointerType !== "mouse" || holding) return;
+  closeSoon();
+}
+
+// A peek closes a moment after the mouse leaves, not at once. That moment is
+// what lets the mouse cross the gap between the circle and the panel.
+function closeSoon() {
+  if (panel.dataset.state !== "peek") return;
+  clearTimeout(closeTimer);
+  closeTimer = setTimeout(close, readSetting("--tuning-hover-grace"));
+}
+
+// Let go of a slider somewhere outside: now the mouse leaving counts.
+function onRelease(e) {
+  if (!holding) return;
+  holding = false;
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  if (!panel.contains(under) && !trigger.contains(under)) closeSoon();
+}
+
+function onTriggerClick(e) {
+  if (panel.dataset.state === "pinned") {
+    close();
+    return;
+  }
+  show("pinned");
+  // Opened from the keyboard (Enter or Space): hand the keyboard to the first
+  // slider. A mouse click leaves it where it is. e.detail counts mouse clicks,
+  // and is 0 when the click came from a key.
+  if (e.detail === 0) delaySlider.focus();
 }
 
 // composedPath()[0] is the element that really has focus, even inside an
@@ -134,8 +199,12 @@ function onKey(e) {
   if (e.key.toLowerCase() !== "c" || e.ctrlKey || e.metaKey || e.altKey) return;
   if (isTypingIn(e)) return;
 
-  if (panel.dataset.state === "open") close();
-  else open();
+  if (panel.dataset.state === "closed") {
+    show("pinned");
+    delaySlider.focus(); // the arrow keys move the slider straight away
+  } else {
+    close();
+  }
 }
 
 
@@ -152,6 +221,14 @@ export function startTuning() {
   overshootSlider.addEventListener("input", applySliders);
   resetButton.addEventListener("click", reset);
   window.addEventListener("keydown", onKey);
+
+  trigger.addEventListener("click", onTriggerClick);
+  for (const element of [trigger, panel]) {
+    element.addEventListener("pointerenter", onEnter);
+    element.addEventListener("pointerleave", onLeave);
+  }
+  panel.addEventListener("pointerdown", () => { holding = true; });
+  window.addEventListener("pointerup", onRelease);
 
   placeSliders();
   showNumbers();
