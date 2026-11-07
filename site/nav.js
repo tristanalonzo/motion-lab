@@ -170,9 +170,11 @@ export function createNav(experiments, onSelect) {
   // wants to know a step happened.
   //
   // It shouts even when the list is already at the end and nothing moves:
-  // you pressed the key, so the key should react.
+  // you pressed the key, so the key should react. atEnd says that's what
+  // happened, so a listener can tell "moved" from "tried to, but couldn't".
   function step(direction, by) {
-    window.dispatchEvent(new CustomEvent("lab:step", { detail: { direction, by } }));
+    const atEnd = selected + direction < 0 || selected + direction > experiments.length - 1;
+    window.dispatchEvent(new CustomEvent("lab:step", { detail: { direction, by, atEnd } }));
     select(selected + direction);
   }
 

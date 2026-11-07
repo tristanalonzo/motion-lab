@@ -2,7 +2,8 @@
 // step through the list. Press ↓ and the ↓ cap goes down. Scroll down and it
 // goes down too, which is how the corner says the wheel and the key do the
 // same thing. A word slides out beside them to say what just happened: "next",
-// "previous" or "scroll". It only shows because you did something, so it's
+// "previous" or "scroll", or "first one" / "last one" when the list is already
+// at that end and didn't move. It only shows because you did something, so it's
 // still a readout and not a label.
 //
 // It doesn't listen for keys itself. nav.js shouts "lab:step" every time it
@@ -36,8 +37,11 @@ export function startHints() {
     const goingUp = e.detail.direction < 0;
     press(goingUp ? up : down);
 
+    // At either end the list doesn't move, so "next" would be a lie. Say why
+    // nothing happened instead. The cap still goes down: you still pressed it.
+    if (e.detail.atEnd) showWord(goingUp ? "first one" : "last one");
     // A trackpad counts as the wheel too: nav.js sends both as "wheel".
-    if (e.detail.by === "wheel") showWord("scroll");
+    else if (e.detail.by === "wheel") showWord("scroll");
     else showWord(goingUp ? "previous" : "next");
   });
 

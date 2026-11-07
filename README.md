@@ -285,7 +285,7 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 
 ## Shared: the keyboard readout
 
-`site/hints.js` + `site/hints.css` — two keycaps in the bottom left corner that press themselves as you step through the list. Press ↓ and the ↓ cap goes down. Scroll down and it goes down too, which is how the corner says the wheel and the arrow key do the same thing. A word slides out from behind the caps to say what just happened: "next", "previous" or "scroll". It doesn't list the keys; it shows them being used.
+`site/hints.js` + `site/hints.css` — two keycaps in the bottom left corner that press themselves as you step through the list. Press ↓ and the ↓ cap goes down. Scroll down and it goes down too, which is how the corner says the wheel and the arrow key do the same thing. A word slides out from behind the caps to say what just happened: "next", "previous" or "scroll", or "first one" / "last one" when you push past an end of the list. It doesn't list the keys; it shows them being used.
 
 | From | To | Duration | Easing | What moves |
 |---|---|---|---|---|
@@ -305,10 +305,11 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - **The word appears because you did something.** It's never on screen at rest. If it were, this would be the old pop-up again, just flatter.
 - **The word outlasts the cap.** The cap is back up after 110ms, which is far too short to read anything. So the word has its own 600ms hold, and the two aren't tied together.
 - **It slides from behind the caps without really being behind them.** The caps have no fill, so a word behind them would show through. Instead the word moves inside a window whose left edge touches the ↓ cap, and the window hides whatever is past that edge.
-- **The caps never shift.** All three words are always there, stacked in one grid cell, so the window is always as wide as "previous". Nothing changes size when a word comes out.
+- **The caps never shift.** All the words are always there, stacked in one grid cell, so the window is always as wide as the longest word. Nothing changes size when a word comes out.
 - **A replaced word is cut, not slid away.** Press ↓ then ↑ quickly and "next" vanishes as "previous" comes out. If "next" slid back at its own speed, the two words would sit on top of each other for a moment.
 - **Out in 160ms, not the cap's 70ms.** Same fast-out, slow-back split, but at 70ms a word pops instead of sliding.
 - **It reacts even at the end of the list.** Press ↓ on the last experiment and the cap still goes down, because you still pressed the key. A readout that reports your hand is more useful than one that reports the list.
+- **At an end, the word says why nothing moved.** "next" on the last row was a lie: nothing is next. It says "last one" instead ("first one" at the top), for the keys and the wheel alike. It names where you are rather than scolding you for pressing, so it reads as an answer, not an error. nav.js says when a step hit an end (`atEnd` on `lab:step`), so this file doesn't have to count rows.
 - **Fast down, slow up.** 70ms down, 260ms back. The same split as the Submit button in 001, for the same reason: going down should feel like it's under your finger; coming up is the part you actually watch.
 - **The cap and its bottom edge move together.** The cap sinks by exactly the height of its own edge, and the edge collapses as it goes. If only the cap moved it would read as the whole thing sliding down the page rather than a key being pushed in.
 - **Mashing keeps it down.** Each step pushes the release further out instead of starting a new press. That's what a held key does, and it's also why nothing here needs to restart a half-finished animation — which is the thing plain CSS is bad at, and the reason this didn't need GSAP.
@@ -324,7 +325,6 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - Under reduced motion the cap changes colour but doesn't move, so the "key" idea mostly goes.
 - An experiment with keys of its own (001 answers to Space and Enter) still has no way to add a cap. That's a new rule for every experiment, so it's a decision before it's a build.
 - Two caps is the whole vocabulary. A third key would need a reason to be there, not just room.
-- Press ↓ on the last row and the word still says "next", though nothing is next. Same for "previous" on the first row, and "scroll" at either end.
 - You're usually looking at the list or the experiment while you step, not this corner, so the word can come and go unread.
 - Under reduced motion the word appears and disappears with no slide, and there's no demo press to introduce it.
 

@@ -68,8 +68,10 @@ when held.
 **Done 2026-11-08:** counter-style numbering. Only the selected row shows a
 number, and it's one counter whose digits roll like an odometer as you step.
 
-**Next:** not picked yet. The quickest one is the readout saying "next" at the
-end of the list, where nothing is next.
+**Fixed 2026-11-08:** push past either end of the list and the word beside the
+keys says "first one" or "last one" instead of "next" or "previous".
+
+**Next:** not picked yet.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -214,7 +216,8 @@ the same — plain is probably right for it.
     cap is up after 110ms, too short to read, so the word has its own 600ms hold.
   - Decided while building: the demo press shows "next" too, since it's the only
     thing someone who never presses a key will ever see.
-  - Open: at the end of the list the word still says "next", though nothing is next.
+  - Fixed 2026-11-08: at either end it says "first one" / "last one", for the keys
+    and the wheel. nav.js marks the step with `atEnd` so the readout knows.
 
 ## 000 — intro
 

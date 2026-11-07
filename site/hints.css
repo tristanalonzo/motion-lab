@@ -109,7 +109,7 @@
    hides anything left of that edge. That's the "behind the caps" trick: the
    caps have no fill, so a word really behind them would show through.
 
-   All three words share one grid cell, so they stack, and the window is always
+   All the words share one grid cell, so they stack, and the window is always
    as wide as the longest one. It never changes size, so the caps never shift. */
 .hints-words {
   display: grid;
@@ -127,6 +127,7 @@
   justify-self: start;
   font-size: var(--hints-word-size);
   line-height: 1;
+  white-space: nowrap; /* "first one" and "last one" stay on one line */
   color: var(--hints-word-color);
   transform: translateX(calc(-100% - var(--hints-word-gap)));
   transition: transform var(--hints-word-back) var(--hints-word-back-ease);
