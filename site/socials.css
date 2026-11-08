@@ -44,7 +44,7 @@
   /* --- Instagram: the camera takes a photo --- */
   --instagram-snap-duration: 450ms; /* the shutter closing and opening again */
   --instagram-shut: 0.35;          /* how far the lens closes. 0 = shut completely, 1 = doesn't move */
-  --instagram-flash-grow: 1.8;     /* how big the flash dot pops as it fires */
+  --instagram-flash-grow: 1.4;     /* how big the flash gets as it fires, from nothing. 1 = the size it's drawn (2 units across) */
 
   /* --- X: a flick of a half turn --- */
   --x-turn: 180deg;                /* half a turn lands it looking the same. 90deg = it ends up sideways */
@@ -282,6 +282,11 @@
   transform-origin: 50% 50%;
 }
 
+/* At rest the flash isn't there: it only exists while it fires. */
+.instagram-flash {
+  transform: scale(0);
+}
+
 /* Keyframe animations, not transitions: a shutter closes AND opens, two
    moves on one property. They play once each time the mouse arrives.
    Leaving mid-click just stops them; it's over in under half a second. */
@@ -303,11 +308,12 @@
   100% { transform: scale(1); }
 }
 
-/* The flash dot fires as the shutter is shut, and shrinks back slower than it came. */
+/* The flash pops out of nothing as the shutter is shut, and shrinks back
+   to nothing slower than it came. */
 @keyframes instagram-flash {
-  0%, 20% { transform: scale(1); }
+  0%, 20% { transform: scale(0); }
   35%     { transform: scale(var(--instagram-flash-grow)); }
-  100%    { transform: scale(1); }
+  100%    { transform: scale(0); }
 }
 
 /* ---------- X: a flick of a half turn ---------- */
@@ -373,5 +379,11 @@
   .social:not(.social-github):focus-visible svg * {
     transform: none;
     animation: none;
+  }
+
+  /* The rule above clears transforms on hover, which would show the flash
+     full size. It only exists to fire, and nothing fires here. */
+  .instagram-flash {
+    display: none;
   }
 }

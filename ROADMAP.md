@@ -80,8 +80,11 @@ step too, not one per row.
 onto its X and a little `esc` keycap slides out beside it, and it sinks when
 you press Esc. Tab isn't shown anywhere: the focus ring is its readout.
 
-**Next:** not picked yet. Candidates: rewrite 000's intro text (yours), simpler
-corner icons.
+**Done 2026-11-08:** simpler corner icons. X is two lines with a break,
+Instagram's flash only shows when it fires, LinkedIn's dot is smaller.
+
+**Next:** not picked yet. Candidates: rewrite 000's intro text (yours), the esc
+cap for the cursor tuning panel.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -264,8 +267,12 @@ the same — plain is probably right for it.
     move that fits what it is. A new link isn't done until it has one, documented in
     README.md, "the corner links".
   - Rule: every line logo uses the same line thickness (`--social-stroke`).
-- [ ] **Even more minimalist icons.** LinkedIn, Instagram, X and email are bare line
+- [x] **Even more minimalist icons.** LinkedIn, Instagram, X and email are bare line
       marks now; push them further later. GitHub's cat stays as it is.
+  - Done 2026-11-08: drawn as if with one pen. X is two lines, one broken where
+    it crosses (was a hollow bar). Instagram's flash only shows while it fires.
+    LinkedIn's dot is smaller. Email unchanged: nothing left to take out. Docs
+    in README.md, "the corner links".
 
 ## Left list — ideas
 

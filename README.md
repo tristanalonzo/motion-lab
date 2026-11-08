@@ -257,7 +257,7 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 | resting | hovered / focused (all but GitHub) | 80ms wait + 200ms | `ease` | its name fades in and rises 4px above it |
 | any | pressed (all) | 100ms | `ease` | squashes to 0.92× |
 | **LinkedIn** resting | hovered | 300ms | same overshoot | the i's stem stands 1.2× taller from its foot; the dot rides up on it and swells 1.15× |
-| **Instagram** resting | hovered | 450ms, once per hover | `ease-in-out` | shutter: lens closes to 0.35×, opens past to 1.12×, settles. The flash dot pops to 1.8× as it shuts, and shrinks back |
+| **Instagram** resting | hovered | 450ms, once per hover | `ease-in-out` | shutter: lens closes to 0.35×, opens past to 1.12×, settles. The flash, not there at rest, pops out of nothing to 1.4× as it shuts and shrinks back to nothing |
 | **X** resting | hovered | 300ms | same overshoot | the X flicks a half turn and lands looking the same |
 | **email** resting | hovered | 300ms | same overshoot | the envelope tips its nose up 12° and lifts off up-right, like a sent letter; hangs there until you leave |
 | hovered | resting (all but GitHub) | same | same | the reverse, from wherever it is. Instagram's click just stops |
@@ -281,6 +281,11 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - **Every logo the same height, not the same box.** Each viewBox is 16 units tall and crops tight around its logo, and only the height is set, so the envelope gets to be wider than the camera instead of shrinking to fit.
 - **One line thickness for all of them.** Same height on screen and same units per pixel means `--social-stroke` comes out exactly the same everywhere. Change it once and every line logo follows.
 - **Just the marks, no containers.** `in` without its square, the X without its black tile, the camera and envelope as outlines. The containers made them read as app icons; bare, they read as a set. GitHub keeps its circle because the circle is its mark.
+- **Drawn as if with one pen.** Everything left is a line of the same thickness, or a dot not much wider than one. Anything that's only there to look like the real logo goes, as long as what's left still can't be mistaken for something else.
+- **X is two lines, one broken.** The real logo is a thick bar and a thin stroke that stops where it meets the bar. The bar was drawn as a hollow outline, the only shape in the row made of two lines side by side. Now it's one line, and the other line breaks around it: that break is the one thing that keeps it from reading as a close button.
+- **Instagram's flash only exists when it fires.** At rest the camera is just its outline and lens, which still reads as Instagram. The flash comes out of nothing as the shutter shuts, which is more like a flash than a dot that was always there getting bigger.
+- **LinkedIn's dot is smaller (2 units across, the line is 1.5).** It was nearly twice the line's width, which made it read as a blob above the i rather than a dot on it.
+- **Email stays as it was.** A box and a V is already the least an envelope can be.
 - **Drawn as code (SVG), not image files.** That's what lets them be grey, darken on hover, and move in pieces. A logo file can't do any of that.
 - **They grow by scale, so nothing beside them moves.** The toolbar's buttons push their neighbours aside; here that was too busy for a row of small marks, so a hovered logo just grows over the gap.
 - **LinkedIn sits up straight.** It's the "be professional" one: the i stands taller and its dot rides up with it.
@@ -302,6 +307,8 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - The cat's tail sticks out to the left of its neck when it's sitting on top. Kept it: it's a cat.
 - On a phone a tap plays the hover and opens the link at the same moment, so you don't get to see it.
 - Instagram's click restarts every time the mouse comes back, even if you only left for a moment.
+- With reduced motion on, Instagram's flash never shows at all, since nothing fires.
+- The X's break is 1.5 units of air (about 2px). Much smaller and it closes up at small sizes and the mark turns back into a plain x.
 - The email address is in the page, so bots that scrape for addresses will find it.
 - The cat's beats (the percentages) live inside the keyframes, not in the tune block: CSS can't put a variable there. To retime one beat, edit its percentage in socials.css.
 

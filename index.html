@@ -145,22 +145,25 @@
       <span class="social-label">github</span>
     </a>
 
-    <!-- The other four are bare line marks, no containers. Every viewBox is
-         16 units tall and cropped tight around its mark, so at the same height
-         on screen their lines come out the same thickness (socials.css sets
-         both). Each is split into the pieces its hover moves. -->
+    <!-- The other four are bare line marks, drawn as if with one pen: no
+         containers, nothing that isn't needed to tell them apart. Every viewBox
+         is 16 units tall and cropped tight around its mark, so at the same
+         height on screen their lines come out the same thickness (socials.css
+         sets both). Each is split into the pieces its hover moves. -->
 
-    <!-- LinkedIn: just "in". -->
+    <!-- LinkedIn: just "in". The dot is only a little wider than the line
+         (2 units across, the line is 1.5), like the dot on a typed i. -->
     <a class="social social-linkedin" href="https://www.linkedin.com/in/tristan-alonzo-959b15317/" target="_blank" rel="noopener">
       <svg viewBox="0.5 0 13 16" aria-hidden="true">
-        <circle class="social-dot linkedin-dot" cx="2" cy="2" r="1.3" />
+        <circle class="social-dot linkedin-dot" cx="2" cy="2" r="1" />
         <path class="social-line linkedin-i" d="M2 6.2V15.2" />
         <path class="social-line" d="M6.2 15.2V6.2M6.2 10c0-2.3 1.4-3.8 3.2-3.8 2 0 3.1 1.5 3.1 3.8v5.2" />
       </svg>
       <span class="social-label">linkedin</span>
     </a>
 
-    <!-- Instagram: the camera outline, the lens, the flash. -->
+    <!-- Instagram: the camera outline and the lens. The flash is drawn but
+         shrunk to nothing; it only shows for the moment it fires on hover. -->
     <a class="social social-instagram" href="https://www.instagram.com/tristanalonzo_/" target="_blank" rel="noopener">
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <rect class="social-line" x="0.75" y="0.75" width="14.5" height="14.5" rx="4.2" />
@@ -170,13 +173,16 @@
       <span class="social-label">instagram</span>
     </a>
 
-    <!-- X: the mark alone, as lines. One diagonal is a hollow bar, the other
-         a thin line that stops where it meets the bar, like the real logo. -->
+    <!-- X: two lines. One goes straight through; the other breaks where it
+         crosses, the way the real logo's thin stroke stops at its bar. The
+         break is what keeps it from reading as a close button. Both halves
+         end 2.25 units from the middle: the through line is 0.75 thick on
+         each side and a round cap adds 0.75, which leaves 0.75 of air. -->
     <a class="social social-x" href="https://x.com/tristanalonzo_" target="_blank" rel="noopener">
       <svg viewBox="0 0 15.7 16" aria-hidden="true">
         <g class="x-mark">
-          <path class="social-line" d="M0.75 0.75H4.98L14.91 15.25H10.68Z" />
-          <path class="social-line" d="M13.83 0.75 8.91 6.48M6.55 9.22 1.37 15.25" />
+          <path class="social-line" d="M0.75 0.75 14.95 15.25" />
+          <path class="social-line" d="M14.95 0.75 9.42 6.39M6.28 9.61 0.75 15.25" />
         </g>
       </svg>
       <span class="social-label">x</span>
