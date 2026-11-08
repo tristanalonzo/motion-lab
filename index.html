@@ -105,6 +105,10 @@
           <path d="M7 7l10 10M17 7L7 17" />
         </svg>
       </button>
+      <!-- Says Esc does what the X does. Hidden until you hover or Tab onto
+           the X, and it sinks when you press Esc (site/about.css). A picture,
+           not a control, so screen readers skip it. -->
+      <span class="about-esc" data-state="idle" aria-hidden="true">esc</span>
       <h2 class="about-title" id="about-title">
         <span class="about-number"></span>
         <span class="about-name"></span>

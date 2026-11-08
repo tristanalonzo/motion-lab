@@ -76,8 +76,12 @@ keys says "first one" or "last one" instead of "next" or "previous".
 experiment you were on before. A click is one step; a burst of scrolling is one
 step too, not one per row.
 
-**Next:** not picked yet. Candidates: rewrite 000's intro text (yours), decide
-where tab and esc get shown, simpler corner icons.
+**Done 2026-11-08:** tab and esc. Esc shows on the about panel: hover or Tab
+onto its X and a little `esc` keycap slides out beside it, and it sinks when
+you press Esc. Tab isn't shown anywhere: the focus ring is its readout.
+
+**Next:** not picked yet. Candidates: rewrite 000's intro text (yours), simpler
+corner icons.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -193,8 +197,13 @@ the same — plain is probably right for it.
     the release further out — so nothing ever has to restart a half-finished
     animation, which was the thing plain CSS would have been bad at. Worth knowing
     the door was there and this wasn't the reason to open it.
-  - Open: it only reports the list. `tab` and `esc` were in the old pop-up and are
-    now written down nowhere a visitor can see. An experiment with keys of its own
+  - Decided 2026-11-08: `esc` is shown where it works, as a keycap that slides
+    out beside the about panel's X when you hover or Tab onto it. Not in this
+    corner: here it would advertise a key that does nothing most of the time.
+    `tab` isn't shown: people who use it know it, and the focus ring is its
+    readout. Left over: the cursor tuning panel closes on Esc too and has no X
+    to put the cap on.
+  - Open: an experiment with keys of its own
     still can't add a cap — a new rule for every experiment, so a decision before
     it's a build.
 

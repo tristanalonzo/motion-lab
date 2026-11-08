@@ -191,6 +191,9 @@ What goes in each file: AGENTS.md, "The experiment contract".
 | any | dragged | ~53ms behind | the cursor's spring (stiffness 600, damping 32) | trails the pointer and swings ~15px past when you stop, exactly like the cursor; keeps settling after you let go |
 | text arrives | — | — | none | the window is sized by its text, so it settles into place the moment the text is in |
 | close X resting | hovered / focused | 250ms | `cubic-bezier(0.2, 1.1, 0.4, 1)` | the X turns a quarter turn; a grey circle fades in behind it |
+| esc cap hidden | X hovered / focused | 180ms | `cubic-bezier(0.22, 1, 0.36, 1)` | a small `esc` keycap fades in and slides 8px right, out from against the X |
+| esc cap shown | X left | 140ms | `ease` | tucks back against the X and fades |
+| open | Esc pressed | 70ms, then the 160ms close | `ease-out` | the esc cap shows, sinks 2px and fills in, like the corner caps; the window fades out around it |
 
 **Decisions**
 - **A window, not a pop-up.** No dark backdrop, and clicking the page doesn't close it. You're meant to read it while poking at the experiment, so it stays until you close it.
@@ -210,6 +213,11 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - **No `about.html` yet says so in the panel.** A missing file is a normal state for a new experiment, not a breakage, so the button stays live and the panel says "no notes for this one yet."
 - **A planned experiment greys the button out,** the same way and at the same pace as `</>`.
 - **Rounded corners, not a pill.** The pill-or-circle rule is about buttons. This is a window; the close X inside it is a circle.
+- **Esc is shown on the X, not in the corner.** Esc only does something while a window is open, so the bottom-left readout would be advertising a key that usually does nothing. Next to the X it shows up at the exact moment you're about to close: hover the X, and it tells you there's a key for that.
+- **It only appears because you did something.** Same rule as the corner readout. Always there, it would be a label you stop seeing.
+- **Drawn with the corner caps' numbers.** The outline, the bottom edge and the press all come from hints.css, so a keycap looks and sinks the same anywhere on the site.
+- **The title makes room for it.** The bar's padding counts the cap, so a long name stops before it instead of the cap landing on top of it.
+- **Tab isn't shown anywhere.** People who use Tab already know it, and the focus ring that moves when you press it is already its readout.
 - **Clear glass over an 8px blur.** `--about-tint` is the one line that decides the look: `transparent` is clear, so the window takes its colour only from what's behind it; `rgba(255,255,255,0.6)` is tinted, a white wash over the blur. `#FFFFFF` plus `--about-glass-blur: 0` turns the whole thing off.
 - **Clear was chosen over tinted knowing the cost.** Tinted is the safer-reading one. Clear looks like the real thing, and on a page this light it mostly behaves — the brightness lift keeps the flat background near-white. It only bites over the black Submit button.
 - **The bright rim is what makes it read as glass.** A 1px white line just inside the top edge, like light catching the lip of a pane. Without it a see-through panel looks like a blurry hole in the page rather than an object sitting on it. This does more for the effect than the blur does.
@@ -232,7 +240,9 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - Mobile is out of scope. It fits the screen and scrolls, but a window you drag with a finger on a 375px phone isn't really a window.
 - Dragging it over the list blocks the list underneath. Normal for a window, but there's nothing to bring the list back except moving the window.
 - No way to resize it. Long notes scroll inside a fixed-height window.
-- Opening it from the keyboard moves focus into the notes, which means Tab lands on the close X before anything else. Right for a window, slightly abrupt if you only wanted a quick look.
+- Opening it from the keyboard moves focus into the notes. The close X comes before the notes, so Tab goes on out of the window to the corner links and only Shift+Tab reaches the X (and its esc cap).
+- The esc cap's press is mostly felt, not seen. Esc closes the window straight away, so the sunk cap only shows during the 160ms fade-out. Slowing the close to show it off would make Esc feel sluggish, which is worse.
+- The cursor tuning panel also closes on Esc and doesn't say so. It has no close X to hang the cap on.
 - The text is unstyled beyond `<p>`, `<h3>`, `<ul>` and links. An `about.html` that uses anything else gets browser defaults.
 
 ## Shared: the corner links
@@ -330,7 +340,7 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 - **Gone under 900px.** The list moves to a strip along the bottom at that width and this corner becomes its. A phone has no keyboard and no wheel, so there's nothing to report.
 
 **Rough edges**
-- It only reports the list. `tab` and `esc` were in the old pop-up and are now written down nowhere a visitor can see.
+- It only reports the list. `esc` moved to the about panel's X instead (see "the about panel"), and `tab` isn't shown at all: the focus ring is its readout.
 - Someone who never presses anything sees one demo press and nothing else, ever. The teaching depends on them trying something first.
 - The demo press is on its own timer (1400ms), not tied to the list actually finishing. Slow down `--nav-in-stagger` or add a lot of experiments and it can fire while the rows are still arriving.
 - Nothing in the corner says the wheel does this too — you only find that out by scrolling and happening to look down there.

@@ -49,6 +49,20 @@
   --about-close-spin: 90deg;       /* the X turns a quarter on hover */
   --about-close-duration: 250ms;
 
+  /* --- the esc cap that slides out beside the X --- */
+  /* It's drawn with the corner readout's numbers (hints.css: --hints-edge,
+     --hints-color, the press timings), so the two kinds of keycap can't
+     drift apart. These are only the ones that are its own. */
+  --about-esc-width: 28px;         /* wide enough for "esc" at the size below */
+  --about-esc-height: 18px;        /* smaller than the corner caps' 24: it's sitting in a 44px bar next to a 24px X */
+  --about-esc-text: 10px;
+  --about-esc-radius: 5px;         /* a key, not a button: rounded square, not a pill */
+  --about-esc-gap: 6px;            /* space between the X and the cap */
+  --about-esc-travel: -8px;        /* where it slides out from: this far left, tucked against the X */
+  --about-esc-in: 180ms;           /* sliding out on hover */
+  --about-esc-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, soft landing, like the corner's words */
+  --about-esc-out: 140ms;          /* tucking back when the mouse leaves. Quicker: you've already read it */
+
   /* --- the text --- */
   --about-text-size: 13px;
   --about-text-color: #1D1D1F;
@@ -131,8 +145,9 @@
 
 /* ---------- the title bar ---------- */
 
-/* The handle. Padded by the width of the X on both sides, so the title sits
-   in the real middle with the X only on the left. */
+/* The handle. Padded by the width of the X and the esc cap on both sides, so
+   the title sits in the real middle with them only on the left, and a long
+   name stops before it reaches the cap. */
 .about-bar {
   position: relative;
   flex: none;
@@ -140,7 +155,7 @@
   align-items: center;
   justify-content: center;
   height: var(--about-bar-height);
-  padding: 0 calc(var(--about-close-size) + 16px);
+  padding: 0 calc(var(--about-close-size) + var(--about-esc-gap) + var(--about-esc-width) + 16px);
   border-bottom: 1px solid var(--about-bar-line);
   user-select: none;               /* dragging the bar shouldn't select the title */
   -webkit-user-select: none;
@@ -213,6 +228,66 @@
 .about-close:hover svg,
 .about-close:focus-visible svg {
   transform: rotate(var(--about-close-spin));
+}
+
+/* ---------- the esc cap ---------- */
+
+/* Hidden: tucked against the X and see-through. It shows when you're about to
+   close the window anyway (hovering the X, or Tab landing on it), which is
+   the one moment "there's a key for this" is worth saying. A picture, not a
+   control: no clicks, no hover of its own.
+
+   Centred in the bar with top/bottom/margin rather than a transform, because
+   transform is busy with the slide and the press. The tucking-back settings
+   live here: a transition uses the settings of the state it's going TO. */
+.about-esc {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(10px + var(--about-close-size) + var(--about-esc-gap));
+  display: grid;
+  place-items: center;
+  width: var(--about-esc-width);
+  height: var(--about-esc-height);
+  margin: auto 0;
+  border: 1px solid var(--hints-edge);
+  border-radius: var(--about-esc-radius);
+  box-shadow: 0 var(--hints-edge-height) 0 var(--hints-edge);
+  font-size: var(--about-esc-text);
+  line-height: 1;
+  color: var(--hints-color);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(var(--about-esc-travel));
+  transition:
+    opacity var(--about-esc-out) ease,
+    transform var(--about-esc-out) ease;
+}
+
+.about-close:hover + .about-esc,
+.about-close:focus-visible + .about-esc {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity var(--about-esc-in) ease,
+    transform var(--about-esc-in) var(--about-esc-in-ease);
+}
+
+/* Esc was just pressed (about.js). Out, and sunk by its own bottom edge, the
+   same way the corner caps go down, while the window fades around it. */
+.about-esc[data-state="pressed"] {
+  opacity: 1;
+  transform: translateY(var(--hints-edge-height));
+  box-shadow: 0 0 0 var(--hints-edge);
+  color: var(--hints-color-pressed);
+  border-color: var(--hints-color-pressed);
+  background: var(--hints-fill-pressed);
+  transition:
+    transform var(--hints-press-in) var(--hints-press-in-ease),
+    box-shadow var(--hints-press-in) var(--hints-press-in-ease),
+    color var(--hints-press-in) ease,
+    border-color var(--hints-press-in) ease,
+    background-color var(--hints-press-in) ease;
 }
 
 /* ---------- the text ---------- */
@@ -288,8 +363,19 @@
 @media (prefers-reduced-motion: reduce) {
   .about-panel,
   .about-close,
-  .about-close svg {
+  .about-close svg,
+  .about-esc,
+  .about-close:hover + .about-esc,
+  .about-close:focus-visible + .about-esc,
+  .about-esc[data-state="pressed"] {
     transition: none;
+  }
+
+  /* The esc cap appears where it stands: no slide, no dip. It still fills in
+     when pressed, because that's the information. */
+  .about-esc,
+  .about-esc[data-state="pressed"] {
+    transform: none;
   }
 
   /* No rise, no scale: it's either there or it isn't. */

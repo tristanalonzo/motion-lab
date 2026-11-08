@@ -17,6 +17,7 @@ const button = document.querySelector(".tool-about");
 const panel = document.querySelector(".about-panel");
 const bar = panel.querySelector(".about-bar");
 const closeButton = panel.querySelector(".about-close");
+const escCap = panel.querySelector(".about-esc");
 const numberEl = panel.querySelector(".about-number");
 const nameEl = panel.querySelector(".about-name");
 const content = panel.querySelector(".about-body");
@@ -66,6 +67,7 @@ function open() {
   fill(experiment);
 
   panel.dataset.state = "open";
+  escCap.dataset.state = "idle";
   button.setAttribute("aria-expanded", "true");
 
   // Hand the keyboard the text itself, so the arrow keys scroll it straight
@@ -93,9 +95,13 @@ button.addEventListener("click", () => {
 
 closeButton.addEventListener("click", close);
 
-// Escape shuts it from anywhere on the page, not just from inside it.
+// Escape shuts it from anywhere on the page, not just from inside it. The esc
+// cap beside the X sinks first, so the window fades out showing the key that
+// closed it. open() puts the cap back.
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") close();
+  if (e.key !== "Escape" || panel.dataset.state === "closed") return;
+  escCap.dataset.state = "pressed";
+  close();
 });
 
 // Clicking the page does NOT shut it. It's a window, not a pop-up: it stays
