@@ -12,6 +12,7 @@
   --title-inset: 24px;             /* distance from the top and left edges */
   --message-size: 14px;            /* "coming soon", "loading" */
   --message-color: #86868B;        /* Apple's secondary grey, same as the list */
+  --stage-gutter: 24px;            /* space kept clear inside every experiment's box, so its content never touches the screen's edge. Mostly matters on phones. 24 = the title's inset, so on a phone text lines up under the title. An experiment can set padding: 0 on :host to go edge to edge */
 
   /* --- feel --- */
   --stage-fade: 250ms;             /* experiment fading in / out (use ms: JS reads this too) */

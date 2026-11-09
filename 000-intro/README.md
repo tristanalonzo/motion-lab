@@ -14,5 +14,4 @@ None. It's text.
 - **The ↓ is drawn as a key, not just an arrow.** A little keycap tells you it's something to press, not decoration. Rounded square with a slightly heavier bottom edge, like a Mac key. It's a picture of a key, not a button, so the pill-or-circle rule doesn't apply.
 
 ## Rough edges
-- On a phone the text runs right up to the left edge of the screen, with no margin.
 - The old `intro.css` values weren't carried over; this has fresh defaults. Paste your old numbers into the `:host` block if you liked them better.

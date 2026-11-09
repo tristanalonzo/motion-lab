@@ -12,6 +12,7 @@
 :host {
   display: grid;                   /* whatever's inside is centered, both ways, by default */
   place-items: center;
+  padding: var(--stage-gutter);    /* from site/site.css: keeps content off the screen's edges. The background still fills the whole box */
   background: var(--page-bg);      /* from site/site.css. Paint over it for a different background */
 }
 

@@ -108,7 +108,8 @@ Every experiment folder has exactly these five files:
   folder, as usual.
 - **`style.css`** — starts with the `:host` tunables block. It's sealed inside
   the experiment's box automatically, so plain selectors like `.btn` are fine.
-  Content is centered by default; `:host` can change that or paint its own
+  Content is centered by default, kept 24px in from the edges
+  (`--stage-gutter`); `:host` can change that or paint its own
   background.
 - **`script.js`** — exports one function:
 

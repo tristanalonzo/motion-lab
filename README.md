@@ -42,6 +42,7 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - **150ms rest before loading.** Scrolling fast past 20 items loads none of them. It's shorter than the list's 450ms slide, so the experiment arrives while the list is still landing.
 - **"loading" waits 400ms.** Most loads are instant; a word that flashes for 50ms reads as a glitch.
 - **Neighbours preload, but don't run.** Their files are fetched so stepping to them is instant. Running them early would start their animations off screen.
+- **Every box keeps 24px clear inside its edges** (`--stage-gutter`). Without it, anything wider than a phone screen ran right up to the edge (000's text did). 24 is the title's inset, so on a phone text lines up under the title. It's padding, so an experiment's background still fills the whole box, and `padding: 0` on `:host` turns it off.
 
 **Rough edges**
 - Leaving and coming back always starts the experiment fresh. Nothing is remembered between visits.
