@@ -86,7 +86,9 @@ Instagram's flash only shows when it fires, LinkedIn's dot is smaller.
 **Done 2026-11-10:** the esc cap for the cursor tuning panel. It sits in the
 panel's top right while it's pinned open, and sinks when Esc closes it.
 
-**Next:** not picked yet. Candidates: rewrite 000's intro text (yours).
+**Done 2026-11-10:** 000's text, picked from two drafts.
+
+**Next:** not picked yet.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -244,7 +246,8 @@ the same — plain is probably right for it.
 - [x] **000 tristan's motion lab.** A first entry in the list, before 001. Explains what
       this whole thing is: what tristan's motion lab is.
   - Decided: it's `000-intro/`, an experiment like any other. No # in the address opens it.
-  - Still to do: the text is a placeholder draft. Rewrite it in your own words.
+  - Done 2026-11-10: the text. "buttons that do a little too much." and "a motion
+    designer learning to code, one small interaction at a time."
 
 ## Top right
 
