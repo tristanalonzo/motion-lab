@@ -42,6 +42,15 @@
   --tuning-reset-bg: #EBEBEF;      /* the reset button, resting */
   --tuning-reset-bg-hover: #DCDCE1; /* the reset button, hovered */
 
+  /* --- the esc cap, top right, while it's pinned open --- */
+  /* Its size comes from the about panel's esc cap (--about-esc-* in about.css)
+     and its outline and press from the corner caps (hints.css), so every esc
+     on the site looks and sinks the same. These are only its own. */
+  --tuning-esc-travel: 8px;        /* where it slides in from: this far right */
+  --tuning-esc-wait: 120ms;        /* waits for the window to open first, so it reads as its own little event */
+  --tuning-esc-in: 180ms;          /* sliding in. Same as the about panel's */
+  --tuning-esc-in-ease: cubic-bezier(0.22, 1, 0.36, 1); /* fast start, soft landing */
+
   /* --- the sliders --- */
   --tuning-track-height: 4px;      /* the thin line. Apple's are 4 to 6 */
   --tuning-track: #E5E5EA;         /* the part right of the handle */
@@ -175,10 +184,66 @@
     visibility 0s var(--tuning-out);
 }
 
+/* The top row: "cursor" on the left, the esc cap on the right. The cap takes
+   up its space even while hidden, so the row never changes height. */
+.tuning-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .tuning-title {
   margin: 0;
   font-size: var(--tuning-title-size);
   font-weight: 600;
+}
+
+
+/* ---------- the esc cap ---------- */
+
+/* Hidden, a little to the right and see-through. The going-away settings live
+   here: a transition uses the settings of the state it's going TO. There's
+   none, because it goes with the window as the window fades. */
+.tuning-esc {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--about-esc-width);
+  height: var(--about-esc-height);
+  border: 1px solid var(--hints-edge);
+  border-radius: var(--about-esc-radius);
+  box-shadow: 0 var(--hints-edge-height) 0 var(--hints-edge);
+  font-size: var(--about-esc-text);
+  line-height: 1;
+  color: var(--hints-color);
+  opacity: 0;
+  transform: translateX(var(--tuning-esc-travel));
+}
+
+/* Pinned: slides in once the window is open. */
+.tuning[data-state="pinned"] .tuning-esc {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity var(--tuning-esc-in) ease var(--tuning-esc-wait),
+    transform var(--tuning-esc-in) var(--tuning-esc-in-ease) var(--tuning-esc-wait);
+}
+
+/* Esc was just pressed (tuning.js). Sunk by its own bottom edge, the same way
+   the corner caps go down, while the window fades out around it. */
+.tuning .tuning-esc[data-state="pressed"] {
+  opacity: 1;
+  transform: translateY(var(--hints-edge-height));
+  box-shadow: 0 0 0 var(--hints-edge);
+  color: var(--hints-color-pressed);
+  border-color: var(--hints-color-pressed);
+  background: var(--hints-fill-pressed);
+  transition:
+    transform var(--hints-press-in) var(--hints-press-in-ease),
+    box-shadow var(--hints-press-in) var(--hints-press-in-ease),
+    color var(--hints-press-in) ease,
+    border-color var(--hints-press-in) ease,
+    background-color var(--hints-press-in) ease;
 }
 
 /* One slider: the name on the left and its value on the right, then the
@@ -343,8 +408,17 @@
   .tuning-reset,
   .tuning-trigger,
   .tuning-trigger-knob,
-  .tuning-slider::-moz-range-thumb {
+  .tuning-slider::-moz-range-thumb,
+  .tuning[data-state="pinned"] .tuning-esc,
+  .tuning .tuning-esc[data-state="pressed"] {
     transition: none;
+  }
+
+  /* The esc cap appears where it stands: no slide, no dip. It still fills in
+     when pressed, because that's the information. */
+  .tuning-esc,
+  .tuning .tuning-esc[data-state="pressed"] {
+    transform: none;
   }
 
   .tuning-slider::-webkit-slider-thumb {

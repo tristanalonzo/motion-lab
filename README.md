@@ -242,7 +242,6 @@ What goes in each file: AGENTS.md, "The experiment contract".
 - No way to resize it. Long notes scroll inside a fixed-height window.
 - Opening it from the keyboard moves focus into the notes. The close X comes before the notes, so Tab goes on out of the window to the corner links and only Shift+Tab reaches the X (and its esc cap).
 - The esc cap's press is mostly felt, not seen. Esc closes the window straight away, so the sunk cap only shows during the 160ms fade-out. Slowing the close to show it off would make Esc feel sluggish, which is worse.
-- The cursor tuning panel also closes on Esc and doesn't say so. It has no close X to hang the cap on.
 - The text is unstyled beyond `<p>`, `<h3>`, `<ul>` and links. An `about.html` that uses anything else gets browser defaults.
 
 ## Shared: the corner links
@@ -414,6 +413,8 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 | closed / peek | pinned (click or C) | same | same | the circle's grey gets a step darker |
 | peek | closed (mouse left) | waits 300ms, then 140ms | `ease` | shrinks back toward the circle and fades out |
 | pinned | closed (click, C or Escape) | 140ms | `ease` | the same, with no wait |
+| esc cap hidden | pinned | 120ms wait, then 180ms | `cubic-bezier(0.22, 1, 0.36, 1)` | a small `esc` keycap in the top right fades in and slides 8px left, once the window has opened |
+| pinned | closed by Escape | 70ms, then the 140ms close | `ease-out` | the esc cap sinks 2px and fills in, like the corner caps; the window fades out around it |
 | circle resting | hovered or open | 300ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the two little knobs in the icon slide toward each other's ends, and it darkens on a grey circle |
 | slider handle resting | held | 250ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | the white handle swells to 1.2×, a touch past, then settles |
 | slider moved | new spring numbers | instant | — | the spring reads them on its next frame, so the very next mouse move feels different |
@@ -434,6 +435,11 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **Opened from the keyboard, it takes the keyboard.** C, or Enter on the circle, puts the arrow keys on the first slider instead of the list. A mouse click leaves the keyboard where it was. Closing hands it back.
 - **Under 900px wide the circle goes.** The list's strip takes the bottom of the screen there, and a phone has no cursor to tune. C still opens the panel, at the top middle.
 - **Plain, not glass.** Glass barely shows on this flat page, and the numbers have to be easy to read.
+- **The esc cap shows only while pinned.** That's the one state you need a key to get out of: a peek closes itself when the mouse leaves. The about panel shows its cap on hovering the X, but this panel has no X, and adding one just to hang a cap on would be a second close button. Pinning it is the thing you did, so that's when it appears.
+- **Top right, in the title row.** Across from "cursor", where a window's controls usually sit. It takes its space even while hidden, so the row never jumps.
+- **The same key as the about panel's.** Its size comes from `--about-esc-*` and its outline and press from hints.css, so every esc on the site looks and sinks the same.
+- **It waits 120ms.** Sliding in while the window is still growing, it would get lost in the bigger move. After, it reads as its own small thing.
+- **It resets once the window has faded.** Otherwise it would still be sunk on the next open, and show up already there instead of sliding in.
 
 **Rough edges**
 - The readouts are close, not exact. Measured against the real cursor: 33ms for a 30ms slider, 57ms for 53ms, 105ms for 100ms, and 91ms for 100ms at 20% overshoot. Overshoot came in up to about 1 point lower than it says at low values: 5.6% for 7%.

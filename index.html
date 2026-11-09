@@ -237,7 +237,14 @@
     </svg>
   </button>
   <section class="tuning" id="tuning" data-state="closed" aria-label="cursor tuning">
-    <p class="tuning-title">cursor</p>
+    <!-- The esc cap says Esc closes it. Shown while the panel is pinned open,
+         the one state a key is needed to shut it (a peek closes itself when
+         the mouse leaves), and it sinks when Esc is pressed
+         (site/tuning.css). A picture, not a control. -->
+    <div class="tuning-head">
+      <p class="tuning-title">cursor</p>
+      <span class="tuning-esc" data-state="idle" aria-hidden="true">esc</span>
+    </div>
     <label class="tuning-row">
       <span>follow delay</span>
       <output class="tuning-value tuning-delay-value"></output>

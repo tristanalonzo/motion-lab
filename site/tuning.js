@@ -3,7 +3,9 @@
 //   hover the circle   it peeks open, and closes again a moment after the
 //                      mouse leaves both the circle and the panel
 //   click the circle   it stays open until you click again (or press C or
-//                      Escape), so you can go and fling the about panel around
+//                      Escape), so you can go and fling the about panel around.
+//                      An esc cap in its top right says so, and sinks when
+//                      Escape closes it
 //   C                  the same as a click
 //
 // The spring has two numbers, stiffness and damping, and neither says what you
@@ -27,6 +29,7 @@ const delayValue = panel.querySelector(".tuning-delay-value");
 const overshootValue = panel.querySelector(".tuning-overshoot-value");
 const numbers = panel.querySelector(".tuning-numbers");
 const resetButton = panel.querySelector(".tuning-reset");
+const escCap = panel.querySelector(".tuning-esc");
 
 const page = document.documentElement;
 
@@ -129,6 +132,7 @@ function show(state) {
   clearTimeout(closeTimer);
   panel.dataset.state = state;
   trigger.dataset.state = state;
+  if (state !== "closed") escCap.dataset.state = "idle"; // opening again: the cap comes back up
   trigger.setAttribute("aria-expanded", state !== "closed");
 }
 
@@ -191,6 +195,9 @@ function onKey(e) {
   if (e.defaultPrevented || e.repeat) return; // an experiment used it, or the key is being held
 
   if (e.key === "Escape") {
+    // The esc cap only shows while pinned, so only then does it sink. The
+    // window then fades out around the key that closed it.
+    if (panel.dataset.state === "pinned") escCap.dataset.state = "pressed";
     close();
     return;
   }
@@ -228,6 +235,16 @@ export function startTuning() {
     element.addEventListener("pointerleave", onLeave);
   }
   panel.addEventListener("pointerdown", () => { holding = true; });
+
+  // Once the window has faded out, bring the esc cap back up while nobody can
+  // see it, so the next open slides it in fresh instead of showing it already
+  // there. show() does the same as a backup: with reduced motion nothing
+  // fades, so this never fires.
+  panel.addEventListener("transitionend", (e) => {
+    if (e.target === panel && e.propertyName === "opacity" && panel.dataset.state === "closed") {
+      escCap.dataset.state = "idle";
+    }
+  });
   window.addEventListener("pointerup", onRelease);
 
   placeSliders();

@@ -83,8 +83,10 @@ you press Esc. Tab isn't shown anywhere: the focus ring is its readout.
 **Done 2026-11-08:** simpler corner icons. X is two lines with a break,
 Instagram's flash only shows when it fires, LinkedIn's dot is smaller.
 
-**Next:** not picked yet. Candidates: rewrite 000's intro text (yours), the esc
-cap for the cursor tuning panel.
+**Done 2026-11-10:** the esc cap for the cursor tuning panel. It sits in the
+panel's top right while it's pinned open, and sinks when Esc closes it.
+
+**Next:** not picked yet. Candidates: rewrite 000's intro text (yours).
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
@@ -204,8 +206,8 @@ the same — plain is probably right for it.
     out beside the about panel's X when you hover or Tab onto it. Not in this
     corner: here it would advertise a key that does nothing most of the time.
     `tab` isn't shown: people who use it know it, and the focus ring is its
-    readout. Left over: the cursor tuning panel closes on Esc too and has no X
-    to put the cap on.
+    readout. Done 2026-11-10: the cursor tuning panel has one too, in its
+    top right while it's pinned open (it has no X to put it beside).
   - Open: an experiment with keys of its own
     still can't add a cap — a new rule for every experiment, so a decision before
     it's a build.
