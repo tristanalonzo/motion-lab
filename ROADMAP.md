@@ -88,6 +88,10 @@ panel's top right while it's pinned open, and sinks when Esc closes it.
 
 **Done 2026-11-10:** 000's text, picked from two drafts.
 
+**Fixed 2026-11-20:** a broken experiment no longer stays broken until you
+refresh. Fix the file, step away and back, and it loads. stage.js forgets the
+files of anything that fails.
+
 **Next:** not picked yet.
 
 **Still undecided:** the lab dashboard's categories, and what each hover

@@ -99,6 +99,7 @@ async function enter(experiment, neighbours, myTicket) {
     say("");
     mount(box, files.module, experiment);
   } catch (error) {
+    forget(experiment);
     if (myTicket !== ticket) return;
     clearTimeout(loadingTimer);
     say(`${experiment.number} didn’t load. The browser console says why.`);
@@ -109,16 +110,27 @@ async function enter(experiment, neighbours, myTicket) {
   // Get the neighbours' files ready, so stepping to them is instant.
   // Only their files: they don't run until they're actually selected.
   for (const neighbour of neighbours) {
-    if (neighbour?.folder) load(neighbour).catch(() => {}); // a broken neighbour can complain when it's selected
+    // A broken neighbour can complain when it's selected.
+    if (neighbour?.folder) load(neighbour).catch(() => forget(neighbour));
   }
 }
 
 // Fetch an experiment's three files. Safe to call twice: everything is
-// remembered, so the second call is instant.
+// remembered, so the second call is instant. Failures aren't (see forget()):
+// fix the file, step away and back, and it gets a real second try.
 const markupCache = new Map(); // folder address -> the fetch of its markup.html
+const failures = new Map();    // folder address -> how many times it failed to load
 
 function load(experiment) {
-  const folder = new URL(`../${experiment.folder}/`, import.meta.url);
+  const folder = folderOf(experiment);
+
+  // The browser remembers a script.js that failed too (a typo, say), and hands
+  // back the same error for that address forever. So after a failure, ask for
+  // it under a new address: script.js?retry=1, then ?retry=2. Same file, but
+  // the browser treats it as one it has never seen.
+  const retries = failures.get(folder.href) ?? 0;
+  const script = new URL("script.js", folder);
+  if (retries) script.search = `retry=${retries}`;
 
   // Remember the fetch itself (not just its result), so a preload that's
   // still running and a real load share one request.
@@ -133,10 +145,22 @@ function load(experiment) {
     markupCache.get(folder.href),
     // import() loads a JavaScript file and gives back what it exports.
     // The browser remembers it: importing the same file again is instant.
-    import(new URL("script.js", folder).href),
+    import(script.href),
     // Only to get the CSS into the browser's cache early. The box links it for real.
     fetch(new URL("style.css", folder)),
   ]).then(([markup, module]) => ({ folder, markup, module }));
+}
+
+// It broke somewhere (a file missing, a typo, mount() throwing): forget its
+// files, so the next try fetches them all fresh instead of the broken copies.
+function forget(experiment) {
+  const folder = folderOf(experiment);
+  markupCache.delete(folder.href);
+  failures.set(folder.href, (failures.get(folder.href) ?? 0) + 1);
+}
+
+function folderOf(experiment) {
+  return new URL(`../${experiment.folder}/`, import.meta.url);
 }
 
 // Make the sealed box, fill it, and wait for its CSS.
