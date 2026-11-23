@@ -5,7 +5,7 @@ done on its own, then ticked off here.
 
 Open questions are things to decide before (or while) building that item.
 
-## Pick up here (left off 2026-10-27)
+## Pick up here (left off 2026-11-20)
 
 **Start:** `git pull`, then `py serve.py` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
@@ -36,6 +36,21 @@ Instagram, X, email, grey, each with its own hover.
 white window with notes on the open experiment, dragged by its title bar. The
 text lives in an `about.html` in each experiment's folder, so every experiment
 now has five files, not four (AGENTS.md's contract says what goes in it).
+
+**Learned 2026-10-27:** the about panel is glass (`backdrop-filter`), so the
+glass-or-plain question for the keyboard hints now has a working example to
+look at. What it taught: on a flat background glass is nearly invisible, and
+anything under 80% white lets text behind show through and fight the text in
+front. The hints pop-up follows the cursor over the same flat page, so expect
+the same — plain is probably right for it.
+
+**Done 2026-10-29:** the list's slide-in now starts on the row you arrived on
+and spreads out from it, so a link straight to #005 lands that row first
+instead of last. And the keyboard readout: two keycaps in the bottom left that
+press themselves as you step through the list. That last one was built as a
+pop-up listing the commands first, didn't feel right, and was reworked the same
+day into a readout — the notes on why are under "Bottom left — keyboard
+readout".
 
 **Done 2026-11-01:** the reset button. It lights up once the experiment looks
 different from how it started, and reloads it fresh. Experiments don't do
@@ -96,21 +111,6 @@ files of anything that fails.
 
 **Still undecided:** the lab dashboard's categories, and what each hover
 animation should be.
-
-**Done 2026-10-29:** the list's slide-in now starts on the row you arrived on
-and spreads out from it, so a link straight to #005 lands that row first
-instead of last. And the keyboard readout: two keycaps in the bottom left, with a
-keycaps in the bottom left that press themselves as you step through the list.
-That last one was built as a pop-up listing the commands first, didn't feel
-right, and was reworked the same day into a readout — the notes on why are
-under "Bottom left — keyboard readout".
-
-**Learned 2026-10-27:** the about panel is glass (`backdrop-filter`), so the
-glass-or-plain question for the keyboard hints now has a working example to
-look at. What it taught: on a flat background glass is nearly invisible, and
-anything under 80% white lets text behind show through and fight the text in
-front. The hints pop-up follows the cursor over the same flat page, so expect
-the same — plain is probably right for it.
 
 ---
 
