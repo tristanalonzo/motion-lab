@@ -31,9 +31,14 @@ function readSetting(name) {
 
 const releaseTimers = new Map();
 let wordTimer = null;
+let demoTimer = null;
 
 export function startHints() {
   window.addEventListener("lab:step", (e) => {
+    // The visitor found the keys on their own, so the demo has nothing left to
+    // teach. Letting it fire would release their cap and swap their word.
+    clearTimeout(demoTimer);
+
     const goingUp = e.detail.direction < 0;
     press(goingUp ? up : down);
 
@@ -50,7 +55,7 @@ export function startHints() {
   // Skipped when the visitor has asked for less movement: to them it would be
   // a cap changing colour for no reason they can see.
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    setTimeout(() => {
+    demoTimer = setTimeout(() => {
       press(down);
       showWord("next");
     }, readSetting("--hints-demo-wait"));

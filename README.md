@@ -350,6 +350,7 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 
 **Rough edges**
 - It only reports the list. `esc` moved to the about panel's X instead (see "the about panel"), and `tab` isn't shown at all: the focus ring is its readout.
+- Someone who steps before 1400ms never sees the demo: their first step cancels it, so it can't release their cap or replace their word.
 - Someone who never presses anything sees one demo press and nothing else, ever. The teaching depends on them trying something first.
 - The demo press is on its own timer (1400ms), not tied to the list actually finishing. Slow down `--nav-in-stagger` or add a lot of experiments and it can fire while the rows are still arriving.
 - Nothing in the corner says the wheel does this too — you only find that out by scrolling and happening to look down there.
