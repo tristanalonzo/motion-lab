@@ -371,6 +371,8 @@ Every link has its own hover move (the rule is in ROADMAP.md, "Bottom right"). T
 | circle / hand | away | ~0.4s spring + 500ms | spring + `cubic-bezier(0.22, 1, 0.36, 1)` | circle flies back beside the title (mouse leaves window); title slides 38px right to make room |
 | circle | hand | 80ms wait + 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs circle → hand (slight overshoot), fingertip on the mouse tip |
 | hand | circle | 260ms | `cubic-bezier(0.3, 1.3, 0.5, 1)` | outline morphs hand → circle |
+| hand | hand, pressed (left button down) | 80ms | `ease-out` | the hand shrinks to 0.84 toward the fingertip |
+| hand, pressed | hand (button up) | 360ms | `cubic-bezier(0.3, 2.2, 0.5, 1)` | grows back, pops a touch past full size, settles |
 | circle / hand | hidden / native | 150ms | `ease` | fades out because an experiment asked |
 | — | — | ~53ms behind | spring (stiffness 600, damping 32) | follows the mouse; overshoots ~15px after a fast flick, settles in ~0.4s |
 
@@ -391,6 +393,10 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **28px circle.** Big enough to read as a shape, small enough that you can still aim with it.
 - **The morph works because both shapes are built from the same 13 curves.** The circle's 13 points are spaced in proportion to how far apart they are on the hand, so each point slides straight to its partner with no twisting.
 - **The hand has no corners at all.** Every point where two curves meet shares one direction, so the outline never kinks. It's 28px tall, the same as the circle.
+- **The hand squishes when you press, the circle doesn't.** The squish says "you pushed something". Over empty space there's nothing to push.
+- **80ms down, 360ms back up.** The same split as 001's button: down feels like it's under your finger, up is the part you watch. 80ms is also short enough that a quick click still shows.
+- **0.84, much deeper than 001's 0.96.** The hand is tiny, so 4% of it is about 1px and you'd never see it.
+- **It shrinks toward the fingertip.** The tip stays exactly where you're aiming.
 - **80ms wait before the hand, none before the circle.** Skimming across a row of links doesn't flicker hand-circle-hand, and the hand feels like it answers your pause instead of firing the instant you touch an edge. Going back has no wait, so it never feels stuck as a hand.
 - **Fingertip on the mouse, not the hand's center.** You aim with the tip of your finger.
 - **SVG path, not `clip-path`.** `clip-path` left a faint hairline on screens scaled to 125%/150%/175%.
@@ -398,6 +404,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - **The system arrow is only hidden after the first mouse move.** Before that the browser hasn't said where the mouse is, so ours can't be drawn; hiding the arrow earlier would leave no cursor at all. If the script breaks, you keep the normal arrow too.
 
 **Rough edges**
+- Only a real mouse button squishes the hand. Pressing Enter or Space on a focused button doesn't.
 - After a refresh or opening a link, you see the system arrow until the first mouse move, then ours flies over from the title. Browsers don't say where the mouse is until it moves, so for that moment there are two cursors.
 - Going home, the spring overshoots past the parking spot, so half the circle pokes off the left edge of the screen for a split second.
 - "Away" only means the mouse left the browser window. Switching apps with Alt+Tab while the mouse is over the page leaves the circle where it was.
@@ -463,6 +470,7 @@ Experiments ask for a shape with `data-cursor="hidden | native | circle | hand"`
 - Set `--tuning-hover-grace: 0` and try to get from the circle up into the panel. It snaps shut in the gap every time. That's what the wait is for.
 - Set `--cursor-damping: 10`. The circle turns to jelly. Then try `90`: no overshoot at all, just a sluggish drag.
 - Keep `--cursor-damping: 10`, open the about panel and fling it by its title bar. The window wobbles like jelly too, in step with the hand. That's the point of sharing one spring.
+- Set `--cursor-press-scale: 0.5` and click things. The hand looks like it's falling into the page. Then set `--cursor-release-ease: ease` and the little pop on the way up is gone.
 - Set `--cursor-morph-duration: 1200ms` and slowly hover on and off a button. You'll see the circle stretch into the palm and the thumb grow out of its side.
 - Set `--stage-settle: 0ms` and scroll fast through the list. Every experiment you pass loads and flashes in for a moment. That's why it waits.
 - Set `--cursor-morph-delay: 400ms` and hover a link. It feels broken, like the site didn't notice. Then `0ms` and sweep fast down the list: the hand flickers on every row.

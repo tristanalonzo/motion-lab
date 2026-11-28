@@ -26,7 +26,6 @@ The button is triggered by pointer (mouse, touch, pen) and by Space/Enter on the
 
 - The button doesn't do anything when clicked. That's fine for now; it's a press study.
 - Sliding your finger off cancels the press immediately. Real iOS gives you some slack before it lets go.
-- The cursor's hand doesn't react to the press. A small squish would sell it.
 
 ## Break it on purpose
 

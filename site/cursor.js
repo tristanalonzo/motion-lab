@@ -10,6 +10,7 @@
 //   hidden  an experiment asked for no cursor
 //   native  an experiment asked for the system cursor instead (e.g. a text box)
 // cursor.css does the drawing, the inverting and the circle-to-hand morph.
+// A second attribute, data-pressed, is there while the left button is held.
 // This file moves it: a spring pulls it toward the mouse every frame. The
 // spring itself is in spring.js, shared with anything else that should move
 // exactly like the cursor (the about panel, while you drag it).
@@ -39,6 +40,18 @@ export function startCursor() {
   spring.jumpTo(parkingSpot());
 
   window.addEventListener("pointermove", onPointerMove);
+
+  // The squish. "true" = hear it on the way in, before anything on the page can
+  // stop the event from travelling further.
+  window.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse" && e.button === 0) cursor.dataset.pressed = "";
+  }, true);
+  // Every way a press can end, so the hand never stays squished: let go, the
+  // browser takes over (dragging a link), or you switch windows mid-press.
+  const release = () => delete cursor.dataset.pressed;
+  window.addEventListener("pointerup", release, true);
+  window.addEventListener("pointercancel", release, true);
+  window.addEventListener("blur", release);
 
   // The mouse left the browser window. <html> fills the whole window, so it
   // only "leaves" when the mouse really leaves, never because an experiment

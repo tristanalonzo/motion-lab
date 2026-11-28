@@ -8,6 +8,10 @@
   --cursor-morph-delay: 80ms;      /* wait before turning into the hand. Skimming past a link doesn't flicker it. Back to the circle has no wait */
   --cursor-stiffness: 600;         /* how hard the circle is pulled toward the mouse. Higher = tighter, less delay */
   --cursor-damping: 32;            /* how fast the wobble dies. Lower = more overshoot, higher = no overshoot, just lag */
+  --cursor-press-scale: 0.84;      /* the hand's size while the mouse button is held. 1 = no squish, lower = deeper */
+  --cursor-press-duration: 80ms;   /* going down. Short, so even a quick click shows it */
+  --cursor-release-duration: 360ms; /* coming back up */
+  --cursor-release-ease: cubic-bezier(0.3, 2.2, 0.5, 1); /* the 2.2 pops it past full size, then it settles. 1 = no pop */
   --cursor-fade: 150ms;            /* fade in/out: an experiment hiding it or asking for the system cursor */
 
   /* --- parked: the mouse is off the page, so the circle waits beside the title --- */
@@ -53,15 +57,28 @@
 .cursor-shape {
   fill: #FFFFFF;                 /* must stay pure white for a true inversion */
   d: path("M 16.0 2.0 C 17.6 2.0, 19.1 2.3, 20.6 2.8 C 22.0 3.3, 23.3 4.0, 24.5 4.9 C 25.6 5.7, 26.6 6.7, 27.4 7.8 C 29.9 11.4, 30.7 16.0, 29.4 20.2 C 28.8 22.1, 27.8 23.9, 26.4 25.4 C 24.2 27.8, 21.2 29.4, 17.9 29.9 C 15.3 30.2, 12.7 29.8, 10.3 28.8 C 6.9 27.3, 4.3 24.5, 2.9 21.0 C 2.5 19.9, 2.2 18.8, 2.1 17.7 C 2.0 16.6, 2.0 15.6, 2.1 14.5 C 2.2 13.0, 2.7 11.5, 3.3 10.1 C 4.9 6.7, 7.8 4.0, 11.4 2.8 C 12.9 2.3, 14.4 2.0, 16.0 2.0 Z");
-  transition: d var(--cursor-morph-duration) var(--cursor-morph-ease);
+  transform-origin: 16px 16px;   /* the squish shrinks toward the fingertip, so the tip stays on the mouse */
+  /* two transitions: the morph (d), and the way back up from a squish (scale) */
+  transition:
+    d var(--cursor-morph-duration) var(--cursor-morph-ease),
+    scale var(--cursor-release-duration) var(--cursor-release-ease);
 }
 
 /* Over anything clickable: a pointing hand. Fingertip sits on the mouse tip.
    The delay is set here, on the hand, because a transition uses the settings
    of the state it's going TO: so only circle -> hand waits, not hand -> circle. */
 .cursor[data-state="hand"] .cursor-shape {
-  transition-delay: var(--cursor-morph-delay);
+  transition-delay: var(--cursor-morph-delay), 0ms; /* the morph waits; the squish never does */
   d: path("M 16.0 14.7 C 17.5 14.7, 18.7 15.9, 18.7 17.4 C 18.7 18.8, 18.7 19.9, 18.7 21.3 C 18.7 22.7, 19.6 23.6, 20.9 23.9 C 25.0 24.8, 29.2 26.9, 29.2 30.9 C 29.2 32.7, 29.2 34.5, 29.2 36.2 C 29.2 39.5, 28.1 42.8, 24.8 42.8 C 21.9 42.8, 20.0 43.0, 18.2 41.4 C 16.3 39.7, 12.7 36.5, 10.8 34.8 C 10.0 34.2, 9.3 33.1, 9.5 32.1 C 9.8 31.2, 10.3 30.2, 11.3 30.3 C 13.0 30.5, 13.3 29.3, 13.3 27.4 C 13.3 24.1, 13.3 20.7, 13.3 17.4 C 13.3 15.9, 14.5 14.7, 16.0 14.7 Z");
+}
+
+/* The mouse button is held down on something clickable: the hand squishes.
+   These timings are for going down; letting go uses the ones above. */
+.cursor[data-state="hand"][data-pressed] .cursor-shape {
+  scale: var(--cursor-press-scale);
+  transition:
+    d var(--cursor-morph-duration) var(--cursor-morph-ease),
+    scale var(--cursor-press-duration) ease-out;
 }
 
 /* hidden = an experiment asked for no cursor.

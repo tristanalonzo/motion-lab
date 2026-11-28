@@ -5,7 +5,7 @@ done on its own, then ticked off here.
 
 Open questions are things to decide before (or while) building that item.
 
-## Pick up here (left off 2026-11-20)
+## Pick up here (left off 2026-11-28)
 
 **Start:** `git pull`, then `py serve.py` in this folder, then open
 http://localhost:8000. (Or VS Code's Live Server, which reloads on save.)
@@ -106,6 +106,10 @@ panel's top right while it's pinned open, and sinks when Esc closes it.
 **Fixed 2026-11-20:** a broken experiment no longer stays broken until you
 refresh. Fix the file, step away and back, and it loads. stage.js forgets the
 files of anything that fails.
+
+**Done 2026-11-28:** the cursor's hand squishes while the mouse button is held.
+Tune it with the `--cursor-press-*` and `--cursor-release-*` lines in
+cursor.css.
 
 **Next:** not picked yet.
 
